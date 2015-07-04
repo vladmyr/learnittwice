@@ -1,14 +1,6 @@
 {
   "environments": ["development", "staging", "production"],
-  "connection": {
-    "server": {
-      "port": 8080
-    },
-    "api_server": 8081
-  },
-  "routes": {
-
+  "dir": {
+    "models": "./app/models"
   }
-  //"views" must be generated automatically with gulp task
-  //"views": {}
 }
