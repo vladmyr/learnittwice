@@ -10,23 +10,34 @@ var _ = require("underscore"),
 
 module.exports = function(config, options, callback){
   var app = {
-      environment: "development", //ToDO: dehardcode
+      environment: "development", //ToDo: dehardcode
       root_dir: __dirname,
       config: config,
       helpers: {
         utils: utils
       },
       db: {},
-      //ToDo: not sure if I need to pass modules
-      modules: {
-        _: _,
-        express: express()
-      },
       models: {}
     },
     tasks = [];
 
   tasks.push(function(callback){
     require("./init/DatabaseInitializer")(app, callback);
+  });
+
+  tasks.push(function(callback){
+    if(config.entryPoints) {
+      var expressApps = _.map(config.entryPoints, function(entryPoint){
+        var eApp = express();
+        _.extend(eApp, app);
+        eApp.set("port", entryPoint.port);
+        //eApp.loadController(entryPoint.controller, eApp);
+      });
+    }
+    callback();
+  });
+
+  async.series(tasks, function(err){
+    callback(null, app);
   });
 };

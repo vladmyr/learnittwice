@@ -1,3 +1,4 @@
-/**
- * Created by vladmyr on 31.05.15.
- */
+"use strict";
+
+var gulp = require("gulp");
+var browserSync = require("browser-sync").create();
