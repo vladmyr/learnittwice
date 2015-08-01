@@ -1,7 +1,7 @@
 "use strict";
 
-module.exports = function(sequelize, DataTypes){
-  var Word = sequelize.define("Word", {
+module.exports = function(define, DataTypes, app){
+  define("Word", {
     wordid: {
       type: DataTypes.INTEGER(10).UNSIGNED,
       primaryKey: true,
@@ -19,10 +19,11 @@ module.exports = function(sequelize, DataTypes){
     tableName: "words",
     timestamp: false,
     classMethods: {
-      associate: function(models){
-        Word.hasMany(models.Sense);
-      }
+
     }
   });
-  return Word;
-}
+
+  define.after(function(){
+
+  });
+};

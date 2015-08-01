@@ -1,4 +1,19 @@
 {
+  "database": {
+    "name": "learnittwice_wordnet",
+    "username": "root",
+    "password": "root",
+    "settings": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "dialect": "mysql",
+      "pool": {
+        "min": 0,
+        "max": 20,
+        "idle": 10000
+      }
+    }
+  },
   "connection": {
     "server": {
       "domain": "localhost",
@@ -7,21 +22,6 @@
     "api_server": {
       "domain": "localhost",
       "port": 8081
-    },
-    "database": {
-      "name": "learnittwice_wordnet",
-      "username": "root",
-      "password": "root",
-      "settings": {
-        "host": "127.0.0.1",
-        "port": 3306,
-        "dialect": "mysql",
-        "pool": {
-          "min": 0,
-          "max": 20,
-          "idle": 10000
-        }
-      }
     }
   }
 }

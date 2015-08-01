@@ -1,10 +1,11 @@
 {
   "environments": ["development", "staging", "production"],
   "dir": {
-    "models": "./app/models"
+    "base": "./app",
+    "models": "/models",
+    "controllers": "/controllers"
   },
   "entryPoints": [{
-    "controllerPath": "controllers/",
     "controllerName": "_default",
     "port": 4000
   }]

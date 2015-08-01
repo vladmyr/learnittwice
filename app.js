@@ -1,10 +1,9 @@
 "use strict";
 
-var config = require("config").getOriginalConfig();
+var config = require("config");
 var http = require("http");
 var httpServer = null;
 
-var app = require("./app", config, function(err, app){
-  httpServer = http.createServer()
-  app.modules.express
+var app = require("./app/index.js")(config, {}, function(err, app){
+  //httpServer = http.createServer()
 });
