@@ -14,7 +14,7 @@ var DatabaseInitializer = function(app, callback){
     app.config.database.password,
     app.config.database.settings);
 
-  app.helpers.utils.scanDirSync(modelDir, {
+  app.helpers.utils.fs.scanDirSync(modelDir, {
     includes: ["Word.js"]
   }, function(file){
     var filePath = path.join(modelDir, file);

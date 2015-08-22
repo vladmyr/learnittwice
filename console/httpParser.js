@@ -1,39 +1,30 @@
 "use strict";
 
-var http = require("http"),
-    https = require("https");
+module.exports = function(app, args, callback){
+  var httpParser = new require("../app/helpers/component/httpParser")(app, args).getInstance();
 
-https.get("https://uk.glosbe.com/pl/uk/przypomina%C4%87", function(res){
-  //console.log(res);
-  res.on('data', function (chunk) {
-    console.log('BODY: ' + chunk);
-  });
-}).on("error", function(e){
-  console.log("Error:", e.message);
-});
+  httpParser.Glosbe.generateUrlObject({
+    from: "en",
+    to: "pl",
+    word: "bird"
+  })
+    .then(httpParser.Glosbe.parseUrl)
+    .then(httpParser.Glosbe.extractTranslationItem)
+    .then(httpParser.Glosbe.downloadAudio)
+    .then(callback);
 
-//var options = {
-//  hostname: 'www.google.com',
-//  port: 80,
-//  path: '/',
-//  method: 'GET',
-//  headers: {
-//    //'Content-Type': 'text/plain',
-//    //'Content-Length': '0'
-//  }
-//};
-//
-//var req = http.request(options, function(res) {
-//  console.log('STATUS: ' + res.statusCode);
-//  console.log('HEADERS: ' + JSON.stringify(res.headers));
-//  res.setEncoding('utf8');
-//  res.on('data', function (chunk) {
-//    console.log('BODY: ' + chunk);
-//  });
-//});
-//
-//req.on('error', function(e) {
-//  console.log('problem with request: ' + e.message);
-//});
-//
-//req.end();
+  //httpParser.callP("Glosbe", "parseTranslationItem", {
+  //  from: "en",
+  //  to: "pl",
+  //  word: "bird"
+  //}).then(callback);
+
+  //httpParser.Glosbe.generateUrlObject({
+  //  from: "en",
+  //  to: "pl",
+  //  word: "bird"
+  //})
+  //  .then(httpParser.Glosbe.parseTranslationItem)
+  //  .then(httpParser.Glosbe.saveTranslationItemAudio)
+  //  .then(callback);
+};

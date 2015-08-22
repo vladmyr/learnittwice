@@ -1,0 +1,185 @@
+"use strict";
+
+var _ = require("underscore");
+var Promise = require("bluebird");
+var stream = require("stream");
+var cheerio = require("cheerio");
+var url = require("url");
+var path = require("path");
+
+/**
+ * Parse data from glosbe website: https://glosbe.com/
+ * @returns {{getInstance: Function}}
+ */
+var Glosbe = function(app, args){
+  var instance;
+
+  /**
+   * @contructor
+   * @returns {{getProtocol: Function, getDomain: Function, getLangs: Function, action: {parsePage: Function}}}
+   */
+  var init = function(){
+    var PROTOCOL = "https";
+    var HOSTNAME = "glosbe.com";
+    var LANGS = {
+      UKRAINIAN: "uk",
+      POLISH: "pl",
+      ENGLISH: "en"
+    };
+
+    var generateUrlObject = function(replacement){
+      var urlTranslatePathname = "/:from/:to/:word";
+      var urlAudioPathname = ":audio";
+      var urlObject = null;
+
+      if(replacement){
+        if(replacement.from && replacement.to && replacement.word) {
+          urlObject = {
+            slashes: true,
+            protocol: PROTOCOL,
+            hostname: HOSTNAME,
+            pathname: urlTranslatePathname
+              .replace(":from", replacement.from)
+              .replace(":to", replacement.to)
+              .replace(":word", replacement.word)
+          };
+        }else if(replacement.audio){
+          urlObject = {
+            slashes: true,
+            protocol: PROTOCOL,
+            hostname: HOSTNAME,
+            pathname: urlAudioPathname
+              .replace(":audio", replacement.audio)
+          };
+        }
+      }
+
+      return Promise.props(urlObject);
+    };
+
+    /**
+     * Parse page by given address
+     * @param urlAddress
+     * @returns {bluebird}
+     */
+    var parseUrl = function(urlAddress){
+      return new Promise(function(fulfill, reject){
+        var writable = new stream.Writable();
+        var data;
+
+        writable._write = function(chunk, enc, callback){
+          !data ? (data = chunk.toString()) : (data += chunk.toString());
+          callback();
+        };
+
+        writable.on("finish", function(){
+          fulfill(cheerio.load(data));
+        });
+        writable.on("error", function(err){
+          console.log("err: ", err);
+          reject(err);
+        });
+
+        app.helpers.utils.net.pipe(urlAddress, writable);
+      });
+    };
+
+    /**
+     * Extract translation items from parsed page
+     * @param $doc  - parsed url page
+     * @returns {Array}
+     */
+    var extractTranslationItem = function($doc){
+      var $el = $doc("[data-translation-id]");
+      var translationItems = [];
+
+      _.each($el, function($item){
+        var language;
+        var word;
+
+        //parse language
+        if($item
+          && $item.children
+          && $item.children[1]
+          && $item.children[1].attribs
+          && $item.children[1].attribs.lang){
+          language = $item.children[1].attribs.lang;
+        }
+
+        //parse word
+        if($item
+          && $item.children
+          && $item.children[1]
+          && $item.children[1].children
+          && $item.children[1].children[0]
+          && $item.children[1].children[0].children
+          && $item.children[1].children[0].children[0]
+          && $item.children[1].children[0].children[0].data){
+          word = $item.children[1].children[0].children[0].data
+        }
+
+        if(language && word){
+          var item = {
+            language: $item.children[1].attribs.lang,
+            word: $item.children[1].children[0].children[0].data,
+            audio: []
+          };
+
+          //parse audio file
+          _.each($item.children[1].children, function($span){
+            if($span.name === "span"){
+              if($span.children
+                && $span.children[0]
+                && $span.children[0].attribs
+                && $span.children[0].attribs["data-url-mp3"]){
+                item.audio.push($span.children[0].attribs["data-url-mp3"]);
+              }
+            }
+          });
+
+          translationItems.push(item);
+        }
+      });
+
+      return translationItems;
+    };
+
+    var downloadAudio = function(translationItems){
+      var promise = Promise.resolve();
+
+      _.each(translationItems, function(item){
+        //ToDo: dehardcode save directory
+        var dir = path.join(app.root_dir, "/public/audio/glosbe", item.language);
+
+        _.each(item.audio, function(audio){
+          promise = generateUrlObject({
+            audio: audio
+          }).then(function(urlAddress){
+            return app.helpers.utils.net.pipeIntoFile(urlAddress, path.join(dir, path.basename(audio)));
+          })
+        });
+      });
+
+      return promise;
+    };
+
+    return {
+      generateUrlObject: generateUrlObject,
+      getLanguages: function(){
+        return LANGS;
+      },
+      parseUrl: parseUrl,
+      extractTranslationItem: extractTranslationItem,
+      downloadAudio: downloadAudio
+    }
+  };
+
+  return {
+    getInstance: function(){
+      !instance && (instance = init());
+      return instance;
+    }
+  }
+};
+
+module.exports = Glosbe;
