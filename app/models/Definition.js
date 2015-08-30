@@ -1,28 +1,30 @@
 "use strict";
 
-module.exports = function(sequelize, DataTypes){
-  var Definition = sequelize.define("Definition", {
-    definitionid: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    langid: {
-      type: DataTypes.INTEGER(5).UNSIGNED,
-      allowNull: false
-    },
+module.exports = function(define, DataTypes, app){
+  define("Definition", {
     definition: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    priority: {
+      type: DataTypes.INTEGER().UNSIGNED,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
-    tableName: "definitions",
+    tableName: "definition",
     timestamp: false,
     classMethods: {
-      associate: function(models){
-        Definition.belongsTo(models.Synset, { foreignKey: "synsetid" });
-      }
+      //associate: function(models){
+      //  Definition.belongsTo(models.Synset, { foreignKey: "synsetid" });
+      //}
+    },
+    instanceMethods: {
+
     }
   });
-  return Definition;
-}
+
+  define.after(function(){
+
+  });
+};

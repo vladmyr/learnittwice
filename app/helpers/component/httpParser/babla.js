@@ -1,4 +1,3 @@
-//Stability - 0
 "use strict";
 
 var LANGUAGES = require("../../../domain/languages");
@@ -11,10 +10,10 @@ var url = require("url");
 var path = require("path");
 
 /**
- * Parse data from glosbe website: https://glosbe.com/
+ * Parse data from babla website: https://bab.la/
  * @returns {{getInstance: Function}}
  */
-var Glosbe = function(app, args){
+var Babla = function(app, args){
   var instance;
 
   /**
@@ -22,25 +21,22 @@ var Glosbe = function(app, args){
    * @returns {{getProtocol: Function, getDomain: Function, getLangs: Function, action: {parsePage: Function}}}
    */
   var init = function(){
-    var PROTOCOL = "https";
-    var HOSTNAME = "glosbe.com";
+    var PROTOCOL = "http";
+    var HOSTNAME = "pl.bab.la";
     var LANGS = {
       url: {
-        uk: "uk",
-        pl: "pl",
-        en: "en"
+        pl: "polski",
+        en: "angielski"
       },
       normalized: {
-        uk: LANGUAGES.UKRAINIAN,
-        pl: LANGUAGES.POLISH,
-        en: LANGUAGES.ENGLISH
+        polski: LANGUAGES.POLISH,
+        angielski: LANGUAGES.ENGLISH
       }
     };
     var downloadDir = path.join(app.root_dir, (args.downloadDir || "/public/audio/glosbe"));
 
     var generateUrlObject = function(replacement){
-      var urlTranslatePathname = "/:from/:to/:word";
-      var urlAudioPathname = ":audio";
+      var urlTranslatePathname = "/slownik/:from-:to/:word";
       var urlObject = null;
 
       if(replacement){
@@ -56,14 +52,6 @@ var Glosbe = function(app, args){
               .replace(":from", from)
               .replace(":to", to)
               .replace(":word", replacement.word)
-          };
-        }else if(replacement.audio){
-          urlObject = {
-            slashes: true,
-            protocol: PROTOCOL,
-            hostname: HOSTNAME,
-            pathname: urlAudioPathname
-              .replace(":audio", replacement.audio)
           };
         }
       }
@@ -104,10 +92,11 @@ var Glosbe = function(app, args){
      * @returns {Array}
      */
     var extractTranslationItem = function($doc){
-      var $el = $doc("[data-translation-id]");
+      var $elAudio = $doc("audio");
+      var $elTranslations = $doc(".result-right");
       var translationItems = [];
 
-      _.each($el, function($item){
+      _.each($elTranslations, function($item){
         var language;
         var word;
 
@@ -117,8 +106,7 @@ var Glosbe = function(app, args){
           && $item.children[1]
           && $item.children[1].attribs
           && $item.children[1].attribs.lang){
-          //normalise language
-          language = LANGS.normalized[[$item.children[1].attribs.lang]];
+          language = $item.children[1].attribs.lang;
         }
 
         //parse word
@@ -197,4 +185,4 @@ var Glosbe = function(app, args){
   }
 };
 
-module.exports = Glosbe;
+module.exports = Babla;

@@ -1,14 +1,15 @@
 "use strict";
 
 module.exports = function(define, DataTypes, app){
-  define("Word", {
-    wordid: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
-      primaryKey: true,
-      autoIncrement: true
-    },
+  define("Lemma", {
     lemma: {
-      type: DataTypes.STRING(80)
+      type: DataTypes.STRING(80),
+      allowNull: false
+    },
+    legacy: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     },
     count: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -16,9 +17,12 @@ module.exports = function(define, DataTypes, app){
       defaultValue: 0
     }
   }, {
-    tableName: "words",
+    tableName: "lemma",
     timestamp: false,
     classMethods: {
+
+    },
+    instanceMethods: {
 
     }
   });

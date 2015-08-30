@@ -7,17 +7,10 @@ var url = require("url");
 var stream = require("stream");
 var http = require("http");
 var https = require("https");
+var _ = require("underscore");
+var slug = require("slug");
 
 var utils = {};
-
-/**
- * Check if specified object is not undefined
- * @param obj
- * @return {Boolean} result
- */
-utils.isDefined = function(obj){
-
-};
 
 /**
  * Extends fs module
@@ -88,6 +81,21 @@ utils.fs = {
         }
       });
     });
+  },
+  /**
+   * Create dir
+   * @param filepath
+   */
+  mkdir: function(dir){
+    return new Promise(function(fulfill, reject){
+      fs.mkdir(dir, function(err){
+        if(!err || err.code === "EEXIST"){
+          return fulfill();
+        }else{
+          return reject();
+        }
+      });
+    });
   }
 };
 
@@ -117,15 +125,9 @@ utils.net = {
    * Pipe data from internet into local file
    * @param urlAddress
    * @param filename
-   * @param options
    */
-  pipeIntoFile: function(urlAddress, filename, options){
-    var self;
+  pipeIntoFile: function(urlAddress, filename){
     var promise = Promise.resolve();
-
-    //if(options.uniqFilename){
-    //  promise = promise.then(self.fs.generateUniqFilename);
-    //}
 
     return promise.then(function(){
       return new Promise(function(fulfill, reject){
@@ -141,6 +143,47 @@ utils.net = {
         utils.net.pipe(urlAddress, fileStream);
       })
     })
+  }
+};
+
+utils.string = {
+  /**
+   * Match all regex occurrences in string
+   * @param string
+   * @param regexp
+   */
+  matchAll: function(string, regexp){
+    var matches = [];
+
+    string.replace(regexp, function(){
+      var arr = [].slice.call(arguments, 0);
+      var extras = arr.slice(-2);
+      arr.index = extras[0];
+      arr.input = extras[1];
+      matches.push(arr);
+    });
+
+    return matches;
+  },
+  /**
+   * Generate uniq string among passed array of strings
+   * @param stringName
+   * @param arrString
+   * @returns {*}
+   */
+  generateUniqSlug: function(stringName, arrString){
+    var resultString;
+    var matches = utils.matchAll(stringName, arrString);
+
+    //_.each(arrString, function(string){
+    //  if(string.length >= stringName.length){
+    //    if(string.slice(0, stringName.length) === stringName){
+    //
+    //    }
+    //  }
+    //});
+
+    return stringName;
   }
 };
 

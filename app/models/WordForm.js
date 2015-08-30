@@ -1,41 +1,78 @@
 "use strict";
 
-module.exports = function(sequelize, DataTypes){
-  var WordForm = sequelize.define("WordForm", {
-    wordformid: {
-      type: DataTypes.INTEGER(5).UNSIGNED,
-      primaryKey: true,
-      autoIncrement: true
-    },
+module.exports = function(define, DataTypes, app){
+  define("WordForm", {
     pos: {
-      type: DataTypes.ENUM("n", "v", "a", "r", "s", "nm", "pn")
+      type: DataTypes.ENUM(
+        "noun",
+        "verb",
+        "adjective",
+        "adverb",
+        "pronoun",
+        "preposition",
+        "conjunction",
+        "interjection",
+        "clause"
+      )
     },
     gender: {
-      type: DataTypes.ENUM("m", "f", "n")
+      type: DataTypes.ENUM(
+        "mascunine",
+        "feminine",
+        "neuter"
+      )
     },
     plurality: {
-      type: DataTypes.ENUM("s", "p")
+      type: DataTypes.ENUM(
+        "single",
+        "plural"
+      )
     },
     case: {
-      type: DataTypes.ENUM("n", "g", "d", "a", "a", "i", "p")
+      type: DataTypes.ENUM(
+        "nominative",
+        "accusative",
+        "dative",
+        "ablative",
+        "genitive",
+        "vocative",
+        "locative"
+      )
     },
     comparison: {
-      type: DataTypes.ENUM("p", "c", "s") //p - positive, c - comperative, s - superlative
+      type: DataTypes.ENUM(
+        "positive",
+        "comperative",
+        "superlative"
+      )
     },
     verbform: {
-      type: DataTypes.ENUM("pr", "pa", "pp", "f", "g") //ps - present simple, ps - past simple, pp - past perfect, f - future, g - gerund
+      type: DataTypes.ENUM(
+        "past_perfect",
+        "past_continuous",
+        "pp",
+        "future",
+        "gerund")
     },
     person: {
-      type: DataTypes.ENUM("f", "s", "t") //f - first, s - second, t- third
+      type: DataTypes.ENUM(
+        "first",
+        "second",
+        "third"
+      )
     }
   }, {
-    tableName: "wordforms",
+    tableName: "wordform",
     timestamp: false,
     classMethods: {
-      associate: function(models){
-        WordForm.hasMany(models.Sense)
-      }
+
+    },
+    instanceMethods: {
+
     }
   });
-  return WordForm;
-}
+
+  define.after(function(){
+
+  });
+};

@@ -16,9 +16,7 @@ module.exports = function(config, options, callback){
       config: config,
       helpers: {
         utils: utils
-      },
-      db: {},
-      models: {}
+      }
     },
     tasks = [];
 

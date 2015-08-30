@@ -6,13 +6,15 @@ var http = require("http");
 var https = require("https");
 
 var Glosbe = require(path.join(__dirname, "httpParser/glosbe"));
+var Babla = require(path.join(__dirname, "httpParser/babla"));
 
 var HttpParser = function(app, args) {
   var instance;
 
   var init = function(){
     var parseObjects = {
-      Glosbe: new Glosbe(app, args).getInstance()
+      Glosbe: new Glosbe(app, args).getInstance(),
+      Babla: new Babla(app, args).getInstance()
     };
 
     return parseObjects;

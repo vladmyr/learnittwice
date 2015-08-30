@@ -3,7 +3,14 @@
   "dir": {
     "base": "./app",
     "models": "/models",
-    "controllers": "/controllers"
+    "controllers": "/controllers",
+    "domain": "/domain"
+  },
+  "filePath": {
+    "domain": {
+      "database": "Database",
+      "language": "Language"
+    }
   },
   "entryPoints": [{
     "controllerName": "_default",
