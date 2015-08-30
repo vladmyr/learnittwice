@@ -3,7 +3,7 @@
 module.exports = function(define, DataTypes, app){
   define("Word", {
     wordid: {
-      type: DataTypes.INTEGER(10),
+      type: DataTypes.INTEGER(10).UNSIGNED,
       allowNull: false,
       defaultValue: 0,
       primaryKey: true
