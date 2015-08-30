@@ -37,6 +37,6 @@ module.exports = function(config, options, callback){
   //});
 
   async.series(tasks, function(err){
-    callback(null, app);
+    callback(err, app);
   });
 };

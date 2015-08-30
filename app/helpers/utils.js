@@ -66,6 +66,45 @@ utils.fs = {
       .forEach(iterator)
   },
   /**
+   * Scan each file in a directory
+   * @param path
+   * @param options
+   * @param iterator
+   * @returns {bluebird}
+   */
+  scanDir: function(path, options, iterator){
+    var include = function(includes, file){
+      return includes.indexOf(file) !== -1
+    };
+    var exclude = function(excludes, file){
+      return excludes.indexOf(file) === -1;
+    };
+
+    return new Promise(function(fulfill, reject){
+      fs.readdir(path, function(err, files){
+        if(err){
+          return reject(err);
+        }else{
+          files.filter(function(file){
+            var filter = true;
+
+            if(options.includes && options.excludes){
+              filter = include(options.includes, file) && exclude(options.excludes, file);
+            }else if(options.includes){
+              filter = include(options.includes, file);
+            }else if(options.excludes){
+              filter = exclude(options.excludes, file);
+            }
+
+            return filter;
+          })
+          .forEach(iterator);
+          return fulfill();
+        }
+      })
+    });
+  },
+  /**
    * Scan directory and generate uniq filename
    * @param filename
    */

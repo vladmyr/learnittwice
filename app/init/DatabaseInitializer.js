@@ -9,7 +9,12 @@ var path = require("path");
  */
 var DatabaseInitializer = function(app, callback){
   return new require(path.join(app.root_dir, app.config.dir.domain, app.config.filePath.domain.database))(app)
-    .initialize(callback);
+    .initialize()
+    .then(function(self){
+      return self.migrate();
+    })
+    .then(callback)
+    .catch(callback);
 
   //var modelDir = path.join(app.root_dir, app.config.dir.models);
   //var afterFunctions = [];

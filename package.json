@@ -26,7 +26,6 @@
     "sequelize": "^3.1.1",
     "serve-favicon": "^2.2.1",
     "slug": "^0.9.1",
-    "umzug": "^1.6.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
