@@ -7,27 +7,27 @@ var Sequelize = require("sequelize");
 /**
  * Database management class
  * @param app
+ * @param dbConfig
+ * @param modelDir
+ * @param refDb
+ * @param refModel
  * @returns {{initialize: Function}}
  * @constructor
  */
-var Database = function(app){
+var Database = function(app, dbConfig, modelDir, refDb, refModel){
+  //initialize defaults
+  !dbConfig && (dbConfig = app.config.database);
+  !modelDir && (modelDir = path.join(app.root_dir, app.config.dir.models));
+  !refDb && (refDb = "db");
+  !refModel && (refModel = "models");
+
   /**
    * Initialize database connection and DAO
-   * @param {object} dbConfig
-   * @param {string} modelDir
-   * @param {string} refDb
-   * @param {string} refModel
    * @param {function} callback
    * @returns {*}
    */
-  var initialize = function(dbConfig, modelDir, refDb, refModel, callback){
+  var initialize = function(callback){
     var afterFunctions = [];
-
-    //initialize defaults
-    !dbConfig && (dbConfig = app.config.database);
-    !modelDir && (modelDir = path.join(app.root_dir, app.config.dir.models));
-    !refDb && (refDb = "db");
-    !refModel && (refModel = "models");
 
     if(typeof app[refDb] !== "undefined"){
       return callback && callback(new Error("Database initialisation with refDb = '" + refDb + "' is already reserved"));
