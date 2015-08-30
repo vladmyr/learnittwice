@@ -5,7 +5,7 @@ module.exports = function(define, DataTypes, app){
 
   }, {
     tableName: "synset",
-    timestamp: false,
+    timestamps: false,
     classMethods: {
       //associate: function(models){
       //  Synset.hasMany(models.Sense)

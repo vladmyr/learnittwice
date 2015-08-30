@@ -5,7 +5,7 @@ module.exports = function(define, DataTypes, app){
 
   }, {
     tableName: "sense",
-    timestamp: false,
+    timestamps: false,
     classMethods: {
       //associate: function(models){
       //  Sense.belongsTo(models.Word, { foreignKey: "wordid" });

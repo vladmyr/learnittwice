@@ -63,7 +63,7 @@ module.exports = function(define, DataTypes, app){
     }
   }, {
     tableName: "wordform",
-    timestamp: false,
+    timestamps: false,
     classMethods: {
 
     },

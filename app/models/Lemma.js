@@ -18,7 +18,7 @@ module.exports = function(define, DataTypes, app){
     }
   }, {
     tableName: "lemma",
-    timestamp: false,
+    timestamps: false,
     classMethods: {
 
     },

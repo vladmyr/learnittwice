@@ -13,7 +13,7 @@ module.exports = function(define, DataTypes, app){
     }
   }, {
     tableName: "definition",
-    timestamp: false,
+    timestamps: false,
     classMethods: {
       //associate: function(models){
       //  Definition.belongsTo(models.Synset, { foreignKey: "synsetid" });

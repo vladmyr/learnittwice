@@ -13,7 +13,7 @@ module.exports = function(define, DataTypes, app){
     }
   }, {
     tableName: "language",
-    timestamp: false,
+    timestamps: false,
     classMethods: {
 
     },
