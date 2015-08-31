@@ -46,5 +46,13 @@ module.exports = function(define, DataTypes, app){
     instanceMethods: {
 
     }
-  })
+  });
+
+  define.after(function(model, refDb, refModel){
+    app[refModel].Sense.belongsTo(app[refModel].Word, { foreignKey: "wordid" });
+    app[refModel].Word.hasMany(app[refModel].Sense, { foreignKey: "wordid" });
+
+    app[refModel].Sense.belongsTo(app[refModel].Synset, { foreignKey: "synsetid" });
+    app[refModel].Synset.hasMany(app[refModel].Sense, { foreignKey: "synsetid" });
+  });
 };

@@ -58,7 +58,7 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
 
         define.after = function(fn){
           afterFunctions.push(function(){
-            fn(model);
+            fn(model, refDb, refModel);
           });
         };
 

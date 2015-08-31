@@ -33,7 +33,13 @@ var wn31Importer = function(app, options){
     return app[options.refModel].Word.find({
       where: {
         wordid: 1
-      }
+      },
+      include: [{
+        model: app[options.refModel].Sense,
+        include: [{
+          model: app[options.refModel].Synset
+        }]
+      }]
     });
   }).then(function(word){
     return word;

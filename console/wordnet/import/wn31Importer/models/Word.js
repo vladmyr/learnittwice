@@ -23,4 +23,8 @@ module.exports = function(define, DataTypes, app){
 
     }
   });
+
+  define.after(function(refDb, refModel){
+
+  })
 };
