@@ -2,12 +2,7 @@
 
 module.exports = function(define, DataTypes, app){
   define("Language", {
-    id: {
-      type: DataTypes.INTEGER(5).UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    iso3166_a2: {
+    iso3166a2: {
       type: DataTypes.STRING(2),
       allowNull: false
     }
@@ -22,7 +17,7 @@ module.exports = function(define, DataTypes, app){
     }
   });
 
-  define.after(function(){
+  define.after(function(model, refDb, refModel){
 
   });
 };

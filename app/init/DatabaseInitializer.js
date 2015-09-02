@@ -13,6 +13,13 @@ var DatabaseInitializer = function(app, callback){
     .then(function(self){
       return self.migrate();
     })
+    .then(function(self){
+      return self.executeRawQueriesFromFile(path.join(
+        app.root_dir,
+        app.config.dir.domain,
+        app.config.dir.databaseQueries,
+        app.config.filePath.domain.databaseQueries.postQueries));
+    })
     .then(function(){
       return callback();
     })

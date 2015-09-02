@@ -35,6 +35,22 @@ utils.fs = {
     });
   },
   /**
+   * Read file
+   * @param filePath
+   * @returns {bluebird}
+   */
+  readFile: function(filePath, options){
+    options = _.extend({
+      encoding: "utf8"
+    }, options);
+
+    return new Promise(function(fulfill, reject){
+      fs.readFile(filePath, options, function(err, data){
+        return err ? reject(err) : fulfill(data);
+      });
+    })
+  },
+  /**
    * Scan each file in a directory synchronously
    * ToDo: add regular expression match functionality
    * @param {String} path - path to the directory to scan

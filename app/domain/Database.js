@@ -86,6 +86,8 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
       var modelNames = Object.keys(app[refModel]);
 
       return Promise.resolve().then(function(){
+      //  return setForegnKeyCheck(false);
+      //}).then(function(){
         return app[refDb].sync();
       }).then(function(){
         return Promise.reduce(modelNames, function (total, modelName) {
@@ -95,10 +97,47 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
         return Promise.reduce(modelNames, function (total, modelName) {
           return alterIndices(app[refModel][modelName]);
         }, 0);
+      //}).then(function(){
+      //  return setForegnKeyCheck(true);
       }).then(function(){
         return self;
       });
     }
+  };
+
+  /**
+   * Execute raw (sql) queries from file
+   * @param filePath
+   * @param replacements
+   * @param options
+   * @returns {*}
+   */
+  var executeRawQueriesFromFile = function(filePath, replacements, options){
+    var self = this;
+
+    return app.helpers.utils.fs.readFile(filePath, options).then(function(data){
+      return data.split(/;\s/).map(function(i){
+        return i.trim();
+      }).filter(function(i){
+        return !!i;
+      })
+    }).then(function(queries) {
+      return Promise.reduce(queries, function(total, query){
+        return app[refDb].query(query, {
+          replacements: replacements,
+          raw: true,
+          type: app[refDb].QueryTypes.INSERT
+        });
+      }, 0);
+    }).then(function(){
+      return self;
+    }).catch(function(err){
+      return Promise.reject(err);
+    })
+  };
+
+  var setForegnKeyCheck = function(check){
+    return app[refDb].query("SET FOREIGN_KEY_CHECKS = " + (+check));
   };
 
   var alterIndices = function(model){
@@ -167,7 +206,8 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
 
   return {
     initialize: initialize,
-    migrate: migrate
+    migrate: migrate,
+    executeRawQueriesFromFile: executeRawQueriesFromFile
   };
 };
 

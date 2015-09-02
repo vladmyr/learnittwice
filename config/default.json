@@ -4,12 +4,16 @@
     "base": "./app",
     "models": "/models",
     "controllers": "/controllers",
-    "domain": "/domain"
+    "domain": "/domain",
+    "databaseQueries": "/databaseQueries"
   },
   "filePath": {
     "domain": {
       "database": "Database",
-      "language": "Language"
+      "language": "Language",
+      "databaseQueries": {
+        "postQueries": "postQueries.sql"
+      }
     }
   },
   "entryPoints": [{

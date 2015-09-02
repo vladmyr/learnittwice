@@ -2,7 +2,10 @@
 
 module.exports = function(define, DataTypes, app){
   define("Synset", {
-
+    lexdomainid: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false
+    }
   }, {
     tableName: "synset",
     timestamps: false,
@@ -14,7 +17,7 @@ module.exports = function(define, DataTypes, app){
     }
   });
 
-  define.after(function(){
+  define.after(function(model, refDb, refModel){
 
   });
 };
