@@ -1,6 +1,6 @@
 "use strict";
 
-var LANGUAGES = require("../app/domain/languages");
+var LANGUAGES = require("../app/domain/Language");
 
 module.exports = function(app, args, callback){
   var httpParser = new require("../app/helpers/component/httpParser")(app, args).getInstance();

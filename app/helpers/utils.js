@@ -233,10 +233,15 @@ utils.net = {
    * Pipe data from internet
    * @param urlAddress
    * @param writable
+   * @param options
    * @returns {Promise}
    */
-  pipe: function(urlAddress, writable) {
+  pipe: function(urlAddress, writable, options) {
     return new Promise(function(fulfill, reject){
+      options = _.extend({
+        onResponseRedirect: true
+      }, options);
+
       if(!writable){
         return reject(new Error("No writable stream was passed"));
       }
@@ -244,7 +249,22 @@ utils.net = {
       var urlObject = (typeof urlAddress === "string" ? url.parse(urlAddress) : urlAddress);
 
       (urlObject.protocol === "http" ? http : https).get(url.format(urlObject), function (res) {
-        res.pipe(writable);
+        if(options.onResponseRedirect){
+          if(res.statusCode === 302){
+            var redirect = url.parse(res.headers.location);
+
+            !!redirect.protocol && redirect.protocol !== "" && (urlObject.protocol = redirect.protocol);
+            !!redirect.hostname && redirect.hostname !== "" && (urlObject.hostname = redirect.hostname);
+
+            urlObject.pathname = url.parse(res.headers.location).pathname;
+
+            (urlObject.protocol === "http" ? http : https).get(url.format(urlObject), function (res) {
+              res.pipe(writable);
+            });
+          }
+        }else{
+          res.pipe(writable);
+        }
       });
     });
   },

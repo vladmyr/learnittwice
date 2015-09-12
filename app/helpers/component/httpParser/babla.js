@@ -1,6 +1,6 @@
 "use strict";
 
-var LANGUAGES = require("../../../domain/languages");
+var LANGUAGES = require("../../../domain/Language");
 
 var _ = require("underscore");
 var Promise = require("bluebird");
