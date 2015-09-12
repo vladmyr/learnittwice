@@ -18,10 +18,10 @@ module.exports = function(define, DataTypes, app){
   });
 
   define.after(function(model, refDb, refModel){
-    app[refModel].Definition.belongsTo(app[refModel].Language, { foreignKey: "languageId", constraints: false });
+    app[refModel].Definition.belongsTo(app[refModel].Language, { foreignKey: "languageId" });
     app[refModel].Language.hasMany(app[refModel].Definition, { foreignKey: "languageId" });
 
-    app[refModel].Definition.belongsTo(app[refModel].Synset, { foreignKey: "synsetId", constraints: false });
+    app[refModel].Definition.belongsTo(app[refModel].Synset, { foreignKey: "synsetId" });
     app[refModel].Synset.hasMany(app[refModel].Definition, { foreignKey: "synsetId" });
   });
 };

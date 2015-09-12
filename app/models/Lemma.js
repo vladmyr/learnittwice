@@ -4,7 +4,8 @@ module.exports = function(define, DataTypes, app){
   define("Lemma", {
     lemma: {
       type: DataTypes.STRING(80),
-      allowNull: false
+      allowNull: false,
+      uniq: true
     },
     legacy: {
       type: DataTypes.BOOLEAN,
@@ -19,6 +20,10 @@ module.exports = function(define, DataTypes, app){
   }, {
     tableName: "lemma",
     timestamps: false,
+    indexes: [{
+      name: "lemma",
+      fields: ["lemma"]
+    }],
     classMethods: {
 
     },

@@ -1,13 +1,18 @@
 "use strict";
 
-var _ = require("underscore"),
-  async = require("async"),
-  express = require("express"),
-  path = require("path"),
-  cookieParser = require("cookie-parser"),
-  bodyParser = require("body-parser"),
+//load consts
+var LANGUAGE = require("./domain/Language");
 
-  utils = require("./helpers/utils");
+//load modules
+var _ = require("underscore");
+var async = require("async");
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var bodyParser = require("body-parser");
+
+//load customs
+var utils = require("./helpers/utils");
 
 module.exports = function(config, options, callback){
   var app = {
@@ -16,6 +21,9 @@ module.exports = function(config, options, callback){
       config: config,
       helpers: {
         utils: utils
+      },
+      const: {
+        LANGUAGE: LANGUAGE
       }
     },
     tasks = [];

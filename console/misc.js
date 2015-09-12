@@ -12,7 +12,25 @@ var path = require("path");
  * @returns {*}
  */
 module.exports = function(app, args, callback){
-  return new Misc().createPath();
+  //return new Misc().modelDescribe(app.models.Wordform).then(function(description){
+  //  return description;
+  //}).then(callback);
+  //Generate wordforms
+  return app.models.Wordform.bulkCreate(
+    app.models.Wordform.generateCombinations()
+  )
+    .then(function(affectedRows){
+      return callback();
+    });
+
+  //test Wordform.findOnly(where);
+  //return app.models.Wordform.findOnly({
+  //  pos: "noun",
+  //  gender: "mascunine",
+  //  plurality: "single"
+  //}).then(function(data){
+  //  return callback();
+  //})
 };
 
 var Misc = function(){
@@ -27,6 +45,9 @@ var Misc = function(){
       var filepath = path.join(__dirname, Number(0).toString(), Number(1).toString(), Number(2).toString(), Number(3).toString());
       console.log(filepath);
       return filepath;
+    },
+    modelDescribe: function(model){
+      return model.describe();
     }
   }
 };

@@ -5,15 +5,17 @@ module.exports = function(define, DataTypes, app){
     lexdomainid: {
       type: DataTypes.INTEGER(5),
       allowNull: false
+    },
+    wordnet_id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     tableName: "synset",
     timestamps: false,
     classMethods: {
-      //associate: function(models){
-      //  Synset.hasMany(models.Sense)
-      //  Synset.hasMany(models.Definition)
-      //}
+
     }
   });
 

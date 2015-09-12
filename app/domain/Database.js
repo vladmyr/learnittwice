@@ -115,6 +115,7 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
   var executeRawQueriesFromFile = function(filePath, replacements, options){
     var self = this;
 
+    //ToDo: remove comments from queries
     return app.helpers.utils.fs.readFile(filePath, options).then(function(data){
       return data.split(/;\s/).map(function(i){
         return i.trim();

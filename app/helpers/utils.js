@@ -35,7 +35,7 @@ utils.fs = {
     });
   },
   /**
-   * Read file
+   * Read whole file
    * @param filePath
    * @returns {bluebird}
    */
@@ -49,6 +49,80 @@ utils.fs = {
         return err ? reject(err) : fulfill(data);
       });
     })
+  },
+  /**
+   * Read file line by line
+   * @param filePath
+   * @param options
+   * @param iteratee  - promise function that will be executed for each read line
+   */
+  readFileByLine: function(filePath, options, iteratee){
+    !iteratee && (iteratee = Promise.resolve());
+
+    return new Promise(function(fulfill, reject){
+      options = _.extend({
+        encoding: "utf8",
+        newLineChar: "\n"
+      }, options);
+
+      var innerPromise = Promise.resolve();
+      var readable = fs.createReadStream(filePath, options);
+      var writable = new stream.Writable();
+      var last;
+
+      writable._write = function(chunk, enc, callback){
+        var chunkString = chunk.toString();
+        var data = chunkString.split(options.newLineChar);
+
+        if(last){
+          var index = chunkString.indexOf(options.newLineChar);
+
+          if(index !== 0){
+            last += chunkString.substr(0, index);
+            data = _.rest(data);
+          }
+          data.unshift(last);
+          last = null;
+        }
+
+        if(chunkString.lastIndexOf(options.newLineChar) !== (chunkString.length - 1)){
+          last = data.splice(-1)[0];
+        }
+
+        return innerPromise = innerPromise.then(function(){
+          return readable.pause();
+        }).then(function(){
+          return Promise.reduce(data, function(total, item){
+            return typeof item !== "undefined" && item.length
+              ? iteratee(item)
+              : Promise.resolve();
+          }, 0)
+        }).then(function(){
+          return readable.resume();
+        }).then(function(){
+          return callback();
+        }).catch(function(err){
+          return calblack(err);
+        })
+      };
+
+      writable.on("finish", function(){
+        if(last){
+          innerPromise = innerPromise.then(function(){
+            return iteratee(last);
+          })
+        }
+        return innerPromise.then(fulfill);
+      });
+
+      writable.on("error", function(err){
+        return reject(err);
+      });
+
+      readable.pipe(writable);
+    }).catch(function(err){
+        return Promise.reject(err);
+      });
   },
   /**
    * Scan each file in a directory synchronously
@@ -124,19 +198,19 @@ utils.fs = {
    * Scan directory and generate uniq filename
    * @param filename
    */
-  generateUniqFilename: function(filename){
-    var filePath = path.parse(filename);
-
-    return new Promise(function(fulfill, reject){
-      fs.readdir(filePath.dir, function(err, fileNames){
-        if(err){
-          return reject(err);
-        }else{
-
-        }
-      });
-    });
-  },
+  //generateUniqFilename: function(filename){
+  //  var filePath = path.parse(filename);
+  //
+  //  return new Promise(function(fulfill, reject){
+  //    fs.readdir(filePath.dir, function(err, fileNames){
+  //      if(err){
+  //        return reject(err);
+  //      }else{
+  //
+  //      }
+  //    });
+  //  });
+  //},
   /**
    * Create dir
    * @param filepath
@@ -168,8 +242,6 @@ utils.net = {
       }
 
       var urlObject = (typeof urlAddress === "string" ? url.parse(urlAddress) : urlAddress);
-
-      console.log(url.format(urlObject));
 
       (urlObject.protocol === "http" ? http : https).get(url.format(urlObject), function (res) {
         res.pipe(writable);
@@ -221,7 +293,7 @@ utils.string = {
     return matches;
   },
   /**
-   * Generate uniq string among passed array of strings
+   * Generate unique string among passed array of strings
    * @param stringName
    * @param arrString
    * @returns {*}
@@ -230,15 +302,53 @@ utils.string = {
     var resultString;
     var matches = utils.matchAll(stringName, arrString);
 
-    //_.each(arrString, function(string){
-    //  if(string.length >= stringName.length){
-    //    if(string.slice(0, stringName.length) === stringName){
-    //
-    //    }
-    //  }
-    //});
-
     return stringName;
+  }
+};
+
+/**
+ * Util function for database operations
+ */
+utils.db = {
+  /**
+   * Handle transaction commit
+   * @param t - transaction
+   */
+  commit: function(t){
+    return new Promise(function(fulfill, reject){
+      if(t){
+        return t
+          .commit()
+          .then(function(){
+            return fulfill();
+          })
+          .catch(function(err){
+            return reject(err);
+          })
+      }else{
+        return reject(new Error("Transaction is not defined"));
+      }
+    });
+  },
+  /**
+   * Handle transaction rollback
+   * @param t - transaction
+   */
+  rollback: function(t){
+    return new Promise(function(fulfill, reject){
+      if(t){
+        return t
+          .rollback()
+          .then(function(){
+            return reject();
+          })
+          .catch(function(err){
+            return reject(err);
+          });
+      }else{
+        return reject(new Error("Transaction is not defined"));
+      }
+    });
   }
 };
 

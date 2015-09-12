@@ -11,9 +11,27 @@ var wn31Importer = function(app, options){
       name: "wordnet"
     },
     modelDir: path.join(__dirname, "models"),
-    refDb: "dbWn",
-    refModel: "modelsWn"
+    refDbWn: "dbWn",
+    refModelWn: "modelsWn",
+    refDb: "db",
+    refModel: "models"
   }, options);
+
+  /**
+   * Map part of speech of "wordnet" to "learnittwicev1"
+   * @param wnPos
+   * @returns {*}
+   */
+  var mapPartOfSpeech = function(wnPos){
+    var map = {
+      a: "adjective",
+      n: "noun",
+      s: "adjective_satellite",
+      r: "adverb",
+      v: "verb"
+    };
+    return (map[wnPos] || map["n"]);
+  };
 
   var processWords = function(refDbWn, refModelWn, refDb, refModel, options){
     options = _.extend({
@@ -32,47 +50,75 @@ var wn31Importer = function(app, options){
           }]
         }]
       }).then(function(words){
-        //var promise = Promise.resolve();
-        //
-        //
-        //var bulkCreate = [];
-
-        return promise.reduce(words, function(total, word){
-          var bulkSynset = [];
-          var bulkSense = [];
-
-          var lemma = app[refModel].Lemma.build({
-            lemma: word.lemma,
-            legacy: true,
-            count: 0
+        return Promise.reduce(words, function(total, word){
+          return Promise.resolve().then(function(){
+            return app[refModel].Lemma.build({
+              lemma: word.lemma,
+              legacy: true,
+              count: 0
+            }).save({
+              transaction: t
+            });
+          }).then(function(lemma){
+            return Promise.reduce(word.Senses, function(total, sense){
+              return app[refModel].Language.findOne({
+                where: {
+                  iso3166a2: app.const.LANGUAGE.ENGLISH
+                },
+                transaction: t
+              }).then(function(language){
+                return Promise.props({
+                  language: language,
+                  synset: app[refModel].Synset.build({
+                    lexdomainid: sense.Synset.lexdomainid,
+                    wordnet_id: sense.Synset.synsetid
+                  }).save({
+                    transaction: t
+                  }).then(function(synset){
+                    return synset;
+                  }),
+                  wordform: app[refModel].Wordform.findOne({
+                    where: {
+                      pos: mapPartOfSpeech(sense.Synset.pos)
+                    }
+                  }).then(function(wordform){
+                    return wordform;
+                  })
+                }).then(function(props){
+                  return app[refModel].Definition.build({
+                    definition: sense.Synset.definition,
+                    languageId: props.language.id,
+                    synsetId: props.synset.id
+                  }).save({
+                    transaction: t
+                  }).then(function(definition){
+                    return _.extend(props, {
+                      definition: definition
+                    });
+                  })
+                }).then(function(props){
+                  return app[refModel].Sense.build({
+                    tagCount: sense.tagcount,
+                    lemmaId: lemma.id,
+                    synsetId: props.synset.id,
+                    languageId: props.language.id,
+                    wordformId: props.wordform.id
+                  }).save({
+                    transaction: t
+                  }).then(function(sense){
+                    return _.extend(props, {
+                      sense: sense
+                    });
+                  })
+                });
+              });
+            }, 0);
           });
-
-          _.each(word.Senses, function(sense){
-            
-          })
         }, 0);
-        //_.each(words, function(word){
-        //  _.each(word.sense, function(sense){
-        //    bulkSynset
-        //  })
-        //});
-        //
-        //_.each(words, function(word){
-        //  bulkCreate.push(app[refModel].Lemma
-        //    .build(_.extend(_.pick(word, "lemma"), {
-        //      legacy: true,
-        //      count: 0
-        //    })
-        //  ));
-        //});
-
-        //return app[refModel].Lemma.bulkCreate(bulkCreate,{
-        //  transaction: t
-        //})
       }).then(function(){
-        return t.commit();
+        return app.helpers.utils.db.commit(t);
       }).catch(function(err){
-        return t.rollback();
+        return app.helpers.utils.db.rollback(t)
       })
     });
   };
@@ -84,27 +130,47 @@ var wn31Importer = function(app, options){
     username: app.config.database.username,
     password: app.config.database.username,
     settings: app.config.database.settings
-  }, options.modelDir, options.refDb, options.refModel);
+  }, options.modelDir, options.refDbWn, options.refModelWn);
 
   return promise.then(function() {
-    console.log("Initializing database connection....");
+    console.log("Initializing database connection...");
     return dbInstance.initialize().then(function () {
       return console.log("Done!");
     });
   }).then(function(){
-    return app[options.refModel].Word.findById(1)
-  }).then(function(word){
-    return word;
-  }).then(function(){
-    return processWords(
-      options.refDb,
-      options.refModel,
-      "db",
-      "models");
+    return app[options.refModelWn].Word.count();
+  }).then(function(count){
+    var processAll = function(props){
+      props = _.extend({
+        count: 1,
+        offset: 0,
+        limit: 1000
+      }, props);
+
+      return processWords(
+        options.refDbWn,
+        options.refModelWn,
+        options.refDb,
+        options.refModel, {
+          limit: props.limit,
+          offset: props.offset
+        }).then(function(){
+          console.log("Processed " + props.offset + " - " + (props.offset + props.limit) + " of " + props.count);
+
+          props.offset += props.limit;
+
+          if(props.offset < count){
+            return processAll(props);
+          }else{
+            return Promise.resolve();
+          }
+        });
+    };
+
+    return processAll({ count: count });
+  }).catch(function(err){
+    return Promise.reject(err);
   });
-  //  .catch(function(err){
-  //  return Promise.reject(err);
-  //});
 };
 
 module.exports = function(app, args, callback){
@@ -115,8 +181,7 @@ module.exports = function(app, args, callback){
     })
     .then(function(){
       return callback();
+    }).catch(function(err){
+      return callback(err);
     });
-    //.catch(function(err){
-    //  return callback(err);
-    //});
 };
