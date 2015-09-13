@@ -20,13 +20,14 @@ module.exports = function(config, options, callback){
       root_dir: __dirname,
       config: config,
       helpers: {
-        utils: utils
+        utils: utils,
+        httpParser: new require("./helpers/modules/httpParser")(app).getInstance()
       },
       const: {
         LANGUAGE: LANGUAGE
       }
-    },
-    tasks = [];
+    };
+  var tasks = [];
 
   tasks.push(function(callback){
     require("./init/DatabaseInitializer")(app, callback);

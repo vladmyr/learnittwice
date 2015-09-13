@@ -78,44 +78,23 @@ var Wordnet = function(app, args){
      * @returns {Array}
      */
     var extractLemmaInfo = function($doc){
-      var $el = $doc(".body");
+      var $el = $doc(".body h1");
       var lemmaInfo = [];
 
       _.each($el, function($item){
-        //ToDo: finish extracting function
-        var item = $item;
-        //var language;
-        //var word;
-        //
-        ////parse language
-        //if($item
-        //  && $item.children
-        //  && $item.children[1]
-        //  && $item.children[1].attribs
-        //  && $item.children[1].attribs.lang){
-        //  //normalise language
-        //  language = LANGS.normalized[[$item.children[1].attribs.lang]];
-        //}
-        //
-        ////parse word
-        //if($item
-        //  && $item.children
-        //  && $item.children[1]
-        //  && $item.children[1].children
-        //  && $item.children[1].children[0]
-        //  && $item.children[1].children[0].children
-        //  && $item.children[1].children[0].children[0]
-        //  && $item.children[1].children[0].children[0].data){
-        //  word = $item.children[1].children[0].children[0].data
-        //}
-        //
-        //if(language && word){
-        //  var item = {
-        //    language: $item.children[1].attribs.lang,
-        //    word: $item.children[1].children[0].children[0].data,
-        //    audio: []
-        //  };
-        //}
+        var lemma = null;
+
+        if($item
+          && $item.children
+          && $item.children[0]
+          && $item.children[0].data
+          && $item.children[0].data.indexOf("\n") !== -1){
+          lemma = $item.children[0].data.split("\n")[0];
+        }
+
+        lemmaInfo.push({
+          lemma: lemma.split(", ")
+        });
       });
 
       return lemmaInfo;

@@ -3,8 +3,6 @@
 var LANGUAGES = require("../app/domain/Language");
 
 module.exports = function(app, args, callback){
-  var httpParser = new require("../app/helpers/component/httpParser")(app, args).getInstance();
-
   //Parse from Glosbe
   //httpParser.Glosbe.generateUrlObject({
   //  from: "en",
@@ -15,6 +13,16 @@ module.exports = function(app, args, callback){
   //  .then(httpParser.Glosbe.extractTranslationItem)
   //  .then(httpParser.Glosbe.downloadAudio)
   //  .then(callback);
+
+  // Test api
+  app.helpers.httpParser.Glosbe.api.translate({
+    from: "pl",
+    to: "en",
+    word: "ptak"
+  })
+    .then(function(obj){
+      return callback();
+    });
 
   //Parse from Babla
   //httpParser.Babla.generateUrlObject({

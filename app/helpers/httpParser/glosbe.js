@@ -40,10 +40,27 @@ var Glosbe = function(app, args){
     var generateUrlObject = function(replacement){
       var urlTranslatePathname = "/:from/:to/:word";
       var urlAudioPathname = ":audio";
+      var urlApiTranslatePathname = "/gapi/translate";
+      var urlApiTranslateSearch = "from=:from&dest=:to&format=:format&phrase=:word";
       var urlObject = null;
 
       if(replacement){
-        if(replacement.from && replacement.to && replacement.word) {
+        if(replacement.from && replacement.to && replacement.format && replacement.word) {
+          var from = LANGS.url[replacement.from];
+          var to = LANGS.url[replacement.to];
+
+          urlObject = {
+            slashes: true,
+            protocol: PROTOCOL,
+            hostname: HOSTNAME,
+            pathname: urlApiTranslatePathname,
+            search: urlApiTranslateSearch
+              .replace(":from", from)
+              .replace(":to", to)
+              .replace(":format", replacement.format)
+              .replace(":word", replacement.word)
+          };
+        }else if(replacement.from && replacement.to && replacement.word) {
           var from = LANGS.url[replacement.from];
           var to = LANGS.url[replacement.to];
 
@@ -75,10 +92,14 @@ var Glosbe = function(app, args){
      * @param urlAddress
      * @returns {bluebird}
      */
-    var parseUrl = function(urlAddress){
+    var parseUrl = function(urlAddress, options){
       return new Promise(function(fulfill, reject){
         var writable = new stream.Writable();
         var data;
+
+        options = _.extend({
+          raw: false
+        }, options);
 
         writable._write = function(chunk, enc, callback){
           !data ? (data = chunk.toString()) : (data += chunk.toString());
@@ -86,7 +107,7 @@ var Glosbe = function(app, args){
         };
 
         writable.on("finish", function(){
-          fulfill(cheerio.load(data));
+          fulfill(options.raw ? data : cheerio.load(data));
         });
         writable.on("error", function(err){
           console.log("err: ", err);
@@ -177,6 +198,18 @@ var Glosbe = function(app, args){
       return promise;
     };
 
+    var api = (function(){
+      return {
+        translate: function(parameters){
+          return generateUrlObject(_.extend(parameters, { format: "json" })).then(function(urlObject){
+            return parseUrl(urlObject, { raw: true });
+          }).then(function(json){
+            return JSON.parse(json);
+          });
+        }
+      }
+    })();
+
     return {
       generateUrlObject: generateUrlObject,
       getLanguages: function(){
@@ -184,7 +217,8 @@ var Glosbe = function(app, args){
       },
       parseUrl: parseUrl,
       extractTranslationItem: extractTranslationItem,
-      downloadAudio: downloadAudio
+      downloadAudio: downloadAudio,
+      api: api
     }
   };
 

@@ -249,8 +249,10 @@ utils.net = {
       var urlObject = (typeof urlAddress === "string" ? url.parse(urlAddress) : urlAddress);
 
       (urlObject.protocol === "http" ? http : https).get(url.format(urlObject), function (res) {
-        if(options.onResponseRedirect){
-          if(res.statusCode === 302){
+        if(res.statusCode === 404){
+          res.pipe(writable);
+        }else if(res.statusCode === 302){
+          if(options.onResponseRedirect){
             var redirect = url.parse(res.headers.location);
 
             !!redirect.protocol && redirect.protocol !== "" && (urlObject.protocol = redirect.protocol);
@@ -261,10 +263,23 @@ utils.net = {
             (urlObject.protocol === "http" ? http : https).get(url.format(urlObject), function (res) {
               res.pipe(writable);
             });
+          }else{
+            res.pipe(writable);
           }
         }else{
           res.pipe(writable);
         }
+
+        //res.on("data", function(chunk){
+        //  return console.log(chunk);
+        //});
+
+        res.on("end", function(){
+          return fulfill();
+        });
+
+      }).on("error", function(err){
+        return Promise.reject(err);
       });
     });
   },
