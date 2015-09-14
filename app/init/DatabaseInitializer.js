@@ -22,10 +22,9 @@ var DatabaseInitializer = function(app, callback){
     })
     .then(function(){
       return callback();
-    })
-    //.catch(function(err){
-    //  return callback(err);
-    //});
+    }).catch(function(err){
+      return callback(err);
+    });
 
   //var modelDir = path.join(app.root_dir, app.config.dir.models);
   //var afterFunctions = [];

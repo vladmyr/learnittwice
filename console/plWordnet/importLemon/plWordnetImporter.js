@@ -7,12 +7,66 @@ var url = require("url");
 var xmlParser = new require("xml2js").Parser();
 
 var PlWordnetImporter = function(app, options){
+  /**
+   * Helper function to process polish lemma
+   * @param lemma
+   * @param language
+   * @param entry
+   * @param t
+   * @returns {*}
+   */
+  var processLemma = function(lemma, language, entry, synsetRef, t){
+    return app[options.refModel].Lemma.find({
+      where: {
+        lemma: lemma
+      },
+      include: [{
+        model: app[options.refModel].Sense,
+        include: [{
+          model: app[options.refModel].Synset
+        }]
+      }],
+      transaction: t
+    }).then(function(lemma){
+      if(!lemma){
+        console.log("Lemma '" + lemma + "'not found in DB. Lemma is skipped");
+        return Promise.resolve();
+      }else{
+        return app[options.refModel].Lemma.findOrCreate({
+          where: {
+            lemma: entry.lemma[0]
+          },
+          defaults: {
+            count: 0,
+            legacy: true
+          },
+          transaction: t
+        }).then(function(plLemma){
+          return Promise.reduce(lemma.Senses, function(total, sense){
+            return app[options.refModel].Sense.build({
+              lemmaId: plLemma.id,
+              languageId: language[app.const.LANGUAGE.POLISH].id,
+              synsetId: sense.synsetId,
+              wordformId: sense.wordform,
+              tagCount: sense.tagCount
+            }).save({
+              validate: false,
+              transaction: t
+            }).then(function(){
+              synsetRef.isProcessed = true;
+            })
+          }, 0);
+        });
+      }
+    });
+  };
+
   var httpParser = app.helpers.httpParser;
 
   options = _.extend({
     refDb: "db",
     refModel: "models",
-    sourceFile: path.join(__dirname, "source", "wn-pol-lemon.xml")
+    sourceFile: path.join(__dirname, "source", "wn-pol-lemon-testcases.xml")
   }, options);
 
   return new Promise(function(fulfill, reject){
@@ -32,7 +86,8 @@ var PlWordnetImporter = function(app, options){
             var ref = {
               wn: urlPath[1],
               synsetId: urlPath[2].split("-")[0],
-              pos: pos
+              pos: pos,
+              isProcessed: false
             };
 
             return ref;
@@ -55,11 +110,13 @@ var PlWordnetImporter = function(app, options){
       return Promise.resolve().then(function(){
         return app[options.refModel].Language.find({
           where: {
-            iso3166a2: app.const.LANGUAGE.POLISH
+            iso3166a2: [app.const.LANGUAGE.POLISH, app.const.LANGUAGE.ENGLISH]
           },
           transaction: t
+        }).then(function(language){
+          return _.indexBy(language, "iso3166a2");
         })
-      }).then(function(plLanguage){
+      }).then(function(language){
         return Promise.reduce(entries, function(total, entry){
           return Promise.reduce(entry.synsetRef, function(total, synsetRef){
             return httpParser.Wordnet.generateUrlObject(synsetRef)
@@ -67,69 +124,54 @@ var PlWordnetImporter = function(app, options){
               .then(httpParser.Wordnet.extractLemmaInfo)
               .then(function(lemmaInfo) {
                 if (!lemmaInfo.length || !lemmaInfo[0].lemma) {
-                  console.log("Lemma was not parsed.");
-                  //search translation in glosbe
-                  return httpParser.Glosbe.api.translate({
-                    from: app.const.LANGUAGE.POLISH,
-                    to: app.const.LANGUAGE.ENGLISH,
-                    word: entry
-                  }).then(function(obj){
-
-                  });
-                  //return Promise.reject(new Error( Nothing to process."));
+                  console.log("Lemma was not parsed. Lemma is skipped");
+                  return Promise.resolve();
                 }else{
-                  return lemmaInfo;
+                  return processLemma(lemmaInfo[0].lemma, language, entry, synsetRef, t);
                 }
-              }).then(function(lemmaInfo){
-                return Promise.reduce(lemmaInfo[0].lemma, function(total, lemma){
-                  return app[options.refModel].Lemma.find({
-                    where: {
-                      lemma: lemma
-                    },
-                    include: [{
-                      model: app[options.refModel].Sense,
-                      include: [{
-                        model: app[options.refModel].Synset
-                      }]
-                    }],
-                    transaction: t
-                  }).then(function(lemma){
-                    if(!lemma){
-                      console.log("Lemma '" + lemma + "'not found in DB. Lemma is skipped");
-                      return Promise.resolve();
-                    }else{
-                      return app[options.refModel].Lemma.findOrCreate({
-                        where: {
-                          lemma: entry.lemma[0]
-                        },
-                        defaults: {
-                          count: 0,
-                          legacy: true
-                        },
-                        transaction: t
-                      }).then(function(plLemma){
-                        return Promise.reduce(lemma.Senses, function(total, sense){
-                          return app[options.refModel].Sense.build({
-                            lemmaId: plLemma.id,
-                            languageId: plLanguage.id,
-                            synsetId: sense.synsetId,
-                            wordformId: sense.wordform,
-                            tagCount: sense.tagCount
-                          }).save({
-                            transaction: t
-                          })
-                        }, 0);
-                      });
-                    }
-                  });
-                });
               }).catch(function(err){
+                console.error(err, err.stack);
                 return Promise.reject(err);
               })
-          }, 0);
+          }, 0).then(function(){
+            //if there are not processed entries, than get translation from glosbe and generate senses
+            var innerPromise = Promise.resolve();
+            var hasUnprocessed = false;
+
+            _.each(entry.synsetRef, function(synsetRef){
+              !hasUnprocessed && (hasUnprocessed = !synsetRef.isProcessed);
+            });
+
+            if(hasUnprocessed){
+              innerPromise = innerPromise.then(function(){
+                return httpParser.Glosbe.api.translate({
+                  from: app.const.LANGUAGE.POLISH,
+                  to: app.const.LANGUAGE.ENGLISH,
+                  word: entry.lemma[0]
+                }).then(function(obj){
+                  return Promise.reduce(obj.tuc, function(total, item){
+                    //if there is a translation and its language is english
+                    if(item.phrase
+                      && item.phrase.text
+                      && item.phrase.language
+                      && item.phrase.language === httpParser.Glosbe.getLanguages()[app.const.LANGUAGE.ENGLISH]){
+                      return processLemma(item.phrase.text, language, entry, {}, t);
+                    }else{
+                      //otherwise skip
+                      return Promise.resolve();
+                    }
+                  }, 0).catch(function(err){
+                    return Promise.reject(err);
+                  });
+                });
+              });
+            }
+
+            return innerPromise;
+          });
         }, 0).then(function(){
           return app.helpers.utils.db.rollback(t);
-        }).then(function(err){
+        }).catch(function(err){
           return app.helpers.utils.db.rollback(t).then(function(){
             return err;
           });

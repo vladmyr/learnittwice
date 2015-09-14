@@ -1,7 +1,5 @@
 "use strict";
 
-var LANGUAGES = require("../../../domain/Language");
-
 var _ = require("underscore");
 var Promise = require("bluebird");
 var stream = require("stream");
@@ -27,12 +25,12 @@ var Glosbe = function(app, args){
       url: {
         uk: "uk",
         pl: "pl",
-        en: "en"
+        gb: "en"
       },
       normalized: {
-        uk: LANGUAGES.UKRAINIAN,
-        pl: LANGUAGES.POLISH,
-        en: LANGUAGES.ENGLISH
+        uk: app.const.LANGUAGE.UKRAINIAN,
+        pl: app.const.LANGUAGE.POLISH,
+        en: app.const.LANGUAGE.ENGLISH
       }
     };
     var downloadDir = path.join(app.root_dir, (args.downloadDir || "/public/audio/glosbe"));
@@ -205,6 +203,8 @@ var Glosbe = function(app, args){
             return parseUrl(urlObject, { raw: true });
           }).then(function(json){
             return JSON.parse(json);
+          }).catch(function(err){
+            return Promise.reject(err);
           });
         }
       }

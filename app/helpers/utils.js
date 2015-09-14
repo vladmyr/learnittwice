@@ -248,7 +248,7 @@ utils.net = {
 
       var urlObject = (typeof urlAddress === "string" ? url.parse(urlAddress) : urlAddress);
 
-      (urlObject.protocol === "http" ? http : https).get(url.format(urlObject), function (res) {
+      (urlObject.protocol === "http" ? http : https).get(encodeURI(url.format(urlObject)), function (res) {
         if(res.statusCode === 404){
           res.pipe(writable);
         }else if(res.statusCode === 302){
@@ -269,10 +269,6 @@ utils.net = {
         }else{
           res.pipe(writable);
         }
-
-        //res.on("data", function(chunk){
-        //  return console.log(chunk);
-        //});
 
         res.on("end", function(){
           return fulfill();

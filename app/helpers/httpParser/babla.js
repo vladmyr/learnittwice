@@ -1,7 +1,5 @@
 "use strict";
 
-var LANGUAGES = require("../../../domain/Language");
-
 var _ = require("underscore");
 var Promise = require("bluebird");
 var stream = require("stream");
@@ -29,8 +27,8 @@ var Babla = function(app, args){
         en: "angielski"
       },
       normalized: {
-        polski: LANGUAGES.POLISH,
-        angielski: LANGUAGES.ENGLISH
+        polski: app.const.LANGUAGE.POLISH,
+        angielski: app.const.LANGUAGE.ENGLISH
       }
     };
     var downloadDir = path.join(app.root_dir, (args.downloadDir || "/public/audio/glosbe"));
