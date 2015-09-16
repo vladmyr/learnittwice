@@ -97,18 +97,22 @@ var wn31Importer = function(app, options){
                     });
                   })
                 }).then(function(props){
-                  return app[refModel].Sense.build({
+                  var modelSynset = app[refModel].Sense.build({
                     tagCount: sense.tagcount,
                     lemmaId: lemma.id,
                     synsetId: props.synset.id,
                     languageId: props.language.id,
                     wordformId: props.wordform.id
-                  }).save({
+                  });
+
+                  return modelSynset.save({
                     transaction: t
                   }).then(function(sense){
                     return _.extend(props, {
                       sense: sense
                     });
+                  }).catch(function(err){
+                    return Promise.reject(err);
                   })
                 });
               });

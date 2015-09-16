@@ -12,16 +12,18 @@ var path = require("path");
  * @returns {*}
  */
 module.exports = function(app, args, callback){
+
   //return new Misc().modelDescribe(app.models.Wordform).then(function(description){
   //  return description;
   //}).then(callback);
-  //Generate wordforms
-  return app.models.Wordform.bulkCreate(
-    app.models.Wordform.generateCombinations()
-  )
-    .then(function(affectedRows){
-      return callback();
-    });
+
+  ////Generate wordforms
+  //return app.models.Wordform.bulkCreate(
+  //  app.models.Wordform.generateCombinations()
+  //)
+  //  .then(function(affectedRows){
+  //    return callback();
+  //  });
 
   //test Wordform.findOnly(where);
   //return app.models.Wordform.findOnly({

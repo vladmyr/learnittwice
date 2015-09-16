@@ -1,29 +1,22 @@
 -- Alter `sense` table
-ALTER TABLE `learnittwicev1`.`sense` DROP FOREIGN KEY `sense_ibfk_1`,
-DROP FOREIGN KEY `sense_ibfk_2`,
-DROP FOREIGN KEY `sense_ibfk_3`;
-ALTER TABLE `learnittwicev1`.`sense`
-CHANGE COLUMN `lemmaId` `lemmaId` INT(11) NOT NULL DEFAULT 0 ,
-CHANGE COLUMN `synsetId` `synsetId` INT(11) NOT NULL DEFAULT 0 ,
-CHANGE COLUMN `languageId` `languageId` INT(11) NOT NULL DEFAULT 0 ,
-DROP PRIMARY KEY,
-ADD PRIMARY KEY (`lemmaId`, `synsetId`, `languageId`);
-ALTER TABLE `learnittwicev1`.`sense`
-ADD CONSTRAINT `sense_ibfk_1`
-  FOREIGN KEY (`lemmaId`)
-  REFERENCES `learnittwicev1`.`lemma` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
-ADD CONSTRAINT `sense_ibfk_2`
-  FOREIGN KEY (`synsetId`)
-  REFERENCES `learnittwicev1`.`synset` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
-ADD CONSTRAINT `sense_ibfk_3`
-  FOREIGN KEY (`languageId`)
-  REFERENCES `learnittwicev1`.`language` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+ALTER TABLE `sense` DROP FOREIGN KEY `sense_ibfk_3`;
+
+ALTER TABLE `sense`
+    CHANGE COLUMN `languageId` `languageId` INT(11) NOT NULL ,
+    ADD COLUMN `id` INT NULL AFTER `tagCount`,
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`synsetId`, `lemmaId`, `languageId`);
+
+ALTER TABLE `sense`
+    ADD CONSTRAINT `sense_ibfk_3`
+      FOREIGN KEY (`languageId`)
+      REFERENCES `language` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION;
+
+CREATE UNIQUE INDEX `id` ON `sense` (`id`);
+ALTER TABLE `sense`
+    CHANGE COLUMN `id` `id` INT NULL AUTO_INCREMENT;
 
 -- Populate table "language"
 INSERT IGNORE INTO `language` (`id`, `iso3166a2`) VALUES (1, 'ua');

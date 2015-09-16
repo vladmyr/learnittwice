@@ -13,6 +13,7 @@ var DatabaseInitializer = function(app, callback){
     .then(function(self){
       return self.migrate();
     })
+    //ToDo: postQueries.sql prevent altering `sense` table if it was done already
     .then(function(self){
       return self.executeRawQueriesFromFile(path.join(
         app.root_dir,
