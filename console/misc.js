@@ -5,14 +5,33 @@ var fs = require("fs");
 var path = require("path");
 
 /**
- * Used just for testing different staff
+ * Used just for testing different stuff
  * @param app
  * @param args
  * @param callback
  * @returns {*}
  */
 module.exports = function(app, args, callback){
-
+  return app.models.Lemma.findOne({
+    where: {
+      id: 1
+    },
+    include: [{
+      model: app.models.Sense
+    }, {
+      model: app.models.Language
+    }, {
+      model: app.models.Synset,
+      include: [{
+        model: app.models.Definition
+      }]
+    }],
+    order: "`Senses`.`tagCount` DESC"
+  }).then(function(lemma){
+    return callback();
+  }).catch(function(err){
+    return callback(err);
+  });
   //return new Misc().modelDescribe(app.models.Wordform).then(function(description){
   //  return description;
   //}).then(callback);

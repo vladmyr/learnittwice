@@ -41,6 +41,10 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
         return reject(new Error("Database initialisation with refModel = '" + refModel + "' is already reserved"));
       }
 
+      if(typeof app.Sequelize === "undefined"){
+        app.Sequelize = Sequelize;
+      }
+
       app[refModel] = {};
       app[refDb] = new Sequelize(
         dbConfig.name,

@@ -12,6 +12,7 @@ var PlWordnetImporter = function(app, options){
    * @param lemma
    * @param language
    * @param entry
+   * @param synsetRef
    * @param t
    * @returns {*}
    */
@@ -21,10 +22,12 @@ var PlWordnetImporter = function(app, options){
         lemma: lemma
       },
       include: [{
-        model: app[options.refModel].Sense,
-        include: [{
-          model: app[options.refModel].Synset
-        }]
+        model: app[options.refModel].Synset
+      }, {
+        model: app[options.refModel].Language,
+        where: {
+          id: language[app.const.LANGUAGE.ENGLISH].id
+        }
       }],
       transaction: t
     }).then(function(lemma){
@@ -42,18 +45,30 @@ var PlWordnetImporter = function(app, options){
           },
           transaction: t
         }).then(function(plLemma){
-          return Promise.reduce(lemma.Senses, function(total, sense){
-            return app[options.refModel].Sense.build({
-              lemmaId: plLemma.id,
+          return Promise.reduce(lemma.Synsets, function(total, synset){
+            var modelSense = app[options.refModel].Sense.build({
+              tagCount: synset.Sense.tagCount,
+              lemmaId: plLemma[0].id,
+              synsetId: synset.Sense.synsetId,
               languageId: language[app.const.LANGUAGE.POLISH].id,
-              synsetId: sense.synsetId,
-              wordformId: sense.wordform,
-              tagCount: sense.tagCount
-            }).save({
-              validate: false,
+              wordformId: synset.Sense.wordformId
+            });
+
+            //var modelSynset = app[refModel].Sense.build({
+            //  tagCount: sense.tagcount,
+            //  lemmaId: lemma.id,
+            //  synsetId: props.synset.id,
+            //  languageId: props.language.id,
+            //  wordformId: props.wordform.id
+            //});
+
+            return modelSense.save({
               transaction: t
             }).then(function(){
               synsetRef.isProcessed = true;
+            }).catch(app.Sequelize.UniqueConstraintError, function(err){
+              //on duplicate ignore workaround fix
+              return Promise.resolve();
             })
           }, 0);
         });
@@ -66,7 +81,8 @@ var PlWordnetImporter = function(app, options){
   options = _.extend({
     refDb: "db",
     refModel: "models",
-    sourceFile: path.join(__dirname, "source", "wn-pol-lemon-testcases.xml")
+    //sourceFile: path.join(__dirname, "source", "wn-pol-lemon-testcases.xml")
+    sourceFile: path.join(__dirname, "source", "wn-pol-lemon.xml")
   }, options);
 
   return new Promise(function(fulfill, reject){
@@ -108,7 +124,7 @@ var PlWordnetImporter = function(app, options){
   }).then(function(entries){
     return app[options.refDb].transaction().then(function(t) {
       return Promise.resolve().then(function(){
-        return app[options.refModel].Language.find({
+        return app[options.refModel].Language.findAll({
           where: {
             iso3166a2: [app.const.LANGUAGE.POLISH, app.const.LANGUAGE.ENGLISH]
           },

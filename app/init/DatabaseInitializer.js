@@ -14,13 +14,13 @@ var DatabaseInitializer = function(app, callback){
       return self.migrate();
     })
     //ToDo: postQueries.sql prevent altering `sense` table if it was done already
-    .then(function(self){
-      return self.executeRawQueriesFromFile(path.join(
-        app.root_dir,
-        app.config.dir.domain,
-        app.config.dir.databaseQueries,
-        app.config.filePath.domain.databaseQueries.postQueries));
-    })
+    //.then(function(self){
+    //  return self.executeRawQueriesFromFile(path.join(
+    //    app.root_dir,
+    //    app.config.dir.domain,
+    //    app.config.dir.databaseQueries,
+    //    app.config.filePath.domain.databaseQueries.postQueries));
+    //})
     .then(function(){
       return callback();
     }).catch(function(err){

@@ -97,7 +97,7 @@ var wn31Importer = function(app, options){
                     });
                   })
                 }).then(function(props){
-                  var modelSynset = app[refModel].Sense.build({
+                  var modelSense = app[refModel].Sense.build({
                     tagCount: sense.tagcount,
                     lemmaId: lemma.id,
                     synsetId: props.synset.id,
@@ -105,7 +105,7 @@ var wn31Importer = function(app, options){
                     wordformId: props.wordform.id
                   });
 
-                  return modelSynset.save({
+                  return modelSense.save({
                     transaction: t
                   }).then(function(sense){
                     return _.extend(props, {
