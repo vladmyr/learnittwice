@@ -54,14 +54,6 @@ var PlWordnetImporter = function(app, options){
               wordformId: synset.Sense.wordformId
             });
 
-            //var modelSynset = app[refModel].Sense.build({
-            //  tagCount: sense.tagcount,
-            //  lemmaId: lemma.id,
-            //  synsetId: props.synset.id,
-            //  languageId: props.language.id,
-            //  wordformId: props.wordform.id
-            //});
-
             return modelSense.save({
               transaction: t
             }).then(function(){
@@ -76,13 +68,112 @@ var PlWordnetImporter = function(app, options){
     });
   };
 
+  var processChunk = function(entries, language){
+    return app[options.refDb].transaction().then(function(t){
+      return Promise.reduce(entries, function(total, entry){
+        //return Promise.reduce(entry.synsetRef, function(total, synsetRef){
+        //  return httpParser.Wordnet.generateUrlObject(synsetRef)
+        //    .then(httpParser.Wordnet.parseUrl)
+        //    .then(httpParser.Wordnet.extractLemmaInfo)
+        //    .then(function(lemmaInfo) {
+        //      if (!lemmaInfo.length || !lemmaInfo[0].lemma) {
+        //        console.log("Lemma was not parsed. Lemma is skipped");
+        //        return Promise.resolve();
+        //      }else{
+        //        return processLemma(lemmaInfo[0].lemma, language, entry, synsetRef, t);
+        //      }
+        //    }).catch(function(err){
+        //      console.error(err, err.stack);
+        //      return Promise.reject(err);
+        //    })
+        //}, 0).then(function(){
+          //if there are not processed entries, than get translation from glosbe and generate senses
+          var innerPromise = Promise.resolve();
+          var hasUnprocessed = true;
+
+          //_.each(entry.synsetRef, function(synsetRef){
+          //  !hasUnprocessed && (hasUnprocessed = !synsetRef.isProcessed);
+          //});
+
+          if(hasUnprocessed){
+            innerPromise = innerPromise.then(function(){
+              return httpParser.Glosbe.api.translate({
+                from: app.const.LANGUAGE.POLISH,
+                to: app.const.LANGUAGE.ENGLISH,
+                word: entry.lemma[0]
+              }).then(function(obj){
+                if(!obj || !obj.tuc){
+                  return Promise.resolve();
+                }else{
+                  return Promise.reduce(obj.tuc, function(total, item){
+                    //if there is a translation and its language is english
+                    if(item.phrase
+                      && item.phrase.text
+                      && item.phrase.language
+                      && item.phrase.language === httpParser.Glosbe.getLanguages()[app.const.LANGUAGE.ENGLISH]){
+                      return processLemma(item.phrase.text, language, entry, {}, t);
+                    }else{
+                      //otherwise skip
+                      return Promise.resolve();
+                    }
+                  }, 0).catch(function(err){
+                    return Promise.reject(err);
+                  });
+                }
+              });
+            });
+          }
+
+          return innerPromise;
+        //});
+      }, 0).then(function(){
+        return app.helpers.utils.db.commit(t);
+      }).catch(function(err){
+        return app.helpers.utils.db.rollback(t).then(function(){
+          return err;
+        });
+      });
+    })
+  };
+
+  var processAll = function(entries, language, skipUntilLemma){
+    typeof skipUntil !== "undefined" && (entries = skipUntil(entries, skipUntilLemma));
+
+    var chunkSize = 100;
+    var chunks = app.helpers.utils.arr.chunk(entries, chunkSize);
+
+    return Promise.reduce(chunks, function(total, chunk, index){
+      console.log("Processing chunk [" + (index * chunkSize) + " - " + (index * chunkSize + chunk.length) + "]...");
+      return processChunk(chunk, language).then(function(){
+        return console.log("Done!");
+      })
+    }, 0);
+  };
+
+  /**
+   * Skip all entries until specified entry is found
+   * @param entries
+   * @param entryLemma
+   */
+  var skipUntil = function(entries, entryLemma){
+    var isIncluded = false;
+
+    return _.filter(entries, function(value, index){
+      if(value.lemma[0] === entryLemma){
+        isIncluded = true;
+      }
+      return isIncluded;
+    });
+  };
+
   var httpParser = app.helpers.httpParser;
 
   options = _.extend({
     refDb: "db",
     refModel: "models",
     //sourceFile: path.join(__dirname, "source", "wn-pol-lemon-testcases.xml")
-    sourceFile: path.join(__dirname, "source", "wn-pol-lemon.xml")
+    sourceFile: path.join(__dirname, "source", "wn-pol-lemon.xml"),
+    skipUntilLemma: false
   }, options);
 
   return new Promise(function(fulfill, reject){
@@ -122,84 +213,25 @@ var PlWordnetImporter = function(app, options){
       });
     })
   }).then(function(entries){
-    return app[options.refDb].transaction().then(function(t) {
-      return Promise.resolve().then(function(){
-        return app[options.refModel].Language.findAll({
-          where: {
-            iso3166a2: [app.const.LANGUAGE.POLISH, app.const.LANGUAGE.ENGLISH]
-          },
-          transaction: t
-        }).then(function(language){
-          return _.indexBy(language, "iso3166a2");
-        })
+    return Promise.resolve().then(function(){
+      return app[options.refModel].Language.findAll({
+        where: {
+          iso3166a2: [app.const.LANGUAGE.POLISH, app.const.LANGUAGE.ENGLISH]
+        }
       }).then(function(language){
-        return Promise.reduce(entries, function(total, entry){
-          return Promise.reduce(entry.synsetRef, function(total, synsetRef){
-            return httpParser.Wordnet.generateUrlObject(synsetRef)
-              .then(httpParser.Wordnet.parseUrl)
-              .then(httpParser.Wordnet.extractLemmaInfo)
-              .then(function(lemmaInfo) {
-                if (!lemmaInfo.length || !lemmaInfo[0].lemma) {
-                  console.log("Lemma was not parsed. Lemma is skipped");
-                  return Promise.resolve();
-                }else{
-                  return processLemma(lemmaInfo[0].lemma, language, entry, synsetRef, t);
-                }
-              }).catch(function(err){
-                console.error(err, err.stack);
-                return Promise.reject(err);
-              })
-          }, 0).then(function(){
-            //if there are not processed entries, than get translation from glosbe and generate senses
-            var innerPromise = Promise.resolve();
-            var hasUnprocessed = false;
-
-            _.each(entry.synsetRef, function(synsetRef){
-              !hasUnprocessed && (hasUnprocessed = !synsetRef.isProcessed);
-            });
-
-            if(hasUnprocessed){
-              innerPromise = innerPromise.then(function(){
-                return httpParser.Glosbe.api.translate({
-                  from: app.const.LANGUAGE.POLISH,
-                  to: app.const.LANGUAGE.ENGLISH,
-                  word: entry.lemma[0]
-                }).then(function(obj){
-                  return Promise.reduce(obj.tuc, function(total, item){
-                    //if there is a translation and its language is english
-                    if(item.phrase
-                      && item.phrase.text
-                      && item.phrase.language
-                      && item.phrase.language === httpParser.Glosbe.getLanguages()[app.const.LANGUAGE.ENGLISH]){
-                      return processLemma(item.phrase.text, language, entry, {}, t);
-                    }else{
-                      //otherwise skip
-                      return Promise.resolve();
-                    }
-                  }, 0).catch(function(err){
-                    return Promise.reject(err);
-                  });
-                });
-              });
-            }
-
-            return innerPromise;
-          });
-        }, 0).then(function(){
-          return app.helpers.utils.db.rollback(t);
-        }).catch(function(err){
-          return app.helpers.utils.db.rollback(t).then(function(){
-            return err;
-          });
-        });
-      });
+        return _.indexBy(language, "iso3166a2");
+      })
+    }).then(function(language){
+      return processAll(entries, language, options.skipUntilLemma);
     });
   });
 };
 
 module.exports = function(app, args, callback){
   console.log("Executing PlWordnetImporter...");
-  return new PlWordnetImporter(app).then(function(){
+  return new PlWordnetImporter(app, {
+    skipUntilLemma: "gofrownica"
+  }).then(function(){
     console.log("All tasks are done!");
     return callback();
   }).catch(function(err){

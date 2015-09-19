@@ -383,4 +383,25 @@ utils.db = {
   }
 };
 
+/**
+ * Util functions for arrays
+ */
+utils.arr = {
+  /**
+   * Slice array into chunks
+   * @param arr
+   * @param chunkSize
+   * @returns {Array}
+   */
+  chunk: function(arr, chunkSize){
+    var chunks = [];
+
+    for(var chunkIndex = 0; chunkIndex < Math.ceil(arr.length / chunkSize); chunkIndex++){
+      chunks.push(arr.slice(chunkIndex * chunkSize, chunkIndex * chunkSize + chunkSize));
+    }
+
+    return chunks;
+  }
+};
+
 module.exports = utils;

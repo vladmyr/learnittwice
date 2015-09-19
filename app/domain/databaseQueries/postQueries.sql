@@ -1,22 +1,26 @@
 -- Alter `sense` table
-ALTER TABLE `sense` DROP FOREIGN KEY `sense_ibfk_3`;
+ALTER TABLE `sense` DROP FOREIGN KEY `sense_ibfk_1`, DROP FOREIGN KEY `sense_ibfk_3`;
 
 ALTER TABLE `sense`
-    CHANGE COLUMN `languageId` `languageId` INT(11) NOT NULL ,
-    ADD COLUMN `id` INT NULL AFTER `tagCount`,
+    ADD `id` INT NULL ,
+    CHANGE COLUMN `baseLemmaId` `baseLemmaId` INT(11) NOT NULL DEFAULT '0' ,
+    CHANGE COLUMN `wordformId` `wordformId` INT(11) NOT NULL DEFAULT '0' ,
     DROP PRIMARY KEY,
-    ADD PRIMARY KEY (`synsetId`, `lemmaId`, `languageId`);
-
-ALTER TABLE `sense`
-    ADD CONSTRAINT `sense_ibfk_3`
-      FOREIGN KEY (`languageId`)
-      REFERENCES `language` (`id`)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION;
+    ADD PRIMARY KEY (`synsetId`, `languageId`, `lemmaId`, `wordformId`, `baseLemmaId`);
 
 CREATE UNIQUE INDEX `id` ON `sense` (`id`);
 ALTER TABLE `sense`
-    CHANGE COLUMN `id` `id` INT NULL AUTO_INCREMENT;
+    CHANGE COLUMN `id` `id` INT NULL AUTO_INCREMENT,
+    ADD CONSTRAINT `sense_ibfk_1`
+      FOREIGN KEY (`baseLemmaId`)
+      REFERENCES `lemma` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+    ADD CONSTRAINT `sense_ibfk_3`
+      FOREIGN KEY (`wordformId`)
+      REFERENCES `wordform` (`id`)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION;
 
 -- Populate table "language"
 INSERT IGNORE INTO `language` (`id`, `iso3166a2`) VALUES (1, 'ua');

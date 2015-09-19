@@ -12,26 +12,54 @@ var path = require("path");
  * @returns {*}
  */
 module.exports = function(app, args, callback){
-  return app.models.Lemma.findOne({
+  app.models.Lemma.findAll({
     where: {
-      id: 1
+      lemma: "car"
     },
     include: [{
-      model: app.models.Sense
-    }, {
-      model: app.models.Language
+      model: app.models.Language,
+      where: {
+        iso3166a2: app.const.LANGUAGE.ENGLISH
+      }
     }, {
       model: app.models.Synset,
       include: [{
-        model: app.models.Definition
+        model: app.models.Lemma,
+        include: [{
+          model: app.models.Language,
+          where: {
+            iso3166a2: app.const.LANGUAGE.POLISH
+          }
+        }]
       }]
-    }],
-    order: "`Senses`.`tagCount` DESC"
-  }).then(function(lemma){
+    }]
+  }).then(function(data){
     return callback();
   }).catch(function(err){
     return callback(err);
   });
+
+  //return app.models.Lemma.findOne({
+  //  where: {
+  //    id: 1
+  //  },
+  //  include: [{
+  //    model: app.models.Sense
+  //  }, {
+  //    model: app.models.Language
+  //  }, {
+  //    model: app.models.Synset,
+  //    include: [{
+  //      model: app.models.Definition
+  //    }]
+  //  }],
+  //  order: "`Senses`.`tagCount` DESC"
+  //}).then(function(lemma){
+  //  return callback();
+  //}).catch(function(err){
+  //  return callback(err);
+  //});
+
   //return new Misc().modelDescribe(app.models.Wordform).then(function(description){
   //  return description;
   //}).then(callback);

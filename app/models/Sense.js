@@ -23,6 +23,9 @@ module.exports = function(define, DataTypes, app){
     app[refModel].Sense.belongsTo(app[refModel].Lemma, { as: "Lemma", foreignKey: "lemmaId", onDelete: "NO ACTION", onUpdate: "NO ACTION" });
     app[refModel].Lemma.hasMany(app[refModel].Sense, { foreignKey: "lemmaId" });
 
+    app[refModel].Sense.belongsTo(app[refModel].Lemma, { as: "BaseLemma", foreignKey: "baseLemmaId", onDelete: "NO ACTION", onUpdate: "NO ACTION" });
+    app[refModel].Lemma.hasMany(app[refModel].Sense, { foreignKey: "baseLemmaId" });
+
     app[refModel].Sense.belongsTo(app[refModel].Synset, { as: "Synset", foreignKey: "synsetId", onDelete: "NO ACTION", onUpdate: "NO ACTION" });
     app[refModel].Synset.hasMany(app[refModel].Sense, { foreignKey: "synsetId" });
 
