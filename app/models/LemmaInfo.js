@@ -13,7 +13,7 @@ module.exports = function(define, DataTypes, app){
       defaultValue: 0
     }
   }, {
-    tableName: "lemmaInfo",
+    tableName: "lemmainfo",
     timestamps: false,
     classMethods: {
 
