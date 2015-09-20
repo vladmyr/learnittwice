@@ -146,6 +146,7 @@ module.exports = function(define, DataTypes, app){
   });
 
   define.after(function(model, refDb, refModel){
-
+    app[refModel].Wordform.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, foreignKey: "wordformId" });
+    app[refModel].Lemma.belongsToMany(app[refModel].Wordform, { through: app[refModel].Sense, foreignKey: "lemmaId" });
   });
 };

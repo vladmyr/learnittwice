@@ -6,11 +6,6 @@ module.exports = function(define, DataTypes, app){
       type: DataTypes.STRING(120),
       allowNull: false,
       unique: true
-    },
-    legacy: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
     }
   }, {
     tableName: "lemma",
@@ -28,10 +23,16 @@ module.exports = function(define, DataTypes, app){
   });
 
   define.after(function(model, refDb, refModel){
+    app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, foreignKey: "lemmaId" });
+    app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, as: "BaseLemma", foreignKey: "baseLemmaId" });
+
     app[refModel].Lemma.belongsToMany(app[refModel].Synset, { through: app[refModel].Sense, foreignKey: "lemmaId" });
     app[refModel].Synset.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, foreignKey: "synsetId" });
 
     app[refModel].Lemma.belongsToMany(app[refModel].Language, { through: app[refModel].Sense, foreignKey: "lemmaId" });
     app[refModel].Language.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, foreignKey: "languageId" });
+
+    app[refModel].Lemma.belongsToMany(app[refModel].Wordform, { through: app[refModel].Sense, foreignKey: "lemmaId" });
+    app[refModel].Wordform.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, foreignKey: "wordformId" });
   });
 };
