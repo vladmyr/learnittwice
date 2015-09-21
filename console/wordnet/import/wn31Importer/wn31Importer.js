@@ -49,25 +49,43 @@ var wn31Importer = function(app, options){
             model: app[refModelWn].Synset
           }]
         }]
-      }).then(function(words){
-        return Promise.reduce(words, function(total, word){
+      }).then(function(words) {
+        return Promise.props({
+          words: words,
+          language: app[refModel].Language.findOne({
+            where: {
+              iso3166a2: app.const.LANGUAGE.ENGLISH
+            },
+            transaction: t
+          })
+        })
+      }).then(function(props0){
+        var language = props0.language;
+
+        return Promise.reduce(props0.words, function(total, word){
           return Promise.resolve().then(function(){
             return app[refModel].Lemma.build({
-              lemma: word.lemma,
-              legacy: true,
-              count: 0
+              lemma: word.lemma
             }).save({
               transaction: t
             });
-          }).then(function(lemma){
+          }).then(function(lemma) {
+            return app[refModel].LemmaInfo.build({
+              legacy: true,
+              count: 0,
+              lemmaId: lemma.id,
+              languageId: language.id
+            }).save({
+              transaction: t
+            }).then(function(lemmaInfo){
+              return Promise.props({
+                lemma: lemma,
+                lemmaInfo: lemmaInfo
+              });
+            });
+          }).then(function(props){
             return Promise.reduce(word.Senses, function(total, sense){
-              return app[refModel].Language.findOne({
-                where: {
-                  iso3166a2: app.const.LANGUAGE.ENGLISH
-                },
-                transaction: t
-              }).then(function(language){
-                return Promise.props({
+              return Promise.props(_.extend({
                   language: language,
                   synset: app[refModel].Synset.build({
                     lexdomainid: sense.Synset.lexdomainid,
@@ -84,37 +102,38 @@ var wn31Importer = function(app, options){
                   }).then(function(wordform){
                     return wordform;
                   })
-                }).then(function(props){
-                  return app[refModel].Definition.build({
-                    definition: sense.Synset.definition,
-                    languageId: props.language.id,
-                    synsetId: props.synset.id
-                  }).save({
-                    transaction: t
-                  }).then(function(definition){
-                    return _.extend(props, {
-                      definition: definition
-                    });
-                  })
-                }).then(function(props){
-                  var modelSense = app[refModel].Sense.build({
-                    tagCount: sense.tagcount,
-                    lemmaId: lemma.id,
-                    synsetId: props.synset.id,
-                    languageId: props.language.id,
-                    wordformId: props.wordform.id
+                }, props)
+              ).then(function(props){
+                return app[refModel].Definition.build({
+                  definition: sense.Synset.definition,
+                  languageId: props.language.id,
+                  synsetId: props.synset.id
+                }).save({
+                  transaction: t
+                }).then(function(definition){
+                  return _.extend(props, {
+                    definition: definition
                   });
-
-                  return modelSense.save({
-                    transaction: t
-                  }).then(function(sense){
-                    return _.extend(props, {
-                      sense: sense
-                    });
-                  }).catch(function(err){
-                    return Promise.reject(err);
-                  })
+                })
+              }).then(function(props){
+                var modelSense = app[refModel].Sense.build({
+                  tagCount: sense.tagcount,
+                  lemmaId: props.lemma.id,
+                  baseLemmaId: props.lemma.id,
+                  synsetId: props.synset.id,
+                  languageId: props.language.id,
+                  wordformId: props.wordform.id
                 });
+
+                return modelSense.save({
+                  transaction: t
+                }).then(function(sense){
+                  return _.extend(props, {
+                    sense: sense
+                  });
+                }).catch(function(err){
+                  return Promise.reject(err);
+                })
               });
             }, 0);
           });
