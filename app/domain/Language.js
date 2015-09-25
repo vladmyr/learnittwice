@@ -1,6 +1,6 @@
 "use strict";
 
-var LANGUAGES = (function(){
+var LANGUAGE = (function(){
   return {
     UKRAINIAN:  (function() { return "uk"; })(),
     POLISH:     (function() { return "pl"; })(),
@@ -8,4 +8,4 @@ var LANGUAGES = (function(){
   }
 })();
 
-module.exports = LANGUAGES;
+module.exports = LANGUAGE;

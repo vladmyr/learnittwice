@@ -4,6 +4,7 @@ var _ = require("underscore");
 var path = require("path");
 var Promise = require("bluebird");
 var Sequelize = require("sequelize");
+var winston = require("winston");
 
 /**
  * Database management class
@@ -17,11 +18,29 @@ var Sequelize = require("sequelize");
  */
 var Database = function(app, dbConfig, modelDir, refDb, refModel){
   var isInitialized = false;
+  var logger;
+  var loggerTransports = [];
+
   //initialize defaults
   !dbConfig && (dbConfig = app.config.database);
   !modelDir && (modelDir = path.join(app.root_dir, app.config.dir.models));
   !refDb && (refDb = "db");
   !refModel && (refModel = "models");
+
+  //initialize logging
+  !app.config.db.isEnabledFileLogging && (loggerTransports.push(
+    new (winston.transports.File)({
+      filename: path.join(
+        app.root_dir,
+        app.config.dir.logs,
+        app.config.filePath.log.db
+      ),
+      json: false
+    })
+  ));
+  !app.config.db.isEnabledConsoleLogging && (loggerTransports.push(
+    new (winston.transports.Console)()
+  ));
 
   /**
    * Initialize database connection and DAO
@@ -29,6 +48,10 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
    */
   var initialize = function(){
     var self = this;
+
+    logger = new (winston.Logger)({
+      transport: loggerTransports
+    });
 
     return new Promise(function(fulfill, reject){
       var afterFunctions = [];
@@ -50,7 +73,13 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
         dbConfig.name,
         dbConfig.username,
         dbConfig.password,
-        dbConfig.settings);
+        dbConfig.settings
+        //_.extend(dbConfig.settings, {
+        //  logging: function(message){
+        //    return logger.log("info", message);
+        //  }
+        //})
+      );
 
       app.helpers.utils.fs.scanDir(modelDir, {}, function(file){
         var filePath = path.join(modelDir, file);

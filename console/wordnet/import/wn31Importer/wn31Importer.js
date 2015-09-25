@@ -141,6 +141,7 @@ var wn31Importer = function(app, options){
       }).then(function(){
         return app.helpers.utils.db.commit(t);
       }).catch(function(err){
+        console.log(err, (err.stack || ""));
         return app.helpers.utils.db.rollback(t)
       })
     });

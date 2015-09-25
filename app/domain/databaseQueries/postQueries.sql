@@ -64,4 +64,5 @@ INSERT IGNORE INTO `learnittwicev1`.`wordform` (`id`, `pos`) VALUES (7, 'conjunc
 INSERT IGNORE INTO `learnittwicev1`.`wordform` (`id`, `pos`) VALUES (8, 'interjection');
 INSERT IGNORE INTO `learnittwicev1`.`wordform` (`id`, `pos`) VALUES (9, 'clause');
 INSERT IGNORE INTO `learnittwicev1`.`wordform` (`id`, `pos`) VALUES (10, 'adjective_satellite');
+INSERT IGNORE INTO `learnittwicev1`.`wordform` (`id`, `pos`) VALUES (11, null);
 

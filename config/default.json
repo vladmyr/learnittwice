@@ -5,7 +5,8 @@
     "models": "/models",
     "controllers": "/controllers",
     "domain": "/domain",
-    "databaseQueries": "/databaseQueries"
+    "databaseQueries": "/databaseQueries",
+    "logs": "../logs"
   },
   "filePath": {
     "domain": {
@@ -14,7 +15,14 @@
       "databaseQueries": {
         "postQueries": "postQueries.sql"
       }
+    },
+    "log": {
+      "db": "db.log"
     }
+  },
+  "db": {
+    "isEnabledFileLogging": true,
+    "isEnabledConsoleLogging": true
   },
   "entryPoints": [{
     "controllerName": "_default",

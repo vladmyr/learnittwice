@@ -2,6 +2,7 @@
 
 //load consts
 var LANGUAGE = require("./domain/Language");
+var MEDIATYPE = require("./domain/MediaType");
 
 //load modules
 var _ = require("underscore");
@@ -24,7 +25,8 @@ module.exports = function(config, options, callback){
         httpParser: {}
       },
       const: {
-        LANGUAGE: LANGUAGE
+        LANGUAGE: LANGUAGE,
+        MEDIATYPE: MEDIATYPE
       }
     };
   var tasks = [];

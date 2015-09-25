@@ -102,7 +102,7 @@ utils.fs = {
         }).then(function(){
           return callback();
         }).catch(function(err){
-          return calblack(err);
+          return callback(err);
         })
       };
 
@@ -343,9 +343,10 @@ utils.string = {
 utils.db = {
   /**
    * Handle transaction commit
-   * @param t - transaction
+   * @param t                  - transaction
+   * @param {boolean} [isSilent] - defines whether to throw exception on error
    */
-  commit: function(t){
+  commit: function(t, isSilent){
     return new Promise(function(fulfill, reject){
       if(t){
         return t
@@ -354,18 +355,19 @@ utils.db = {
             return fulfill();
           })
           .catch(function(err){
-            return reject(err);
+            return !!isSilent ? fulfill() : reject(err);
           })
       }else{
-        return reject(new Error("Transaction is not defined"));
+        return !!isSilent ? fulfill() : reject(new Error("Transaction is not defined"));
       }
     });
   },
   /**
    * Handle transaction rollback
-   * @param t - transaction
+   * @param t             - transaction
+   * @param {Error} [err] - error that causes transaction rollback
    */
-  rollback: function(t){
+  rollback: function(t, err){
     return new Promise(function(fulfill, reject){
       if(t){
         return t
@@ -373,11 +375,12 @@ utils.db = {
           .then(function(){
             return reject();
           })
-          .catch(function(err){
-            return reject(err);
+          .catch(function(tErr){
+            return reject(err ? [err, tErr] : err);
           });
       }else{
-        return reject(new Error("Transaction is not defined"));
+        var tErr = new Error("Transaction is not defined");
+        return reject(err ? [err, tErr] : err);
       }
     });
   }
@@ -396,11 +399,23 @@ utils.arr = {
   chunk: function(arr, chunkSize){
     var chunks = [];
 
-    for(var chunkIndex = 0; chunkIndex < Math.ceil(arr.length / chunkSize); chunkIndex++){
+    for(var chunkIndex = 0, totalChunks = Math.ceil(arr.length / chunkSize); chunkIndex < totalChunks; chunkIndex++){
       chunks.push(arr.slice(chunkIndex * chunkSize, chunkIndex * chunkSize + chunkSize));
     }
 
     return chunks;
+  }
+};
+
+/**
+ * Util functions for processing errors
+ */
+utils.err = {
+  normalize: function(err){
+
+  },
+  handle: function(err){
+
   }
 };
 
