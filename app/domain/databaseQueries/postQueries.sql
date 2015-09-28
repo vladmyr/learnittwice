@@ -34,6 +34,14 @@ ALTER TABLE `lemmainfo`
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`lemmaId`, `languageId`);
 
+-- Alter `lesson` table
+ALTER TABLE `learnittwicev1`.`lesson`
+    CHANGE COLUMN `order` `order` INT(10) UNSIGNED NOT NULL DEFAULT 0 ,
+    CHANGE COLUMN `courseId` `courseId` INT(11) NOT NULL DEFAULT 0 ,
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`id`, `order`, `courseId`);
+
+
 CREATE UNIQUE INDEX `id` ON `lemmainfo` (`id`);
 ALTER TABLE `lemmainfo`
     CHANGE COLUMN `id` `id` INT NULL AUTO_INCREMENT,

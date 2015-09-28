@@ -6,18 +6,23 @@
     "controllers": "/controllers",
     "domain": "/domain",
     "databaseQueries": "/databaseQueries",
-    "logs": "../logs"
+    "logs": "../logs",
+    "views": "/views",
+    "public": "/public"
   },
   "filePath": {
     "domain": {
       "database": "Database",
       "language": "Language",
+      "expressApp": "ExpressApp",
       "databaseQueries": {
         "postQueries": "postQueries.sql"
       }
     },
     "log": {
-      "db": "db.log"
+      "db": "db.log",
+      "warning": "warning.log",
+      "error": "error.log"
     }
   },
   "db": {
@@ -25,7 +30,9 @@
     "isEnabledConsoleLogging": true
   },
   "entryPoints": [{
-    "controllerName": "_default",
-    "port": 4000
+    "route_root": "/api",
+    "controllerDir": "controllers/api",
+    "mainControllerName": "_default",
+    "port": 8081
   }]
 }

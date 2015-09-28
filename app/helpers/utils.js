@@ -162,7 +162,7 @@ utils.fs = {
    * @param iterator
    * @returns {bluebird}
    */
-  scanDir: function(path, options, iterator){
+  scanDir: function(pathDir, options, iterator){
     var include = function(includes, file){
       return includes.indexOf(file) !== -1
     };
@@ -170,26 +170,40 @@ utils.fs = {
       return excludes.indexOf(file) === -1;
     };
 
+    options.excludes = _.map(options.excludes || [], function(exclude){
+      return path.basename(exclude, path.extname(exclude));
+    });
+
+    options.includes = _.map(options.includes || [], function(exclude){
+      return path.basename(exclude, path.extname(exclude));
+    });
+
     return new Promise(function(fulfill, reject){
-      fs.readdir(path, function(err, files){
+      fs.readdir(pathDir, function(err, files){
         if(err){
           return reject(err);
         }else{
-          files.filter(function(file){
+          return Promise.reduce(files.filter(function(file){
             var filter = true;
 
-            if(options.includes && options.excludes){
+            file = path.basename(file, path.extname(file));
+
+            if(options.includes.length && options.excludes.length){
               filter = include(options.includes, file) && exclude(options.excludes, file);
-            }else if(options.includes){
+            }else if(options.includes.length){
               filter = include(options.includes, file);
-            }else if(options.excludes){
+            }else if(options.excludes.length){
               filter = exclude(options.excludes, file);
             }
 
             return filter;
-          })
-          .forEach(iterator);
-          return fulfill();
+          }), function(total, file){
+            return iterator(file);
+          }, 0).then(function(){
+            return fulfill();
+          });
+          //.forEach(iterator);
+          //return fulfill();
         }
       })
     });
@@ -416,6 +430,48 @@ utils.err = {
   },
   handle: function(err){
 
+  }
+};
+
+utils.express = {
+  defineController: function(router, controller){
+    _.defaults(controller, {
+      bind: function(method){
+        return this[method].bind(this);
+      }
+    });
+
+    return controller.setup(router);
+  },
+  loadControllerHierarchy: function(entryPoint, router, app){
+    var container = require(path.join(app.root_dir, entryPoint.controllerDir, entryPoint.mainControllerName));
+    return container(entryPoint, router, app);
+  },
+  loadOneNestedController: function(container, router, app){
+    if(typeof container === "string"){
+      container = require(path.join(app.root_dir, container));
+    }
+    container(router, app);
+    return router;
+  },
+  loadAllNestedControllers: function(pathDir, exclude, router, app){
+    return Promise.resolve().then(function(){
+      return utils.fs.scanDir(pathDir, { excludes: [exclude] } , function(file){
+        file = path.basename(file, path.extname(file));
+
+        var filePath = path.join(pathDir, file);
+        var container = require(filePath);
+
+        var nestedRouter = utils.express.loadOneNestedController(container, require("express").Router(), app);
+
+        var root = nestedRouter.path || file;
+        _.each((Array.isArray(root) ? root : [root]), function(path){
+          router.use("/" + path, nestedRouter);
+        });
+      });
+    }).then(function(){
+      return router;
+    });
   }
 };
 
