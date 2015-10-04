@@ -29,10 +29,27 @@
     "isEnabledFileLogging": true,
     "isEnabledConsoleLogging": true
   },
-  "entryPoints": [{
-    "route_root": "/api",
-    "controllerDir": "controllers/api",
-    "mainControllerName": "_default",
-    "port": 8081
-  }]
+  "entryPoints": {
+    "api": {
+      "route_root": "/api",
+      "controllerDir": "controllers/api",
+      "mainControllerName": "_default",
+      "alias": "api",
+      "port": 8081
+    },
+    "front": {
+      "route_root": "/",
+      "controllerDir": "controllers/front",
+      "mainControllerName": "_default",
+      "alias": "front",
+      "port": 8082
+    },
+    "admin": {
+      "route_root": "/panel",
+      "controllerDir": "controllers/admin",
+      "mainControllerName": "_default",
+      "alias": "admin",
+      "port": 8083
+    }
+  }
 }

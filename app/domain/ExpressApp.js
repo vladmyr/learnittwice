@@ -9,6 +9,7 @@ module.exports = function(entryPoint, options, app){
   var expressApp = express();
 
   expressApp.set("port", entryPoint.port);
+  expressApp.set("alias", entryPoint.alias || "");
 
   expressApp.set("views", path.join(app.root_dir, app.config.dir.views));
   expressApp.set("view engine", "jade");

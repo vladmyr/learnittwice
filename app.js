@@ -4,10 +4,9 @@ var _ = require("underscore");
 var config = require("config");
 var http = require("http");
 var querystring = require("querystring");
+var Promise = require("bluebird");
 
 var app = require("./app/index.js")(config, {}, function(err, app){
-  //ToDo: Find out what prevents program to exit on itself
-
   if(err){
     console.error(err, querystring.unescape(err.stack));
     return process.exit(0);
@@ -15,9 +14,8 @@ var app = require("./app/index.js")(config, {}, function(err, app){
     _.each(app.expressApps || [], function(expressApp){
       var httpServer = http.createServer(expressApp)
         .listen(expressApp.get("port"), function(err){
-          return console.log("Listening on port", expressApp.get("port"));
+          return console.log("Listening '" + expressApp.get("alias") + "' on port", expressApp.get("port"));
         });
     });
   }
-  //httpServer = http.createServer()
 });

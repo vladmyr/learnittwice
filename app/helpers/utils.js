@@ -127,11 +127,11 @@ utils.fs = {
   /**
    * Scan each file in a directory synchronously
    * ToDo: add regular expression match functionality
-   * @param {String} path - path to the directory to scan
+   * @param {String} pathDir - path to the directory to scan
    * @param {Object} options - options where "includes" and/or "excludes" can be defined
    * @param {Function} iterator - function that defines what actions will be performed on each file
    */
-  scanDirSync: function(path, options, iterator){
+  scanDirSync: function(pathDir, options, iterator){
     var include = function(includes, file){
       return includes.indexOf(file) !== -1
     };
@@ -139,15 +139,25 @@ utils.fs = {
       return excludes.indexOf(file) === -1;
     };
 
-    fs.readdirSync(path)
+    options.excludes = _.map(options.excludes || [], function(exclude){
+      return path.basename(exclude, path.extname(exclude));
+    });
+
+    options.includes = _.map(options.includes || [], function(exclude){
+      return path.basename(exclude, path.extname(exclude));
+    });
+
+    fs.readdirSync(pathDir)
       .filter(function(file){
         var filter = true;
 
-        if(options.includes && options.excludes){
+        file = path.basename(file, path.extname(file));
+
+        if(options.includes.length && options.excludes.length){
           filter = include(options.includes, file) && exclude(options.excludes, file);
-        }else if(options.includes){
+        }else if(options.includes.length){
           filter = include(options.includes, file);
-        }else if(options.excludes){
+        }else if(options.excludes.length){
           filter = exclude(options.excludes, file);
         }
 
@@ -157,7 +167,7 @@ utils.fs = {
   },
   /**
    * Scan each file in a directory
-   * @param path
+   * @param pathDir
    * @param options
    * @param iterator
    * @returns {bluebird}
@@ -202,8 +212,6 @@ utils.fs = {
           }, 0).then(function(){
             return fulfill();
           });
-          //.forEach(iterator);
-          //return fulfill();
         }
       })
     });
