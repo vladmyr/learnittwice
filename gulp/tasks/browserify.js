@@ -12,11 +12,11 @@ module.exports = function(gulp, path){
     var b;
 
     function bundler(file) {
-      if (!b) {
-        b = browserify({
-          entries: file.path
-        });
-      }
+      //if (!b) {
+      b = browserify({
+        entries: file.path
+      });
+      //}
       var stream = b.bundle();
       file.contents = stream;
     }

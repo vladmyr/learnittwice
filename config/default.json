@@ -41,6 +41,7 @@
       "route_root": "/",
       "controllerDir": "controllers/front",
       "mainControllerName": "_default",
+      "publicDir": "public/front",
       "alias": "front",
       "port": 8082
     },
@@ -48,6 +49,7 @@
       "route_root": "/panel",
       "controllerDir": "controllers/admin",
       "mainControllerName": "_default",
+      "publicDir": "public/admin",
       "alias": "admin",
       "port": 8083
     }
