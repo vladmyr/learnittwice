@@ -3,16 +3,14 @@
 var Promise = require("bluebird");
 var _ = require("underscore");
 
-var DictionaryService = function(){
+var DictionaryService = function(app){
   var _instance;
 
   if(!_instance){
     _instance = (function(){
-      var getList = function(sortBy, options){
+      var listAll = function(sortBy, options){
         var _options = _.extend({
-          include: [{
-            model: null
-          }],
+          include: [],
           order: [["id", "ASC"]],
           limit: 10,
           offset: 0
@@ -22,7 +20,7 @@ var DictionaryService = function(){
       };
 
       return {
-        getList: getList
+        listAll: listAll
       }
     })();
   }

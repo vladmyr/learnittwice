@@ -8,7 +8,7 @@ module.exports = function(router, app){
         .get("/", this.getHelloWorldJSON)
     },
     getHelloWorldJSON: function(req, res, next){
-      return res.json("hello world!");
+      return res.json("hello, this is lemmas!");
     }
   })
 };

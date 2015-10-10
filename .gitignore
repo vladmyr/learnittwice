@@ -1,3 +1,5 @@
 node_modules/
 .idea/
 app/public/
+console/plWordnet/importLemon/source/
+console/wordnet/frequency/source/

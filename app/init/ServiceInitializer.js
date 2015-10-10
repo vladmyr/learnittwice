@@ -12,7 +12,7 @@ module.exports = function(app, callback){
 
     return app.helpers.utils.fs.scanDir(dir, {}, function(file){
       var basename = path.basename(file, path.extname(file));
-      app.services[entryPoint.alias][basename] = require(path.join(dir, file));
+      app.services[entryPoint.alias][basename] = require(path.join(dir, file))(app);
     }, 0);
   }).then(function(){
     return callback();
