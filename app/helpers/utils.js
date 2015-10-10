@@ -409,6 +409,18 @@ utils.db = {
 };
 
 /**
+ * Enhanced model methods
+ */
+utils.model = {
+  instanceMethods: {
+
+  },
+  classMethods: {
+
+  }
+};
+
+/**
  * Util functions for arrays
  */
 utils.arr = {

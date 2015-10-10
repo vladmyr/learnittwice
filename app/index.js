@@ -24,6 +24,7 @@ module.exports = function(config, options, callback){
         utils: utils,
         httpParser: {}
       },
+      services: {},
       const: {
         LANGUAGE: LANGUAGE,
         MEDIATYPE: MEDIATYPE,
@@ -36,6 +37,10 @@ module.exports = function(config, options, callback){
 
   tasks.push(function(callback){
     return require("./init/DatabaseInitializer")(app, callback);
+  });
+
+  tasks.push(function(callback){
+    return require("./init/ServiceInitializer")(app, callback);
   });
 
   tasks.push(function(callback){

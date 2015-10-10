@@ -17,7 +17,7 @@ module.exports = function(entryPoint, options, app){
   expressApp.use(bodyParser.json());
   expressApp.use(bodyParser.urlencoded({ extended: true }));
 
-  entryPoint.publicDir && expressApp.use(express.static(path.join(app.root_dir, entryPoint.publicDir)));
+  entryPoint.hasPublic && expressApp.use(express.static(path.join(app.root_dir, app.config.dir.public, entryPoint.alias)));
 
   return app.helpers.utils.express.loadControllerHierarchy(entryPoint, express.Router(), app).then(function(router){
     expressApp.use(entryPoint["route_root"], router);

@@ -8,7 +8,8 @@
     "databaseQueries": "/databaseQueries",
     "logs": "../logs",
     "views": "/views",
-    "public": "/public"
+    "public": "/public",
+    "services": "/services"
   },
   "filePath": {
     "domain": {
@@ -34,6 +35,7 @@
       "route_root": "/api",
       "controllerDir": "controllers/api",
       "mainControllerName": "_default",
+      "hasService": true,
       "alias": "api",
       "port": 8081
     },
@@ -41,7 +43,8 @@
       "route_root": "/",
       "controllerDir": "controllers/front",
       "mainControllerName": "_default",
-      "publicDir": "public/front",
+      "hasPublic": true,
+      "hasService": true,
       "alias": "front",
       "port": 8082
     },
@@ -49,7 +52,8 @@
       "route_root": "/panel",
       "controllerDir": "controllers/admin",
       "mainControllerName": "_default",
-      "publicDir": "public/admin",
+      "hasPublic": true,
+      "hasService": true,
       "alias": "admin",
       "port": 8083
     }
