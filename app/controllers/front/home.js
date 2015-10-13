@@ -8,7 +8,7 @@ module.exports = function(router, app){
         .get("/", this.getHome);
     },
     getHome: function(req, res, next){
-      return res.render("front/home/home");
+      return res.render("home/home");
     }
   })
 };

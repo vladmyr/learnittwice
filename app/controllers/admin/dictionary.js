@@ -5,12 +5,17 @@ module.exports = function(router, app){
     setup: function(router){
       router.path = "dictionary";
       router
-        .get("/list.json", this.listJSON);
+        .get("/list.json", this.listJSON)
+        .get("/list", this.list);
     },
     listJSON: function(req, res, next){
-      return app.services.admin.dictionary.listAll().then(function(lst){
+      var json = {};
+      return app.services.admin.dictionary.listAll(json).then(function(lst){
         return res.json(lst);
-      })
+      });
+    },
+    list: function(req, res, next){
+      return res.render("dictionary/list");
     }
   });
 };

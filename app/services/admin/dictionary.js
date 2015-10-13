@@ -8,7 +8,7 @@ var DictionaryService = function(app){
 
   if(!_instance){
     _instance = (function(){
-      var listAll = function(sortBy, options){
+      var listAll = function(obj, sortBy, options){
         var _options = _.extend({
           include: [],
           order: [["id", "ASC"]],
@@ -16,7 +16,16 @@ var DictionaryService = function(app){
           offset: 0
         }, options);
 
-        return app.models.Lemma.findAll(_options)
+        return app.models.Lemma.findAndCountAll(_options).then(function(data){
+          obj.data = data.rows;
+          obj.recourdsFiltered = data.count;
+
+          return app.models.Lemma.count().then(function(count){
+            obj.recordsTotal = count;
+
+            return obj;
+          });
+        })
       };
 
       return {

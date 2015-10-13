@@ -11,12 +11,11 @@ module.exports = function(entryPoint, options, app){
   expressApp.set("port", entryPoint.port);
   expressApp.set("alias", entryPoint.alias || "");
 
-  expressApp.set("views", path.join(app.root_dir, app.config.dir.views));
-  expressApp.set("view engine", "jade");
-
   expressApp.use(bodyParser.json());
   expressApp.use(bodyParser.urlencoded({ extended: true }));
 
+  entryPoint.hasView && expressApp.set("views", path.join(app.root_dir, app.config.dir.views, entryPoint.alias));
+  entryPoint.hasView && expressApp.set("view engine", "jade");
   entryPoint.hasPublic && expressApp.use(express.static(path.join(app.root_dir, app.config.dir.public, entryPoint.alias)));
 
   return app.helpers.utils.express.loadControllerHierarchy(entryPoint, express.Router(), app).then(function(router){
