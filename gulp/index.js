@@ -6,38 +6,44 @@ var gulp = require("gulp");
 var utils = require("../app/helpers/utils");
 
 module.exports = function(root){
+  var commonDir = path.join(root, "gulp/common");
   var tasksDir = path.join(root, "gulp/tasks");
   var appDir = path.join(root, "app");
-  var assetsClientDir = path.join(root, "assets", "client");
-  var tmpDir = path.join(root, "tmp");
+  var clientDir = path.join(root, "client");
+  var nodeModulesDir = path.join(root, "node_modules");
 
   var pth = {
+    root: root,
+    nodeModulesDir: nodeModulesDir,
+    common: {
+      browserify: path.join(commonDir, "browserify")
+    },
     front: {
       scss: {
-        src: path.join(assetsClientDir, "front/scss/**/*.scss"),
-        dest: path.join(appDir, "public/front/css/")
+        src: path.join(clientDir, "front/assets/scss/**/*.scss"),
+        dest: path.join(clientDir, "front/app/public/css/")
       },
       js: {
-        src: path.join(assetsClientDir, "front/js/**/*.js"),
-        dest: path.join(appDir, "public/front/js/")
+        src: path.join(clientDir, "front/app/**/*.js"),
+        dest: path.join(clientDir, "front/app/public/js/")
       },
       img: {
-        src: path.join(assetsClientDir, "front/img/**/*"),
-        dest: path.join(appDir, "public/front/img/")
+        src: path.join(clientDir, "front/assets/img/**/*"),
+        dest: path.join(clientDir, "front/app/public/img/")
       }
     },
     admin: {
       scss: {
-        src: path.join(assetsClientDir, "admin/scss/**/*.scss"),
-        dest: path.join(appDir, "public/admin/css/")
+        src: path.join(clientDir, "admin/assets/scss/**/*.scss"),
+        dest: path.join(clientDir, "admin/app/public/css/")
       },
       js: {
-        src: path.join(assetsClientDir, "admin/js/**/*.js"),
-        dest: path.join(appDir, "public/admin/js/")
+        src: path.join(clientDir, "admin/app/**/*.js"),
+        dest: path.join(clientDir, "admin/app/public/js/")
       },
       img: {
-        src: path.join(assetsClientDir, "admin/img/**/*"),
-        dest: path.join(appDir, "public/admin/img/")
+        src: path.join(clientDir, "admin/assets/img/**/*"),
+        dest: path.join(clientDir, "admin/app/public/img/")
       }
     }
   };
