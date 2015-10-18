@@ -4,6 +4,7 @@
 var LANGUAGE = require("./domain/const/Language");
 var MEDIATYPE = require("./domain/const/MediaType");
 var VIEWTEMPLATE = require("./domain/const/ViewTemplate");
+var EXPRESSAPPTYPE = require("./domain/const/ExpressAppType");
 
 //load modules
 var _ = require("underscore");
@@ -28,7 +29,8 @@ module.exports = function(config, options, callback){
       const: {
         LANGUAGE: LANGUAGE,
         MEDIATYPE: MEDIATYPE,
-        VIEWTEMPLATE: VIEWTEMPLATE
+        VIEWTEMPLATE: VIEWTEMPLATE,
+        EXPRESSAPPTYPE: EXPRESSAPPTYPE
       }
     };
   var tasks = [];

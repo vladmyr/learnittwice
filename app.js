@@ -5,8 +5,9 @@ var config = require("config");
 var http = require("http");
 var querystring = require("querystring");
 var Promise = require("bluebird");
+var path = require("path");
 
-var app = require("./app/index.js")(config, {}, function(err, app){
+var app = require(path.join(__dirname, config.dir.base.app, "index.js"))(config, {}, function(err, app){
   if(err){
     console.error(err, querystring.unescape(err.stack));
     return process.exit(0);

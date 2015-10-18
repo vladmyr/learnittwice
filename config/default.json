@@ -1,7 +1,11 @@
 {
   "environments": ["development", "staging", "production"],
   "dir": {
-    "base": "./app",
+    "base": {
+      "app": "./app",
+      "admin": "./client/admin",
+      "front": "./client/front"
+    },
     "models": "/models",
     "controllers": "/controllers",
     "domain": "/domain",
@@ -9,7 +13,9 @@
     "logs": "../logs",
     "views": "/views",
     "public": "/public",
-    "services": "/services"
+    "services": "/services",
+    "templates": "/templates",
+    "collections": "/collections"
   },
   "filePath": {
     "domain": {
@@ -32,33 +38,39 @@
   },
   "entryPoints": {
     "api": {
-      "route_root": "/",
+      "type": "plain",
+      "routeRoot": "/",
       "controllerDir": "controllers/api",
       "mainControllerName": "_default",
       "hasView": false,
       "hasService": true,
       "alias": "api",
-      "port": 8081
+      "port": 8081,
+      "protocol": "http"
     },
     "front": {
-      "route_root": "/",
+      "type": "rendr",
+      "routeRoot": "/",
       "controllerDir": "controllers/front",
       "mainControllerName": "_default",
       "hasView": true,
       "hasPublic": true,
       "hasService": true,
       "alias": "front",
-      "port": 8082
+      "port": 8082,
+      "protocol": "http"
     },
     "admin": {
-      "route_root": "/",
+      "type": "rendr",
+      "routeRoot": "/",
       "controllerDir": "controllers/admin",
       "mainControllerName": "_default",
       "hasView": true,
       "hasPublic": true,
       "hasService": true,
       "alias": "admin",
-      "port": 8083
+      "port": 8083,
+      "protocol": "http"
     }
   }
 }

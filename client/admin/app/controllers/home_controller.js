@@ -5,4 +5,4 @@ module.exports = {
     console.log("hello#index");
     return callback();
   }
-}
+};

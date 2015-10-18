@@ -7,8 +7,6 @@ module.exports = BaseApp.extend({
   default: {
     templateAdapter: "rendr-jade"
   },
-
-
   initialize: function(){
 
   },

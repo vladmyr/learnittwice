@@ -16,7 +16,8 @@ module.exports = function(root){
     root: root,
     nodeModulesDir: nodeModulesDir,
     common: {
-      browserify: path.join(commonDir, "browserify")
+      browserify: path.join(commonDir, "browserify"),
+      rendrTemplates: path.join(commonDir, "rendr-templates")
     },
     front: {
       scss: {
@@ -44,6 +45,12 @@ module.exports = function(root){
       img: {
         src: path.join(clientDir, "admin/assets/img/**/*"),
         dest: path.join(clientDir, "admin/app/public/img/")
+      },
+      jade: {
+        src: path.join(clientDir, "admin/app/templates/**/*.jade"),
+        srcLayout: path.join(clientDir, "admin/app/templates/layout.jade"),
+        dest: path.join(clientDir, "admin/app/templates/"),
+        destName: "compiledTemplates.js"
       }
     }
   };
