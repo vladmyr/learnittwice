@@ -47,6 +47,7 @@
     "gulp-concat": "^2.6.0",
     "gulp-imagemin": "^2.3.0",
     "gulp-jade": "^1.1.0",
+    "gulp-jade-jst-concat": "0.0.2",
     "gulp-nodemon": "^2.0.3",
     "gulp-plumber": "^1.0.1",
     "gulp-sass": "^2.0.4",
@@ -58,6 +59,7 @@
     "imagemin-optipng": "^4.3.0",
     "json2": "^0.4.0",
     "reactify": "^1.1.1",
+    "through": "^2.3.8",
     "through2": "^2.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

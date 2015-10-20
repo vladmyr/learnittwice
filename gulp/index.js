@@ -8,7 +8,6 @@ var utils = require("../app/helpers/utils");
 module.exports = function(root){
   var commonDir = path.join(root, "gulp/common");
   var tasksDir = path.join(root, "gulp/tasks");
-  var appDir = path.join(root, "app");
   var clientDir = path.join(root, "client");
   var nodeModulesDir = path.join(root, "node_modules");
 
@@ -47,6 +46,7 @@ module.exports = function(root){
         dest: path.join(clientDir, "admin/app/public/img/")
       },
       jade: {
+        basepath: path.join(clientDir, "admin/app/templates/"),
         src: path.join(clientDir, "admin/app/templates/**/*.jade"),
         srcLayout: path.join(clientDir, "admin/app/templates/layout.jade"),
         dest: path.join(clientDir, "admin/app/templates/"),

@@ -1,6 +1,6 @@
 "use strict";
 
-var Lemma = require("../models/Lemma");
+var Lemma = require("app/models/Lemma");
 
 var Lemmas = Backbone.Collection.extend({
   model: Lemma

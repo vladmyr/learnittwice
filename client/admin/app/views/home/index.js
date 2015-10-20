@@ -1,6 +1,6 @@
 "use strict";
 
-var Base = require("../base");
+var Base = require("app/views/base");
 
 module.exports = Base.extend({
   className: "home_index_view",

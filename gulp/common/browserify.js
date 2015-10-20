@@ -12,81 +12,85 @@ var glob = require("glob");
 var plumber = require("gulp-plumber");
 
 var browserifyTask = function(gulp, path, src, dest){
-  var bundledStream = through();
+  return function(){
+    var bundledStream = through();
 
-  bundledStream
-    .pipe(source("bundle.js"))
-    //.pipe(buffer())
-    //.pipe(uglify())
-    .pipe(gulp.dest(dest));
+    bundledStream
+      .pipe(source("bundle.js"))
+      //.pipe(buffer())
+      //.pipe(uglify())
+      .pipe(gulp.dest(dest));
 
-  globby([src]).then(function(entries){
-    return browserify({
-      entries: entries,
-      debug: true
-    }).bundle().pipe(bundledStream);
-  })
+    globby([src]).then(function(entries){
+      return browserify({
+        entries: entries,
+        debug: true
+      }).bundle().pipe(bundledStream);
+    })
+  };
 };
 
 var browserifyRendrTask = function(gulp, path, src, dest){
-  var bundledStream = through();
+  return function(){
+    var bundledStream = through();
 
-  bundledStream
-    .pipe(source("bundle.js"))
-    //.pipe(buffer())
-    //.pipe(uglify())
-    .pipe(gulp.dest(dest));
+    bundledStream
+      .pipe(source("bundle.js"))
+      //.pipe(buffer())
+      //.pipe(uglify())
+      .pipe(gulp.dest(dest));
 
-  var normalizePath = function(path, dirName){
-    !dirName && (dirName = "app/");
-    var index = path.lastIndexOf(dirName);
+    var normalizePath = function(path, dirName){
+      !dirName && (dirName = "app/");
+      var index = path.lastIndexOf(dirName);
 
-    path = path.replace(/.js$/, "");
+      path = path.replace(/.js$/, "");
 
-    if(index === -1){
-      return path;
-    }else{
-      return path.substr(index, path.length - 1);
-    }
-  };
+      if(index === -1){
+        return path;
+      }else{
+        return path.substr(index, path.length - 1);
+      }
+    };
 
-  var rendrClientFiles = glob.sync("rendr/{client,shared}/**/*.js", {
-    cwd: path.nodeModulesDir
-  });
-
-  var rendrModules = rendrClientFiles.map(function(file){
-    return file.replace(".js", "");
-  });
-
-  var getBundler = function(globs){
-    var bundler =  browserify({
-      debug: true,
-      entries: []
+    var rendrClientFiles = glob.sync("rendr/{client,shared}/**/*.js", {
+      cwd: path.nodeModulesDir
     });
-    var files;
 
-    globs.forEach(function(pattern){
-      files = glob.sync(pattern, { cwd: path.root });
-      files.forEach(function(file){
-        var expose = normalizePath(file);
-        bundler.require(file, { expose: expose });
+    var rendrModules = rendrClientFiles.map(function(file){
+      return file.replace(".js", "");
+    });
+
+    var getBundler = function(globs){
+      var bundler =  browserify({
+        debug: true,
+        entries: []
       });
-    });
+      var files;
 
-    rendrModules.forEach(function(moduleName){
-      bundler.require(moduleName);
-    });
+      globs.forEach(function(pattern){
+        files = glob.sync(pattern, { cwd: path.root });
+        files.forEach(function(file){
+          var expose = normalizePath(file);
+          bundler.require(file, { expose: expose });
+        });
+      });
 
-    bundler.require("jquery", { expose: "jquery" });
+      rendrModules.forEach(function(moduleName){
+        bundler.require(moduleName);
+      });
 
-    return bundler;
-  };
+      bundler.require("jquery", { expose: "jquery" });
 
-  var bundler = getBundler([src]);
+      return bundler;
+    };
 
-  bundler.bundle()
-    .pipe(plumber())
-    .pipe(bundledStream);
+    var bundler = getBundler([src]);
+
+    bundler.bundle()
+      .pipe(plumber())
+      .pipe(bundledStream);
+  }
 };
 
 module.exports = {

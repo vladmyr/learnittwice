@@ -3,8 +3,8 @@
   "dir": {
     "base": {
       "app": "./app",
-      "admin": "./client/admin",
-      "front": "./client/front"
+      "admin": "../client/admin",
+      "front": "../client/front"
     },
     "models": "/models",
     "controllers": "/controllers",
