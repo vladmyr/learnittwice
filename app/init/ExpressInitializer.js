@@ -7,7 +7,8 @@ var path = require("path");
 module.exports = function(app, callback){
   var ExpressApp = require(path.join(app.root_dir, app.config.dir.domain, app.config.filePath.domain.expressApp));
 
-  return Promise.reduce((_.toArray(app.config.entryPoints) || []), function(total, entryPoint){
+  //return Promise.reduce((_.toArray(app.config.entryPoints) || []), function(total, entryPoint){
+  return Promise.reduce([app.config.entryPoints.api] || [], function(total, entryPoint){
     return new ExpressApp(entryPoint, {}, app).then(function(expressApp){
       return app.expressApps.push(expressApp);
     });

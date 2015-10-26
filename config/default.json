@@ -3,8 +3,8 @@
   "dir": {
     "base": {
       "app": "./app",
-      "admin": "../client/admin",
-      "front": "../client/front"
+      "admin": "/client/admin",
+      "front": "/client/front"
     },
     "models": "/models",
     "controllers": "/controllers",
@@ -48,29 +48,31 @@
       "port": 8081,
       "protocol": "http"
     },
-    "front": {
-      "type": "rendr",
-      "routeRoot": "/",
-      "controllerDir": "controllers/front",
-      "mainControllerName": "_default",
-      "hasView": true,
-      "hasPublic": true,
-      "hasService": true,
-      "alias": "front",
-      "port": 8082,
-      "protocol": "http"
-    },
-    "admin": {
-      "type": "rendr",
-      "routeRoot": "/",
-      "controllerDir": "controllers/admin",
-      "mainControllerName": "_default",
-      "hasView": true,
-      "hasPublic": true,
-      "hasService": true,
-      "alias": "admin",
-      "port": 8083,
-      "protocol": "http"
+    "clients": {
+      "front": {
+        "type": "rendr",
+        "routeRoot": "/",
+        "controllerDir": "controllers/front",
+        "mainControllerName": "_default",
+        "hasView": true,
+        "hasPublic": true,
+        "hasService": true,
+        "alias": "front",
+        "port": 8082,
+        "protocol": "http"
+      },
+      "admin": {
+        "type": "rendr",
+        "routeRoot": "/",
+        "controllerDir": "controllers/admin",
+        "mainControllerName": "_default",
+        "hasView": true,
+        "hasPublic": true,
+        "hasService": true,
+        "alias": "admin",
+        "port": 8083,
+        "protocol": "http"
+      }
     }
   }
 }

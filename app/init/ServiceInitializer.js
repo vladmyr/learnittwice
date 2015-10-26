@@ -5,7 +5,7 @@ var _ = require("underscore");
 var path = require("path");
 
 module.exports = function(app, callback){
-  return Promise.reduce((_.toArray(app.config.entryPoints) || []), function(total, entryPoint){
+  return Promise.reduce([app.config.entryPoints.api] || [], function(total, entryPoint){
     var dir = path.join(app.root_dir, app.config.dir.services, entryPoint.alias);
 
     app.services[entryPoint.alias] = {};

@@ -12,11 +12,19 @@ var app = require(path.join(__dirname, config.dir.base.app, "index.js"))(config,
     console.error(err, querystring.unescape(err.stack));
     return process.exit(0);
   }else{
-    _.each(app.expressApps || [], function(expressApp){
-      var httpServer = http.createServer(expressApp)
-        .listen(expressApp.get("port"), function(err){
-          return console.log("Listening '" + expressApp.get("alias") + "' on port", expressApp.get("port"));
+    //ToDo: move clients to separate projects
+    return Promise.reduce((app.expressApps || []), function(total, expressApp){
+      //run api
+      return new Promise(function(fulfill, reject){
+        return http.createServer(expressApp).listen(expressApp.get("port"), function(err){
+          if(err){
+            return reject(err);
+          }else{
+            console.log("Listening '" + expressApp.get("alias") + "' on port", expressApp.get("port"));
+            return fulfill();
+          }
         });
-    });
+      });
+    }, 0);
   }
 });

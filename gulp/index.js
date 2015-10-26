@@ -48,7 +48,7 @@ module.exports = function(root){
       jade: {
         basepath: path.join(clientDir, "admin/app/templates/"),
         src: path.join(clientDir, "admin/app/templates/**/*.jade"),
-        srcLayout: path.join(clientDir, "admin/app/templates/layout.jade"),
+        srcLayout: path.join(clientDir, "admin/app/templates/__layout.jade"),
         dest: path.join(clientDir, "admin/app/templates/"),
         destName: "compiledTemplates.js"
       }
