@@ -6,14 +6,25 @@ var http = require("http");
 var querystring = require("querystring");
 var Promise = require("bluebird");
 var path = require("path");
+var App = require(path.join(__dirname, config.path.file.appIndex));
 
-var app = require(path.join(__dirname, config.dir.base.app, "index.js"))(config, {}, function(err, app){
+/**
+ * Main initialization
+ * @type {App}
+ */
+
+// TODO - refactoring
+var app = new App(_.extend(config, {
+  dir: {
+    root: __dirname
+  }
+}), {}, function(err, app){
   if(err){
     console.error(err, querystring.unescape(err.stack));
     return process.exit(0);
   }else{
-    //ToDo: move clients to separate projects
-    return Promise.reduce((app.expressApps || []), function(total, expressApp){
+    // process each entry point
+    return Promise.each((app.expressApps || []), function(total, expressApp){
       //run api
       return new Promise(function(fulfill, reject){
         return http.createServer(expressApp).listen(expressApp.get("port"), function(err){
@@ -25,6 +36,6 @@ var app = require(path.join(__dirname, config.dir.base.app, "index.js"))(config,
           }
         });
       });
-    }, 0);
+    }, { concurrency: 1 });
   }
 });

@@ -1,0 +1,46 @@
+environments:
+  - development
+  - staging
+  - production
+path:
+  dir:
+    app: /app
+    controllers: /app/controllers
+    domain: /app/domain
+    helpers: /app/helpers
+    init: /app/init
+    models: /app/models
+    services: /app/services
+    logs: /logs
+    console: /console
+    databaseQueries: /databaseQueries
+  file:
+    appIndex: /app/index
+    const:
+     language: /app/domain/const/Language
+     mediaType: /app/domain/const/MediaType
+     viewTemplate: /app/domain/const/ViewTemplate
+    domain:
+      database: /app/domain/Database
+      expressApp: /app/domain/ExpressApp
+    postQueries: /app/domain/databaseQueries/postQueries.sql
+    log:
+      db: /logs/db.log
+      error: /logs/error.log
+    util: /app/heplers/Util
+  db:
+    isEnabledLogging: true,
+    isEnabledConsoleLoggin: true
+  entryPoint:
+    api:
+      routeRoot: /
+      path:
+        dir:
+          controller: /app/controllers/api
+        file:
+          controllerEntry: /app/controllers/api/_default
+        hasView: false    # deprecated
+        hasService: true  # deprecated
+        alias: api
+        port: 8081,
+        protocol: http

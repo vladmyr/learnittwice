@@ -3,7 +3,7 @@
 var path = require("path");
 var gulp = require("gulp");
 
-var utils = require("../app/helpers/utils");
+var utils = require("../app/helpers/Util");
 
 module.exports = function(root){
   var commonDir = path.join(root, "gulp/common");

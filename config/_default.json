@@ -1,5 +1,20 @@
 {
   "environments": ["development", "staging", "production"],
+  "path": {
+    "dir": {
+      "app": "/app",
+      "controllers": "/app/controllers",
+      "models": "/app/models",
+      "domain": "/app/domain",
+      "logs": "/logs",
+      "services": "/app/services",
+      "console": "/console",
+      "databaseQueries": "/databaseQueries"
+    },
+    "file": {
+
+    }
+  },
   "dir": {
     "base": {
       "app": "./app",

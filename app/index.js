@@ -1,55 +1,41 @@
 "use strict";
 
-//load constants
-var LANGUAGE = require("./domain/const/Language");
-var MEDIATYPE = require("./domain/const/MediaType");
-var VIEWTEMPLATE = require("./domain/const/ViewTemplate");
-var EXPRESSAPPTYPE = require("./domain/const/ExpressAppType");
-
-//load modules
+// external dependencies
+var Promise = require("promise");
 var _ = require("underscore");
-var async = require("async");
-var express = require("express");
 var path = require("path");
 
-//load customs
-var utils = require("./helpers/utils");
+/**
+ * Server application initialization class
+ * @param   {Object}  options configuration options
+ * @constructor
+ */
+var App = function(options){
+  var self = this;
 
-module.exports = function(config, options, callback){
-  var app = {
-      environment: "development", //ToDo: dehardcode
-      root_dir: __dirname,
-      config: config,
-      expressApps: [],
-      helpers: {
-        utils: utils,
-        httpParser: {}
-      },
-      services: {},
-      const: {
-        LANGUAGE: LANGUAGE,
-        MEDIATYPE: MEDIATYPE,
-        VIEWTEMPLATE: VIEWTEMPLATE,
-        EXPRESSAPPTYPE: EXPRESSAPPTYPE
-      }
-    };
-  var tasks = [];
+  self = _.extend({}, self, {
+    LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
+    MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
+    VIEW_TEMPLATE:  require(path.join(options.dir.root, options.file.const.viewTemplate)),
 
-  app.helpers.httpParser = new require("./helpers/httpParser")(app).getInstance();
-
-  tasks.push(function(callback){
-    return require("./init/DatabaseInitializer")(app, callback);
+    env: "development",
+    config: options,
+    expressApps: [],
+    utils: require(path.join(options.dir.root, options.file.util))
+    // TODO - httpParser
   });
 
-  tasks.push(function(callback){
-    return require("./init/ServiceInitializer")(app, callback);
-  });
+  return self;
+};
 
-  tasks.push(function(callback){
-    return require("./init/ExpressInitializer")(app, callback);
-  });
+/**
+ * Initialize app instance
+ * @return {Promise}
+ */
+App.prototype.initialize = function(){
+  var self = this;
 
-  async.series(tasks, function(err){
-    return callback(err, app);
-  });
+  return Promise.resolve().then(function(){
+    
+  })
 };
