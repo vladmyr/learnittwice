@@ -1,4 +1,6 @@
-node_modules/
-.idea/
-console/plWordnet/importLemon/source/
-console/wordnet/frequency/source/
+/node_modules/
+/.idea/
+/console/plWordnet/importLemon/source/
+/console/wordnet/frequency/source/
+/docs
+/**/*.log

@@ -7,8 +7,9 @@ var path = require("path");
 
 /**
  * Server application initialization class
- * @param   {Object}  options configuration options
+ * @param       {Object}  options configuration options
  * @constructor
+ * @typedef     {Object}  Application
  */
 var App = function(options){
   var self = this;
@@ -36,6 +37,6 @@ App.prototype.initialize = function(){
   var self = this;
 
   return Promise.resolve().then(function(){
-    
+
   })
 };

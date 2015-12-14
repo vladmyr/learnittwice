@@ -3,11 +3,12 @@
 var path = require("path");
 /**
  * Main database initialization
- * @param app
- * @param callback
- * @returns {*}
+ * @param   {Application} app
+ * @returns {Promise}
  */
-var DatabaseInitializer = function(app, callback){
+
+// TODO - refactoring
+var DatabaseInitializer = function(app){
   return new require(path.join(app.root_dir, app.config.dir.domain, app.config.filePath.domain.database))(app)
     .initialize()
     .then(function(self){
