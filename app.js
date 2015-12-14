@@ -15,8 +15,10 @@ var App = require(path.join(__dirname, config.path.file.appIndex));
 
 // TODO - refactoring
 var app = new App(_.extend(config, {
-  dir: {
-    root: __dirname
+  path: {
+    dir: {
+      root: __dirname
+    }
   }
 }), {}, function(err, app){
   if(err){

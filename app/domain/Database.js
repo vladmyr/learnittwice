@@ -10,33 +10,35 @@ var winston = require("winston");
 /**
  * Database management class
  * @param   {Application} app
- * @param   {Object}  dbConfig
- * @param   {String}  modelDir
- * @param   {String}  refDb
- * @param   {String}  refModel
+ * @param   {Object}      [dbConfig]
+ * @param   {String}      [modelDir]
+ * @param   {String}      [refDb]
+ * @param   {String}      [refModel]
  * @constructor
  */
 var Database = function(app, dbConfig, modelDir, refDb, refModel){
-  this.app = app;
-  this.dbConfig = dbConfig
+  var self = this;
+
+  self.app = app;
+  self.dbConfig = dbConfig
     ? dbConfig
-    : this.app.config.database;
-  this.modelDir = !modelDir
+    : self.app.config.database;
+  self.modelDir = !modelDir
     ? modelDir
-    : this.modelDir = path.join(app.config.dir.root, app.config.path.dir.models);
-  this.refDb = refDb
+    : self.modelDir = path.join(app.config.dir.root, app.config.path.dir.models);
+  self.refDb = refDb
     ? refDb
     : "db";
-  this.refModel = refModel
+  self.refModel = refModel
     ? refModel
     : "models";
-  this.isInitialized = false;
-  this.logger = null;
-  this.loggerTransports = [];
+  self.isInitialized = false;
+  self.logger = null;
+  self.loggerTransports = [];
 
   // initialize logging
   // TODO - fix
-  !this.app.config.db.isEnabledFileLogging && (loggerTransports.push(
+  !this.app.config.db.isEnabledFileLogging && (self.loggerTransports.push(
     new (winston.transports.File)({
       filename: path.join(
         app.root_dir,
@@ -46,115 +48,94 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
       json: false
     })
   ));
-  !this.app.config.db.isEnabledConsoleLogging && (loggerTransports.push(
+  !this.app.config.db.isEnabledConsoleLogging && (self.loggerTransports.push(
     new (winston.transports.Console)()
   ));
 
-  /**
-   * Execute raw (sql) queries from file
-   * @param filePath
-   * @param replacements
-   * @param options
-   * @returns {*}
-   */
-  var executeRawQueriesFromFile = function(filePath, replacements, options){
-    var self = this;
+  return self;
+};
 
-    //ToDo: remove comments from queries
-    return app.helpers.utils.fs.readFile(filePath, options).then(function(data){
-      return data.split(/;\s/).map(function(i){
-        return i.trim();
-      }).filter(function(i){
-        return !!i;
-      })
-    }).then(function(queries) {
-      return Promise.reduce(queries, function(total, query){
-        return app[refDb].query(query, {
-          replacements: replacements,
-          raw: true,
-          type: app[refDb].QueryTypes.INSERT
-        });
-      }, 0);
-    }).then(function(){
-      return self;
-    }).catch(function(err){
-      return Promise.reject(err);
-    })
-  };
+/**
+ * Executes sql's SET FOREIGN_KEY_CHECKS
+ * @param   {Boolean} check
+ * @returns {Promise}
+ */
+Database.prototype.setForeignKeyCheck = function(check){
+  var self = this;
+  return self.app[self.refDb].query("SET FOREIGN_KEY_CHECKS = " + (+check));
+};
 
-  var setForegnKeyCheck = function(check){
-    return app[refDb].query("SET FOREIGN_KEY_CHECKS = " + (+check));
-  };
+/**
+ * Alter model indexes
+ * @param   {Object}  model
+ * @returns {Promise}
+ */
+var alterIndices = function(model){
+  var self = this;
+  var queryInterface = self.app[self.refDb].getQueryInterface();
 
-  var alterIndices = function(model){
-    if(!model.options.indexes || (Array.isArray(model.options.indexes) && !model.options.indexes.length)){
-      return Promise.resolve();
-    }
-
-    var queryInterface = app[refDb].getQueryInterface();
-
+  if(!model.options.indexes || (Array.isArray(model.options.indexes) && !model.options.indexes.length)){
+    return Promise.resolve();
+  } else {
     return Promise.resolve().then(function(){
-      return app[refDb].query("SHOW INDEX FROM `" + model.tableName + "`", {
+      return self.app[self.refDb].query("SHOW INDEX FROM `" + model.tableName + "`", {
         replacements: {},
         raw: true,
-        type: app[refDb].QueryTypes.SELECT
+        type: self.app[self.refDb].QueryTypes.SELECT
       });
     }).then(function(indexes){
       var newIndexes = [];
 
       _.each(model.options.indexes, function(index){
         if(!_.find(indexes, function(i){
-          return i.Key_name == index.name;
-        })){
+            return i.Key_name == index.name;
+          })){
           newIndexes.push(index);
         }
       });
 
       return newIndexes;
     }).then(function(newIndexes){
-      return Promise.reduce(newIndexes, function(total, index){
+      return Promise.each(newIndexes, function(index){
         return queryInterface.addIndex(model.tableName, index.fields, {
           indexName: index.name,
-          indicesType: index.unique ? "UNIQUE" : index.type,  //ToDo: improvement needed
+          indicesType: index.unique ? "UNIQUE" : index.type,
           indexType: index.method
         });
-      }, 0);
+      }, { concurrency: 1 });
+    }).then(function(){
+      return self;
     });
-  };
+  }
+};
 
-  var alterColumns = function(model){
-    var queryInterface = app[refDb].getQueryInterface();
+/**
+ * Alter existing model's columns.
+ * TODO - add column edit/remove functionality
+ * @param model
+ * @returns {Promise}
+ */
+var alterColumns = function(model){
+  var self = this;
+  var queryInterface = self.app[self.refDb].getQueryInterface();
 
-    return Promise.resolve().then(function(){
-      return queryInterface.describeTable(model.tableName)
-    }).then(function(attributes){
-      var newColumns = {};
+  return Promise.resolve().then(function(){
+    return queryInterface.describeTable(model.tableName)
+  }).then(function(attributes){
+    var newColumns = {};
 
-      _.each(model.rawAttributes, function(desc, name) {
-        if(!attributes[name]){
-          newColumns[name] = model.rawAttributes[name];
-        }
-      });
-
-      return newColumns
-    }).then(function(newColumns){
-      return Promise.reduce(Object.keys(newColumns), function(total, name){
-        return queryInterface.addColumn(model.tableName, name, newColumns[name]);
-      }, 0);
+    _.each(model.rawAttributes, function(desc, name) {
+      if(!attributes[name]){
+        newColumns[name] = model.rawAttributes[name];
+      }
     });
-  };
 
-  var alterPrimaryKey = function(model, options, callback){
-    var tasks = [];
-
-    options = _.extend({}, options);
-  };
-
-  return {
-    initialize: initialize,
-    migrate: migrate,
-    executeRawQueriesFromFile: executeRawQueriesFromFile
-  };
+    return newColumns
+  }).then(function(newColumns){
+    return Promise.each(Object.keys(newColumns), function(total, name){
+      return queryInterface.addColumn(model.tableName, name, newColumns[name]);
+    }, { concurrency: 1 });
+  });
 };
 
 /**
@@ -165,30 +146,31 @@ Database.prototype.initialize = function(){
   var self = this;
 
   self.logger = new (winston.Logger)({
-    transport: loggerTransports
+    transport: self.loggerTransports
   });
 
   return new Promise(function(fulfill, reject){
     var afterFunctions = [];
 
-    if(typeof app[refDb] !== "undefined"){
-      return reject(new Error("Database initialisation with refDb = '" + refDb + "' is already reserved"));
+    if(typeof self.app[self.refDb] !== "undefined"){
+      return reject(new Error("Database initialisation with refDb = '" + self.refDb + "' is already reserved"));
     }
 
-    if(typeof app[refModel] !== "undefined"){
-      return reject(new Error("Database initialisation with refModel = '" + refModel + "' is already reserved"));
+    if(typeof self.app[self.refModel] !== "undefined"){
+      return reject(new Error("Database initialisation with refModel = '" + self.refModel + "' is already reserved"));
     }
 
-    if(typeof app.Sequelize === "undefined"){
-      app.Sequelize = Sequelize;
+    if(typeof self.app.Sequelize === "undefined"){
+      self.app.Sequelize = Sequelize;
     }
 
-    app[refModel] = {};
-    app[refDb] = new Sequelize(
-      dbConfig.name,
-      dbConfig.username,
-      dbConfig.password,
-      dbConfig.settings
+    self.app[self.refModel] = {};
+    self.app[self.refDb] = new Sequelize(
+      self.dbConfig.name,
+      self.dbConfig.username,
+      self.dbConfig.password,
+      self.dbConfig.settings
+      // TODO - fix logging
       //_.extend(dbConfig.settings, {
       //  logging: function(message){
       //    return logger.log("info", message);
@@ -196,21 +178,21 @@ Database.prototype.initialize = function(){
       //})
     );
 
-    app.helpers.utils.fs.scanDir(modelDir, {}, function(file){
-      var filePath = path.join(modelDir, file);
+    self.app.Util.fs.scanDir(self.modelDir, {}, function(file){
+      var filePath = path.join(self.modelDir, file);
       var container = require(filePath);
       var model;
       var define = function(name){
-        return model = app[refModel][name] = app[refDb].define.apply(app[refDb], arguments);
+        return model = self.app[self.refModel][name] = self.app[self.refDb].define.apply(self.app[self.refDb], arguments);
       };
 
       define.after = function(fn){
         afterFunctions.push(function(){
-          fn(model, refDb, refModel);
+          fn(model, self.refDb, self.refModel);
         });
       };
 
-      container(define, Sequelize, app);
+      container(define, Sequelize, self.app);
     }).then(function(){
       _.each(afterFunctions, function(fn){
         return fn();
@@ -227,34 +209,61 @@ Database.prototype.initialize = function(){
  * @returns {Promise}
  */
 Database.prototype.migrate = function(){
-  if(!isInitialized){
+  var self = this;
+
+  if(!self.isInitialized){
     return Promise.reject(new Error("Database is not initialized"));
   }else {
-    var self = this;
-    var modelNames = Object.keys(app[refModel]);
+    var modelNames = Object.keys(self.app[self.refModel]);
 
     return Promise.resolve().then(function(){
-      //  return setForegnKeyCheck(false);
+      //  return self.setForeignKeyCheck(false);
       //}).then(function(){
-      return app[refDb].sync();
+      return self.app[self.refDb].sync();
     }).then(function(){
-      return Promise.reduce(modelNames, function (total, modelName) {
-        return alterColumns(app[refModel][modelName]);
-      }, 0);
+      return Promise.each(modelNames, function (modelName) {
+        return alterColumns(self.app[self.refModel][modelName]);
+      }, { concurrency: 1 });
     }).then(function () {
-      return Promise.reduce(modelNames, function (total, modelName) {
-        return alterIndices(app[refModel][modelName]);
-      }, 0);
+      return Promise.each(modelNames, function (modelName) {
+        return alterIndices(self.app[self.refModel][modelName]);
+      }, { concurrency: 1 });
       //}).then(function(){
-      //  return setForegnKeyCheck(true);
+      //  return self.setForeignKeyCheck(true);
     }).then(function(){
       return self;
     });
   }
 };
 
-Database.prototype.executeRawQueriesFromFile = function(){
+/**
+ * Execute raw sql queries from file
+ * @param   {String}  filePath
+ * @param   {Object}  replacements
+ * @param   {Object}  options
+ * @returns {Promise}
+ */
+Database.prototype.executeRawQueriesFromFile = function(filePath, replacements, options){
+  var self = this;
 
+  //ToDo: remove comments from queries
+  return self.app.Util.fs.readFile(filePath, options).then(function(data){
+    return data.split(/;\s/).map(function(i){
+      return i.trim();
+    }).filter(function(i){
+      return !!i;
+    })
+  }).then(function(queries) {
+    return Promise.each(queries, function(total, query){
+      return self.app[self.refDb].query(query, {
+        replacements: replacements,
+        raw: true,
+        type: self.app[self.refDb].QueryTypes.INSERT
+      });
+    }, { concurrency: 1 });
+  }).then(function(){
+    return self;
+  })
 };
 
 module.exports = Database;

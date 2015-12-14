@@ -14,6 +14,7 @@ var path = require("path");
 var App = function(options){
   var self = this;
 
+  // extend instance
   self = _.extend({}, self, {
     LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
     MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
@@ -22,7 +23,7 @@ var App = function(options){
     env: "development",
     config: options,
     expressApps: [],
-    utils: require(path.join(options.dir.root, options.file.util))
+    Util: require(path.join(options.dir.root, options.file.util))
     // TODO - httpParser
   });
 
