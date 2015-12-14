@@ -23,7 +23,7 @@ module.exports = function(define, DataTypes, app){
   });
 
   define.after(function(model, refDb, refModel){
-    app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, foreignKey: "lemmaId" });
+    app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, as: "BaseLemma", foreignKey: "lemmaId" });
     app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, as: "BaseLemma", foreignKey: "baseLemmaId" });
 
     app[refModel].Lemma.belongsToMany(app[refModel].Synset, { through: app[refModel].Sense, foreignKey: "lemmaId" });
