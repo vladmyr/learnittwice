@@ -12,7 +12,7 @@ var path = require("path");
 var DatabaseInitializer = function(app, callback){
   return Promise.resolve().then(function(){
     // create database instance
-    return new require(path.join(app.config.dir.root, app.path.file.domain.database))(app);
+    return new require(path.join(app.config.dir.root, app.config.file.domain.database))(app);
   }).then(function(database){
     // initialize instance
     return database.initialize();

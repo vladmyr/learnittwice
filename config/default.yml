@@ -14,7 +14,7 @@ dir:
   console: /console
   databaseQueries: /databaseQueries
 file:
-  appIndex: /app/index
+  app: /app/app
   const:
    language: /app/domain/const/Language
    mediaType: /app/domain/const/MediaType
@@ -22,11 +22,13 @@ file:
   domain:
     database: /app/domain/Database
     expressApp: /app/domain/ExpressApp
+  init:
+    database: /app/init/DatabaseInitializer
   postQueries: /app/domain/databaseQueries/postQueries.sql
   log:
     db: /logs/db.log
     error: /logs/error.log
-  util: /app/heplers/Util
+  util: /app/helpers/Util
 db:
   isEnabledLogging: true,
   isEnabledConsoleLoggin: true

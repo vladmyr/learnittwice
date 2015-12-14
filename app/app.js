@@ -1,17 +1,18 @@
 "use strict";
 
 // external dependencies
-var Promise = require("promise");
+var Promise = require("bluebird");
 var _ = require("underscore");
 var path = require("path");
 
 /**
  * Server application initialization class
  * @param       {Object}  options configuration options
- * @constructor
+ * @returns     {Application}
  * @typedef     {Object}  Application
+ * @constructor
  */
-var App = function(options){
+var Application = function(options){
   var self = this;
 
   // extend instance
@@ -31,13 +32,16 @@ var App = function(options){
 };
 
 /**
- * Initialize app instance
+ * Initialize application instance
+ * @memberOf Application
  * @return {Promise}
  */
-App.prototype.initialize = function(){
+Application.prototype.initialize = function(){
   var self = this;
 
   return Promise.resolve().then(function(){
-
-  })
+    return new require(path.join(self.config.dir.root, self.config.file.init.database))(self);
+  });
 };
+
+module.exports = Application;

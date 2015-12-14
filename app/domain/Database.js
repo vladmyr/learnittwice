@@ -38,7 +38,7 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
 
   // initialize logging
   // TODO - fix
-  !this.app.config.db.isEnabledFileLogging && (self.loggerTransports.push(
+  !self.app.config.db.isEnabledFileLogging && (self.loggerTransports.push(
     new (winston.transports.File)({
       filename: path.join(
         app.root_dir,
@@ -48,7 +48,7 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
       json: false
     })
   ));
-  !this.app.config.db.isEnabledConsoleLogging && (self.loggerTransports.push(
+  !self.app.config.db.isEnabledConsoleLogging && (self.loggerTransports.push(
     new (winston.transports.Console)()
   ));
 
@@ -70,7 +70,7 @@ Database.prototype.setForeignKeyCheck = function(check){
  * @param   {Object}  model
  * @returns {Promise}
  */
-var alterIndices = function(model){
+Database.prototype.alterIndices = function(model){
   var self = this;
   var queryInterface = self.app[self.refDb].getQueryInterface();
 
@@ -115,7 +115,7 @@ var alterIndices = function(model){
  * @param model
  * @returns {Promise}
  */
-var alterColumns = function(model){
+Database.prototype.alterColumns = function(model){
   var self = this;
   var queryInterface = self.app[self.refDb].getQueryInterface();
 
