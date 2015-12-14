@@ -6,9 +6,11 @@ This is yet another pet project aimed to help to learn new educational material 
 
 ## Why?
 The motivation of developing such project is:
+
 - Lack of flexibility to create custom materials in existing projects;
 - Absence of tools to work with bulk data;
 - Absence of ability to create dependency tree for material items.
+
 The goal of this project is to overcome this limitations and bring some additional cookies.
 
 ## Developers documentation
