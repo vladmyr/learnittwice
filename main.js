@@ -3,20 +3,16 @@
 var _ = require("underscore");
 var config = require("config");
 var http = require("http");
-var querystring = require("querystring");
 var Promise = require("bluebird");
 var path = require("path");
 var App = require(path.join(__dirname, config.file.app));
 
 /**
  * Main initialization
+ * TODO - finish refactoring
  */
-// TODO - refactoring
-var app = new App(_.extend(config, {
-  dir: {
-    root: __dirname
-  }
-}));
+config.dir.root = __dirname;
+var app = new App(config);
 
 app.initialize();
 

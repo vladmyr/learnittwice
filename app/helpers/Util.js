@@ -10,6 +10,11 @@ var https = require("https");
 var _ = require("underscore");
 var slug = require("slug");
 
+/**
+ * Custom utilities module
+ * TODO - jsdoc
+ * @module
+ */
 var utils = {};
 
 /**

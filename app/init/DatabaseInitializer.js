@@ -1,19 +1,23 @@
 "use strict";
 
+// external dependencies
 var Promise = require("bluebird");
 var path = require("path");
+
 /**
  * Main database initialization
  * @param   {Application} app
  * @param   {Function}    [callback]
  * @returns {Promise}
  */
-
 var DatabaseInitializer = function(app, callback){
+  // load application dependencies
+  var Database = require(path.join(app.config.dir.root, app.config.file.domain.database));
+
+  // create database instance
+  var database = new Database(app);
+
   return Promise.resolve().then(function(){
-    // create database instance
-    return new require(path.join(app.config.dir.root, app.config.file.domain.database))(app);
-  }).then(function(database){
     // initialize instance
     return database.initialize();
   }).then(function(database){

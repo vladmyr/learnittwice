@@ -14,6 +14,7 @@ var winston = require("winston");
  * @param   {String}      [modelDir]
  * @param   {String}      [refDb]
  * @param   {String}      [refModel]
+ * @typedef {Object}      Database
  * @constructor
  */
 var Database = function(app, dbConfig, modelDir, refDb, refModel){
@@ -23,9 +24,9 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
   self.dbConfig = dbConfig
     ? dbConfig
     : self.app.config.database;
-  self.modelDir = !modelDir
+  self.modelDir = modelDir
     ? modelDir
-    : self.modelDir = path.join(app.config.dir.root, app.config.path.dir.models);
+    : self.modelDir = path.join(self.app.config.dir.root, self.app.config.dir.models);
   self.refDb = refDb
     ? refDb
     : "db";
@@ -40,11 +41,7 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
   // TODO - fix
   !self.app.config.db.isEnabledFileLogging && (self.loggerTransports.push(
     new (winston.transports.File)({
-      filename: path.join(
-        app.root_dir,
-        app.config.dir.logs,
-        app.config.filePath.log.db
-      ),
+      filename: path.join(self.app.config.dir.root, self.app.config.file.log.db),
       json: false
     })
   ));
@@ -110,7 +107,7 @@ Database.prototype.alterIndices = function(model){
 };
 
 /**
- * Alter existing model's columns.
+ * Alter existing model's table columns.
  * TODO - add column edit/remove functionality
  * @param model
  * @returns {Promise}
@@ -222,11 +219,11 @@ Database.prototype.migrate = function(){
       return self.app[self.refDb].sync();
     }).then(function(){
       return Promise.each(modelNames, function (modelName) {
-        return alterColumns(self.app[self.refModel][modelName]);
+        return self.alterColumns(self.app[self.refModel][modelName]);
       }, { concurrency: 1 });
     }).then(function () {
       return Promise.each(modelNames, function (modelName) {
-        return alterIndices(self.app[self.refModel][modelName]);
+        return self.alterIndices(self.app[self.refModel][modelName]);
       }, { concurrency: 1 });
       //}).then(function(){
       //  return self.setForeignKeyCheck(true);
