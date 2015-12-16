@@ -9,6 +9,7 @@ var path = require("path");
  * @param   {Application} app
  * @param   {Function}    [callback]
  * @returns {Promise}
+ * @constructor
  */
 var DatabaseInitializer = function(app, callback){
   // load application dependencies

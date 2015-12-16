@@ -32,7 +32,7 @@ file:
 db:
   isEnabledLogging: true,
   isEnabledConsoleLoggin: true
-entryPoint:
+entryPoints:
   api:
     routeRoot: /
     path:

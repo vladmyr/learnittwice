@@ -172,10 +172,12 @@ utils.fs = {
   },
   /**
    * Scan each file in a directory
-   * @param pathDir
-   * @param options
-   * @param iterator
-   * @returns {bluebird}
+   * @param   {String}    pathDir       directory to scan
+   * @param   {Object}    options
+   *                        [includes]
+   *                        [excludes]
+   * @param   {Function}  iterator      function to be executed for each file
+   * @returns {Promise}
    */
   scanDir: function(pathDir, options, iterator){
     var include = function(includes, file){
@@ -198,7 +200,7 @@ utils.fs = {
         if(err){
           return reject(err);
         }else{
-          return Promise.reduce(files.filter(function(file){
+          return Promise.each(files.filter(function(file){
             var filter = true;
 
             file = path.basename(file, path.extname(file));
@@ -212,9 +214,10 @@ utils.fs = {
             }
 
             return filter;
-          }), function(total, file){
-            return iterator(file);
-          }, 0).then(function(){
+          }), function(file){
+            var basename = path.basename(file, path.extname(file));
+            return iterator(file, basename);
+          }, { concurrency: 1 }).then(function(){
             return fulfill();
           });
         }

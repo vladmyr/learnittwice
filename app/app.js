@@ -39,8 +39,14 @@ var Application = function(options){
 Application.prototype.initialize = function(){
   var self = this;
 
+  var DatabaseInitializer = require(path.join(self.config.dir.root, self.config.file.init.database));
+
   return Promise.resolve().then(function(){
-    return new require(path.join(self.config.dir.root, self.config.file.init.database))(self);
+    // initialize database
+    return new DatabaseInitializer(self);
+  }).then(function(){
+    // initialize express
+    return new ServiceInitializer(self);
   });
 };
 
