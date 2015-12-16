@@ -19,7 +19,7 @@ var ExpressInitializer = function(app, callback){
   var ExpressApp = require(path.join(self.app.config.dir.root, self.app.config.file.domain.expressApp));
 
   // for each express entry point
-  return Promise.each(self.app.config.entryPoints, function(entryPoint){
+  return Promise.each(_.toArray(self.app.config.entryPoints), function(entryPoint){
     // initialize express application
     return new ExpressApp(entryPoint, self.app).then(function(expressApp){
       // add reference to application instance

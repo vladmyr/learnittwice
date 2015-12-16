@@ -25,7 +25,7 @@ file:
   init:
     database: /app/init/DatabaseInitializer
     service: /app/init/ServiceInitializer
-    express: /app/init/ExressInitializer
+    express: /app/init/ExpressInitializer
   postQueries: /app/domain/databaseQueries/postQueries.sql
   log:
     db: /logs/db.log
@@ -44,5 +44,5 @@ entryPoints:
     hasView: false    # deprecated
     hasService: true  # deprecated
     alias: api
-    port: 8081,
+    port: 8081
     protocol: http

@@ -53,7 +53,7 @@ var Database = function(app, dbConfig, modelDir, refDb, refModel){
 };
 
 /**
- * Executes sql's SET FOREIGN_KEY_CHECKS
+ * Execute SQL's FOREIGN_KEY_CHECKS command
  * @param   {Boolean} check
  * @returns {Promise}
  */

@@ -1,5 +1,6 @@
 "use strict";
 
+// TODO - DEPRECATED and must be removed
 
 //load constants
 var LANGUAGE = require("./domain/const/Language");

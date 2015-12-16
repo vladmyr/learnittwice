@@ -522,9 +522,9 @@ Util.express = {
         _.each((Array.isArray(root)
           ? root
           : [root]
-        ), function(path){
+        ), function(routePath){
           // attach controller's router into broad express router
-          router.use(path.join("/", path), nestedRouter);
+          router.use(path.join("/", routePath), nestedRouter);
         });
       });
     }).then(function(){

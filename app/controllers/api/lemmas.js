@@ -1,7 +1,13 @@
 "use strict";
 
+/**
+ * Lemmas controller
+ * @param   {express.Router}  router
+ * @param   {Application}     app
+ * @module
+ */
 module.exports = function(router, app){
-  app.helpers.utils.express.defineController(router, {
+  app.Util.express.defineController(router, {
     setup: function(router){
       router.path = "lemmas";
       router
