@@ -15,12 +15,12 @@ var slug = require("slug");
  * TODO - jsdoc
  * @module
  */
-var utils = {};
+var Util = {};
 
 /**
  * Extends fs module
  */
-utils.fs = {
+Util.fs = {
   /**
    * Write data to file
    * @param filename
@@ -258,7 +258,7 @@ utils.fs = {
   }
 };
 
-utils.net = {
+Util.net = {
   /**
    * Pipe data from internet
    * @param urlAddress
@@ -328,13 +328,13 @@ utils.net = {
           return reject(err);
         });
 
-        utils.net.pipe(urlAddress, fileStream);
+        Util.net.pipe(urlAddress, fileStream);
       })
     })
   }
 };
 
-utils.string = {
+Util.string = {
   /**
    * Match all regex occurrences in string
    * @param string
@@ -355,13 +355,14 @@ utils.string = {
   },
   /**
    * Generate unique string among passed array of strings
+   * TODO - under development
    * @param stringName
    * @param arrString
    * @returns {*}
    */
   generateUniqSlug: function(stringName, arrString){
     var resultString;
-    var matches = utils.matchAll(stringName, arrString);
+    var matches = Util.matchAll(stringName, arrString);
 
     return stringName;
   }
@@ -370,7 +371,7 @@ utils.string = {
 /**
  * Util function for database operations
  */
-utils.db = {
+Util.db = {
   /**
    * Handle transaction commit
    * @param t                  - transaction
@@ -419,7 +420,7 @@ utils.db = {
 /**
  * Enhanced model methods
  */
-utils.model = {
+Util.model = {
   instanceMethods: {
 
   },
@@ -431,7 +432,7 @@ utils.model = {
 /**
  * Util functions for arrays
  */
-utils.arr = {
+Util.arr = {
   /**
    * Slice array into chunks
    * @param arr
@@ -450,18 +451,14 @@ utils.arr = {
 };
 
 /**
- * Util functions for processing errors
+ * Utility functionality for express
  */
-utils.err = {
-  normalize: function(err){
-
-  },
-  handle: function(err){
-
-  }
-};
-
-utils.express = {
+Util.express = {
+  /**
+   * Define new route controller
+   * @param router
+   * @param controller
+   */
   defineController: function(router, controller){
     _.defaults(controller, {
       bind: function(method){
@@ -471,30 +468,63 @@ utils.express = {
 
     return controller.setup(router);
   },
+
+  /**
+   * Load controller hierarchy
+   * @param entryPoint
+   * @param router
+   * @param app
+   * @returns {Object}  container that hold controller`s logic
+   */
   loadControllerHierarchy: function(entryPoint, router, app){
-    var container = require(path.join(app.root_dir, entryPoint.controllerDir, entryPoint.mainControllerName));
+    var container = require(path.join(app.config.dir.root, entryPoint.file.entryController));
     return container(entryPoint, router, app);
   },
+
+  /**
+   *
+   * @param container
+   * @param router
+   * @param app
+   * @returns {express.Router}
+   */
   loadOneNestedController: function(container, router, app){
     if(typeof container === "string"){
-      container = require(path.join(app.root_dir, container));
+      container = require(path.join(app.config.dir.root, container));
     }
     container(router, app);
     return router;
   },
+
+  /**
+   * Load all nested categories of entry category for express entry point
+   * @param   {String}                  pathDir   controllers` parent directory
+   * @param   {String|Array.<String>}   exclude   controllers` file names that must be excluded
+   * @param   {express.Router}          router    express application router
+   * @param   {Application}             app
+   * @returns {Promise}
+   */
   loadAllNestedControllers: function(pathDir, exclude, router, app){
     return Promise.resolve().then(function(){
-      return utils.fs.scanDir(pathDir, { excludes: [exclude] } , function(file){
-        file = path.basename(file, path.extname(file));
+      // scan controller's parent directory
+      return Util.fs.scanDir(pathDir, { excludes: Array.isArray(exclude)
+        ? exclude
+        : [exclude]
+      } , function(file, basename){
+        var filePath = path.join(pathDir, basename);
+        var container = require(filePath);  // controller's container
 
-        var filePath = path.join(pathDir, file);
-        var container = require(filePath);
+        // load controller's container into a separate router
+        var nestedRouter = Util.express.loadOneNestedController(container, require("express").Router(), app);
 
-        var nestedRouter = utils.express.loadOneNestedController(container, require("express").Router(), app);
-
-        var root = nestedRouter.path || file;
-        _.each((Array.isArray(root) ? root : [root]), function(path){
-          router.use("/" + path, nestedRouter);
+        // if controller nester route was not specified set one according to basename
+        var root = nestedRouter.path || basename;
+        _.each((Array.isArray(root)
+          ? root
+          : [root]
+        ), function(path){
+          // attach controller's router into broad express router
+          router.use(path.join("/", path), nestedRouter);
         });
       });
     }).then(function(){
@@ -503,4 +533,4 @@ utils.express = {
   }
 };
 
-module.exports = utils;
+module.exports = Util;

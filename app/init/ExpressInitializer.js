@@ -1,20 +1,31 @@
 "use strict";
 
+// external dependencies
 var Promise = require("bluebird");
 var _ = require("underscore");
 var path = require("path");
 
-module.exports = function(app, callback){
-  var ExpressApp = require(path.join(app.root_dir, app.config.dir.domain, app.config.filePath.domain.expressApp));
+/**
+ * Express applications initialization class
+ * @param   {Application}   app
+ * @param   {Function}      [callback]
+ * @constructor
+ */
+var ExpressInitializer = function(app, callback){
+  var self = this;
 
-  //return Promise.reduce((_.toArray(app.config.entryPoints) || []), function(total, entryPoint){
-  return Promise.reduce([app.config.entryPoints.api] || [], function(total, entryPoint){
-    return new ExpressApp(entryPoint, {}, app).then(function(expressApp){
-      return app.expressApps.push(expressApp);
-    });
-  }, 0).then(function(){
-    return callback();
-  }).catch(function(err){
-    return callback(err);
-  });
+  self.app = app;
+  // load application dependency
+  var ExpressApp = require(path.join(self.app.config.dir.root, self.app.config.file.domain.expressApp));
+
+  // for each express entry point
+  return Promise.each(self.app.config.entryPoints, function(entryPoint){
+    // initialize express application
+    return new ExpressApp(entryPoint, self.app).then(function(expressApp){
+      // add reference to application instance
+      return self.app.expressApps.push(expressApp);
+    })
+  }, { concurrency: 1 }).nodeify(callback);
 };
+
+module.exports = ExpressInitializer;

@@ -40,7 +40,7 @@ entryPoints:
     dir:
       controller: /app/controllers/api
     file:
-      controllerEntry: /app/controllers/api/_default
+      entryController: /app/controllers/api/_default
     hasView: false    # deprecated
     hasService: true  # deprecated
     alias: api

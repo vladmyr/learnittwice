@@ -16,7 +16,7 @@ The goal of this project is to overcome this limitations and bring some addition
 ## Developers documentation
 The project is annotated with JSdoc comments. In order to generate documentation execute:
 ````
-node_modules/.bin/jsdoc --configure ./config/jsdoc/jsdoc.json
+npm run jsdoc
 ````
 
 ## Developers change log

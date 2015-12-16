@@ -6,8 +6,20 @@ var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
 
-module.exports = function(entryPoint, options, app){
+/**
+ * Express application class
+ * @param   {Object}        entryPoint
+ * @param   {Application}   app
+ * @param   {Object}        [options]
+ * @returns {Promise}
+ * @constructor
+ */
+var ExpressApp = function(entryPoint, app, options){
+  var self = this;
   var expressApp = express();
+
+  self.app = app;
+  self.options = options || {};
 
   expressApp.set("port", entryPoint.port);
   expressApp.set("alias", entryPoint.alias || "");
@@ -15,12 +27,10 @@ module.exports = function(entryPoint, options, app){
   expressApp.use(bodyParser.json());
   expressApp.use(bodyParser.urlencoded({ extended: true }));
 
-  entryPoint.hasView && expressApp.set("views", path.join(app.root_dir, app.config.dir.views, entryPoint.alias));
-  entryPoint.hasView && expressApp.set("view engine", "jade");
-  entryPoint.hasPublic && expressApp.use(express.static(path.join(app.root_dir, app.config.dir.public, entryPoint.alias)));
-
-  return app.helpers.utils.express.loadControllerHierarchy(entryPoint, express.Router(), app).then(function(router){
-    expressApp.use(entryPoint["routeRoot"], router);
+  return self.app.Util.express.loadControllerHierarchy(entryPoint, express.Router(), self.app).then(function(router){
+    expressApp.use(entryPoint.routeRoot, router);
     return expressApp;
   });
 };
+
+module.exports = ExpressApp;
