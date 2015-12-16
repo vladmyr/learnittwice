@@ -1,5 +1,6 @@
 "use strict";
 
+//external dependencies
 var Promise = require("bluebird");
 var _ = require("underscore");
 

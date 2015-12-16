@@ -24,6 +24,8 @@ file:
     expressApp: /app/domain/ExpressApp
   init:
     database: /app/init/DatabaseInitializer
+    service: /app/init/ServiceInitializer
+    express: /app/init/ExressInitializer
   postQueries: /app/domain/databaseQueries/postQueries.sql
   log:
     db: /logs/db.log
@@ -35,13 +37,12 @@ db:
 entryPoints:
   api:
     routeRoot: /
-    path:
-      dir:
-        controller: /app/controllers/api
-      file:
-        controllerEntry: /app/controllers/api/_default
-      hasView: false    # deprecated
-      hasService: true  # deprecated
-      alias: api
-      port: 8081,
-      protocol: http
+    dir:
+      controller: /app/controllers/api
+    file:
+      controllerEntry: /app/controllers/api/_default
+    hasView: false    # deprecated
+    hasService: true  # deprecated
+    alias: api
+    port: 8081,
+    protocol: http

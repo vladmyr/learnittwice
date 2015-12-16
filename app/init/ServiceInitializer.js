@@ -7,8 +7,8 @@ var path = require("path");
 
 /**
  * Service initialization class
- * @param       {Application} app
- * @param       {Function}    [callback]
+ * @param {Application} app
+ * @param {Function}    [callback]
  * @constructor
  */
 var ServiceInitializer = function(app, callback){
@@ -16,7 +16,7 @@ var ServiceInitializer = function(app, callback){
 
   self.app = app;
 
-  return Promise.each([app.config.eatryPoints.api], function(entryPoint){
+  return Promise.each([app.config.entryPoints.api], function(entryPoint){
     // services directory
     var dir = path.join(app.config.dir.root, app.config.dir.services, entryPoint.alias);
 

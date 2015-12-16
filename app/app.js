@@ -15,7 +15,7 @@ var path = require("path");
 var Application = function(options){
   var self = this;
 
-  // extend instance
+  // Application object construction
   self = _.extend({}, self, {
     LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
     MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
@@ -26,6 +26,11 @@ var Application = function(options){
     expressApps: [],
     Util: require(path.join(options.dir.root, options.file.util))
     // TODO - httpParser
+  });
+
+  // object construction for each express entryPoint
+  _.each(self.config.entryPoints, function(entryPoint){
+    self[entryPoint.alias] = {};
   });
 
   return self;
@@ -40,6 +45,7 @@ Application.prototype.initialize = function(){
   var self = this;
 
   var DatabaseInitializer = require(path.join(self.config.dir.root, self.config.file.init.database));
+  var ServiceInitializer = require(path.join(self.config.dir.root, self.config.file.init.service));
 
   return Promise.resolve().then(function(){
     // initialize database
@@ -47,6 +53,8 @@ Application.prototype.initialize = function(){
   }).then(function(){
     // initialize express
     return new ServiceInitializer(self);
+  }).then(function(){
+    return self;
   });
 };
 
