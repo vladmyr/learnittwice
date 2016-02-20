@@ -8,6 +8,7 @@ dir:
   domain: /app/domain
   helpers: /app/helpers
   init: /app/init
+  middlewares: /app/middlewares
   models: /app/models
   services: /app/services
   logs: /logs
@@ -23,6 +24,7 @@ file:
     database: /app/domain/Database
     expressApp: /app/domain/ExpressApp
   init:
+    middleware: /app/init/MiddlewareInitializer
     database: /app/init/DatabaseInitializer
     service: /app/init/ServiceInitializer
     express: /app/init/ExpressInitializer
@@ -41,8 +43,10 @@ entryPoints:
       controller: /app/controllers/api
     file:
       entryController: /app/controllers/api/_default
-    hasView: false    # deprecated
-    hasService: true  # deprecated
     alias: api
     port: 8081
     protocol: http
+    allowedHosts:
+      - protocol: http
+        host: localhost
+        port: 8080

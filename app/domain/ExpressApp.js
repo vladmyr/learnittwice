@@ -23,6 +23,7 @@ var ExpressApp = function(entryPoint, app, options){
 
   expressApp.set("port", entryPoint.port);
   expressApp.set("alias", entryPoint.alias || "");
+  expressApp.set("allowedHosts", app.Util.express.mapAllowedHosts(entryPoint.allowedHosts));
 
   expressApp.use(bodyParser.json());
   expressApp.use(bodyParser.urlencoded({ extended: true }));

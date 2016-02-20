@@ -173,13 +173,20 @@ Util.fs = {
   /**
    * Scan each file in a directory
    * @param   {String}    pathDir       directory to scan
-   * @param   {Object}    options
+   * @param   {Object}    [options]
    *                        [includes]
    *                        [excludes]
    * @param   {Function}  iterator      function to be executed for each file
    * @returns {Promise}
    */
   scanDir: function(pathDir, options, iterator){
+    // process passed arguments
+    switch (arguments.length) {
+      case 2:
+        iterator = options;
+        break;
+    }
+
     var include = function(includes, file){
       return includes.indexOf(file) !== -1
     };
@@ -530,6 +537,16 @@ Util.express = {
     }).then(function(){
       return router;
     });
+  },
+  /**
+   * Maps allowed hosts
+   * @param   {Array<Object>} hosts
+   * @returns {Array<String>}
+   */
+  mapAllowedHosts: function(hosts){
+    return _.map(hosts || [], function(item){
+      return url.format(item);
+    })
   }
 };
 

@@ -16,7 +16,13 @@ module.exports = function(entryPoint, router, app){
 
     // place to implement routing logic, authentication, etc.
     router.use(function(req, res, next){
-      return next();
+      // cross origin requests
+      if (app.middleware.CrossDomain.isOriginAllowed(entryPoint.get("allowedHosts"), req.headers.origin)) {
+        app.middleware.CrossDomain.setResponseHeaders(req, res);
+        return next();
+      } else {
+        return res.status(403).send();
+      }
     });
 
     return router;

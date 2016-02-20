@@ -14,6 +14,7 @@ var path = require("path");
  */
 var Application = function(options){
   var self = this;
+  var Util = require(path.join(options.dir.root, options.file.util));
 
   // Application object construction
   self = _.extend({}, self, {
@@ -24,7 +25,7 @@ var Application = function(options){
     env: "development",
     config: options,
     expressApps: [],
-    Util: require(path.join(options.dir.root, options.file.util))
+    Util: Util
     // TODO - httpParser
   });
 
@@ -44,17 +45,22 @@ var Application = function(options){
 Application.prototype.initialize = function(){
   var self = this;
 
+  var MiddlewareInitializer = require(path.join(self.config.dir.root, self.config.file.init.middleware));
   var DatabaseInitializer = require(path.join(self.config.dir.root, self.config.file.init.database));
   var ServiceInitializer = require(path.join(self.config.dir.root, self.config.file.init.service));
   var ExpressInitializer = require(path.join(self.config.dir.root, self.config.file.init.express));
 
-  return Promise.resolve().then(function(){
+  return Promise.resolve().then(function() {
+    // initialize middleware
+    return new MiddlewareInitializer(self);
+  }).then(function(){
     // initialize database
     return new DatabaseInitializer(self);
   }).then(function(){
-    // initialize express
+    // initialize services
     return new ServiceInitializer(self);
   }).then(function(){
+    // initialize express
     return new ExpressInitializer(self);
   }).then(function(){
     return self;
