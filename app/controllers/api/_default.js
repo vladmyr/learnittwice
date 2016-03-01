@@ -12,16 +12,24 @@ var path = require("path");
  * @module
  */
 module.exports = function(entryPoint, router, app){
-  return Promise.resolve().then(function(){
+  var ENV = require(path.join(app.config.dir.root, app.config.file.const.env));
+
+  return Promise.resolve().then(function() {
 
     // place to implement routing logic, authentication, etc.
-    router.use(function(req, res, next){
+    router.use(function (req, res, next) {
       // cross origin requests
-      if (app.middleware.CrossDomain.isOriginAllowed(entryPoint.get("allowedHosts"), req.headers.origin)) {
-        app.middleware.CrossDomain.setResponseHeaders(req, res);
+      if (app.env === ENV.DEVELOPMENT) {
+        // development environment
         return next();
       } else {
-        return res.status(403).send();
+        // non-development environment
+        if (app.middleware.CrossDomain.isOriginAllowed(entryPoint.get("allowedHosts"), req.headers.origin)) {
+          app.middleware.CrossDomain.setResponseHeaders(req, res);
+          return next();
+        } else {
+          return res.status(403).send();
+        }
       }
     });
 

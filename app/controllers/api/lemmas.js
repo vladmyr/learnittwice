@@ -7,8 +7,8 @@
  * @module
  */
 module.exports = function(router, app){
-  app.Util.express.defineController(router, {
-    setup: function(router){
+  app.Util.express.defineController({
+    setup: function(){
       router.path = "lemmas";
       router
         .get("/", this.getHelloWorldJSON)

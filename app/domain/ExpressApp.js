@@ -29,6 +29,7 @@ var ExpressApp = function(entryPoint, app, options){
   expressApp.use(bodyParser.urlencoded({ extended: true }));
 
   return self.app.Util.express.loadControllerHierarchy(entryPoint, express.Router(), self.app).then(function(router){
+    // load all controllers routes into express app
     expressApp.use(entryPoint.routeRoot, router);
     return expressApp;
   });

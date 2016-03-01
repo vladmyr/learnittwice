@@ -16,13 +16,15 @@ var Application = function(options){
   var self = this;
   var Util = require(path.join(options.dir.root, options.file.util));
 
+  var ENV = require(path.join(options.dir.root, options.file.const.env));
+
   // Application object construction
   self = _.extend({}, self, {
     LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
     MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
     VIEW_TEMPLATE:  require(path.join(options.dir.root, options.file.const.viewTemplate)),
 
-    env: "development",
+    env: ENV.DEVELOPMENT,
     config: options,
     expressApps: [],
     Util: Util
@@ -47,7 +49,6 @@ Application.prototype.initialize = function(){
 
   var MiddlewareInitializer = require(path.join(self.config.dir.root, self.config.file.init.middleware));
   var DatabaseInitializer = require(path.join(self.config.dir.root, self.config.file.init.database));
-  var ServiceInitializer = require(path.join(self.config.dir.root, self.config.file.init.service));
   var ExpressInitializer = require(path.join(self.config.dir.root, self.config.file.init.express));
 
   return Promise.resolve().then(function() {
@@ -56,9 +57,6 @@ Application.prototype.initialize = function(){
   }).then(function(){
     // initialize database
     return new DatabaseInitializer(self);
-  }).then(function(){
-    // initialize services
-    return new ServiceInitializer(self);
   }).then(function(){
     // initialize express
     return new ExpressInitializer(self);

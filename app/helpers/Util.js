@@ -9,6 +9,7 @@ var http = require("http");
 var https = require("https");
 var _ = require("underscore");
 var slug = require("slug");
+var express = require("express");
 
 /**
  * Custom utilities module
@@ -463,17 +464,16 @@ Util.arr = {
 Util.express = {
   /**
    * Define new route controller
-   * @param router
    * @param controller
    */
-  defineController: function(router, controller){
+  defineController: function(controller){
     _.defaults(controller, {
       bind: function(method){
         return this[method].bind(this);
       }
     });
 
-    return controller.setup(router);
+    return controller.setup();
   },
 
   /**
@@ -484,6 +484,7 @@ Util.express = {
    * @returns {Object}  container that hold controller`s logic
    */
   loadControllerHierarchy: function(entryPoint, router, app){
+    // container for entry controller
     var container = require(path.join(app.config.dir.root, entryPoint.file.entryController));
     return container(entryPoint, router, app);
   },
@@ -504,9 +505,9 @@ Util.express = {
   },
 
   /**
-   * Load all nested categories of entry category for express entry point
+   * Load all nested controllers of entry controller for express entry point
    * @param   {String}                  pathDir   controllers` parent directory
-   * @param   {String|Array.<String>}   exclude   controllers` file names that must be excluded
+   * @param   {String|Array<String>}    exclude   controllers` file names that must be excluded
    * @param   {express.Router}          router    express application router
    * @param   {Application}             app
    * @returns {Promise}
@@ -522,7 +523,7 @@ Util.express = {
         var container = require(filePath);  // controller's container
 
         // load controller's container into a separate router
-        var nestedRouter = Util.express.loadOneNestedController(container, require("express").Router(), app);
+        var nestedRouter = Util.express.loadOneNestedController(container, express.Router(), app);
 
         // if controller nester route was not specified set one according to basename
         var root = nestedRouter.path || basename;
@@ -530,8 +531,9 @@ Util.express = {
           ? root
           : [root]
         ), function(routePath){
-          // attach controller's router into broad express router
-          router.use(path.join("/", routePath), nestedRouter);
+          routePath = url.resolve("/", routePath);
+          // attach controller's router into express router
+          router.use(routePath, nestedRouter);
         });
       });
     }).then(function(){

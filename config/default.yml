@@ -17,9 +17,10 @@ dir:
 file:
   app: /app/app
   const:
-   language: /app/domain/const/Language
-   mediaType: /app/domain/const/MediaType
-   viewTemplate: /app/domain/const/ViewTemplate
+    env: /app/domain/const/Env
+    language: /app/domain/const/Language
+    mediaType: /app/domain/const/MediaType
+    viewTemplate: /app/domain/const/ViewTemplate
   domain:
     database: /app/domain/Database
     expressApp: /app/domain/ExpressApp
