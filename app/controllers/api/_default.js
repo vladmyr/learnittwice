@@ -21,6 +21,7 @@ module.exports = function(entryPoint, router, app){
       // cross origin requests
       if (app.env === ENV.DEVELOPMENT) {
         // development environment
+        app.middleware.CrossDomain.setResponseHeaders(req, res);
         return next();
       } else {
         // non-development environment
