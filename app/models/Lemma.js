@@ -28,9 +28,12 @@ module.exports = function(define, DataTypes, app){
   });
 
   define.after(function(model, refDb, refModel){
-    app[refModel].Sense.belongsTo(app[refModel].Lemma, { as: "Lemma", foreignKey: "lemmaId", onDelete: "NO ACTION", onUpdate: "NO ACTION" });
-    app[refModel].Lemma.hasMany(app[refModel].Sense, { foreignKey: "lemmaId" });
+    app[refModel].LemmaInfo.belongsTo(app[refModel].Lemma, { as: "Lemma", foreignKey: "lemmaId", onDelete: "NO ACTION"})
 
+    // Old references
+    //app[refModel].Sense.belongsTo(app[refModel].Lemma, { as: "Lemma", foreignKey: "lemmaId", onDelete: "NO ACTION", onUpdate: "NO ACTION" });
+    //app[refModel].Lemma.hasMany(app[refModel].Sense, { foreignKey: "lemmaId" });
+    //
     //app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, as: "BaseLemma", foreignKey: "lemmaId" });
     //app[refModel].Lemma.belongsToMany(app[refModel].Lemma, { through: app[refModel].Sense, as: "BaseLemma", foreignKey: "baseLemmaId" });
     //

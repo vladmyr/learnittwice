@@ -439,6 +439,29 @@ Util.model = {
       offset: 0,
       limit: 20
     })
+  },
+  /**
+   * Normalize model association options
+   * @param   {Object}  options
+   * @returns {Object}
+   */
+  normalizeAssociationOptions(options) {
+    return _.defaults(options || {}, {
+      onDelete: "NO ACTION",
+      onUpdate: "NO ACTION"
+    })
+  }
+};
+
+/**
+ * Enhancements for Mongodb models
+ */
+Util.modelMongo = {
+  define(app) {
+    return (modelName, schemaDescription) => {
+      const schema = new app.mongoose.Schema(schemaDescription);
+      return app.mongoose.model(modelName, schema);
+    }
   }
 };
 

@@ -14,11 +14,8 @@ var App = require(path.join(__dirname, config.file.app));
 config.dir.root = __dirname;
 var app = new App(config);
 
-Promise.resolve().then(function(){
-  // tmp
-  Error.stackTraceLimit = Infinity;
-
-  // initalize application
+return Promise.resolve().then(function(){
+  // initialize application
   return app.initialize();
 }).then(function(){
   // setup web servers for each entry point

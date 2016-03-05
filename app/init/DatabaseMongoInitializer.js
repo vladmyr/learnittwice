@@ -12,9 +12,22 @@ const path = require("path");
 class DatabaseMongoInitializer {
   constructor(app) {
     const DatabaseMongo = require(path.join(app.config.dir.root, app.config.file.domain.databaseMongo));
-    const databaseMongo = new DatabaseMongo(app, app.config, app.config.dir.modelsMongo, "dbMongo", "modelsMongo");
+    const databaseMongo = new DatabaseMongo(app, app.config,
+      path.join(app.config.dir.root, app.config.dir.modelsMongo),
+      "dbMongo",
+      "modelsMongo");
 
     return databaseMongo.initialize();
+
+    //return databaseMongo.initialize().then((data) => {
+    //  const lemma = new app.modelsMongo.Lemma({
+    //    lemma: "car"
+    //  });
+    //
+    //  lemma.save();
+    //
+    //  return data
+    //});
   }
 }
 

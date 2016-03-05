@@ -44,17 +44,18 @@ module.exports = function(app, args, callback){
     //})
 
     // get definition
-    return app.models.Sense.findAll({
+    return app.models.Lemma.findAll({
       where: {
-        languageId: language.id
+        lemma: "car"
       },
       include: [{
-        model: app.models.Lemma,
+        model: app.models.Sense,
         where: {
-          lemma: "car"
-        }
-      }, {
-        model: app.models.Synset
+          languageId: language.id
+        },
+        include: [{
+          model: app.models.Synset
+        }]
       }]
     })
   }).then(function(data){

@@ -6,7 +6,7 @@ var path = require("path");
 
 var wn31Importer = function(app, options){
   var promise = Promise.resolve();
-  var options = _.extend({
+  options = _.extend({
     database: {
       name: "wordnet"
     },
@@ -54,7 +54,7 @@ var wn31Importer = function(app, options){
           words: words,
           language: app[refModel].Language.findOne({
             where: {
-              iso3166a2: app.const.LANGUAGE.ENGLISH
+              iso3166a2: app.LANGUAGE.ENGLISH
             },
             transaction: t
           })
@@ -139,17 +139,18 @@ var wn31Importer = function(app, options){
           });
         }, 0);
       }).then(function(){
-        return app.helpers.utils.db.commit(t);
+        return app.Util.db.commit(t);
       }).catch(function(err){
         console.log(err, (err.stack || ""));
-        return app.helpers.utils.db.rollback(t)
+        return app.Util.db.rollback(t)
       })
     });
   };
 
-  var dbInstance = new require(path.join(app.root_dir,
-    app.config.dir.domain,
-    app.config.filePath.domain.database))(app, {
+  var Database = require(path.join(app.config.dir.root,
+    app.config.file.domain.database))
+
+  var dbInstance = new Database(app, {
     name: options.database.name,
     username: app.config.database.username,
     password: app.config.database.username,

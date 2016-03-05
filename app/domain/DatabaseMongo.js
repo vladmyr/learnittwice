@@ -1,6 +1,6 @@
 "use strict";
 
-const url = require("url");
+const path = require("path");
 const Promise = require("bluebird");
 const mongoose = require("mongoose");
 
@@ -53,7 +53,8 @@ class DatabaseMongo {
   initialize() {
     const self = this;
 
-    return new Promise(function(fulfill, reject){
+    return new Promise((fulfill, reject) => {
+      // connect to mongodb database
       // check whether database reference is occupied
       if(typeof self.app[self.refDb] !== "undefined"){
         return reject(new Error("Database initialisation with refDb = '" + self.refDb + "' is already reserved"));
@@ -72,11 +73,19 @@ class DatabaseMongo {
       self.app.mongoose.connect(self.dbConfig.database_mongo.uri, self.dbConfig.database_mongo.options);
 
       self.app[self.refModel] = {};
-      // map connection reference
+      // set connection reference
       self.app[self.refDb] = self.app.mongoose.connection;
 
       self.app[self.refDb].on("error", reject);
       self.app[self.refDb].once("open", fulfill);
+    }).then(() => {
+      // initialize mongoose models
+      return self.app.Util.fs.scanDir(self.modelDir, (file, basename) => {
+        const filePath = path.join(self.modelDir, file);
+        const modelContainer = require(filePath);
+
+        self.app[self.refModel][basename] = modelContainer(self.app.Util.modelMongo.define(self.app), self.app.mongoose.Schema.Types);
+      });
     });
   }
 }
