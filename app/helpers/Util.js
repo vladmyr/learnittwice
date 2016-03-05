@@ -429,11 +429,16 @@ Util.db = {
  * Enhanced model methods
  */
 Util.model = {
-  instanceMethods: {
-
-  },
-  classMethods: {
-
+  /**
+   * Normalize query options
+   * @param   {Object}  options
+   * @returns {Object}
+   */
+  normalizeQueryOptions: function(options){
+    return _.defaults(options || {}, {
+      offset: 0,
+      limit: 20
+    })
   }
 };
 

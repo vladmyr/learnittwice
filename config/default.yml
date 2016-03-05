@@ -10,6 +10,7 @@ dir:
   init: /app/init
   middlewares: /app/middlewares
   models: /app/models
+  modelsMongo: /app/modelsMongo
   services: /app/services
   logs: /logs
   console: /console
@@ -23,10 +24,12 @@ file:
     viewTemplate: /app/domain/const/ViewTemplate
   domain:
     database: /app/domain/Database
+    databaseMongo: /app/domain/DatabaseMongo
     expressApp: /app/domain/ExpressApp
   init:
     middleware: /app/init/MiddlewareInitializer
     database: /app/init/DatabaseInitializer
+    databaseMongo: /app/init/DatabaseMongoInitializer
     service: /app/init/ServiceInitializer
     express: /app/init/ExpressInitializer
   postQueries: /app/domain/databaseQueries/postQueries.sql

@@ -12,17 +12,17 @@ var path = require("path");
  * @typedef     {Object}  Application
  * @constructor
  */
-var Application = function(options){
+var Application = function Application(options) {
   var self = this;
   var Util = require(path.join(options.dir.root, options.file.util));
 
-  var ENV = require(path.join(options.dir.root, options.file.const.env));
+  var ENV = require(path.join(options.dir.root, options.file["const"].env));
 
   // Application object construction
   self = _.extend({}, self, {
-    LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
-    MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
-    VIEW_TEMPLATE:  require(path.join(options.dir.root, options.file.const.viewTemplate)),
+    LANGUAGE: require(path.join(options.dir.root, options.file["const"].language)),
+    MEDIA_TYPE: require(path.join(options.dir.root, options.file["const"].mediaType)),
+    VIEW_TEMPLATE: require(path.join(options.dir.root, options.file["const"].viewTemplate)),
 
     env: ENV.DEVELOPMENT,
     config: options,
@@ -32,7 +32,7 @@ var Application = function(options){
   });
 
   // object construction for each express entryPoint
-  _.each(self.config.entryPoints, function(entryPoint){
+  _.each(self.config.entryPoints, function (entryPoint) {
     self[entryPoint.alias] = {};
   });
 
@@ -44,7 +44,7 @@ var Application = function(options){
  * @memberOf Application
  * @return {Promise}
  */
-Application.prototype.initialize = function(){
+Application.prototype.initialize = function () {
   var self = this;
 
   var MiddlewareInitializer = require(path.join(self.config.dir.root, self.config.file.init.middleware));
@@ -52,21 +52,23 @@ Application.prototype.initialize = function(){
   var DatabaseMongoInitializer = require(path.join(self.config.dir.root, self.config.file.init.databaseMongo));
   var ExpressInitializer = require(path.join(self.config.dir.root, self.config.file.init.express));
 
-  return Promise.resolve().then(function() {
+  return Promise.resolve().then(function () {
     // initialize middleware
     return new MiddlewareInitializer(self);
-  }).then(function(){
+  }).then(function () {
     // initialize database
     return new DatabaseInitializer(self);
-  }).then(function(){
+  }).then(function () {
     // initialize mongodb database
     return new DatabaseMongoInitializer(self);
-  }).then(function(){
+  }).then(function () {
     // initialize express
     return new ExpressInitializer(self);
-  }).then(function(){
+  }).then(function () {
     return self;
   });
 };
 
 module.exports = Application;
+
+//# sourceMappingURL=app-compiled.js.map

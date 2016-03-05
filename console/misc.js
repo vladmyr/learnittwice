@@ -12,27 +12,51 @@ var path = require("path");
  * @returns {*}
  */
 module.exports = function(app, args, callback){
-  app.models.Lemma.findAll({
-    where: {
-      lemma: "car"
-    },
-    include: [{
-      model: app.models.Language,
+  return Promise.resolve().then(function(){
+    return app.models.Language.find({
       where: {
-        iso3166a2: app.const.LANGUAGE.ENGLISH
+        iso3166a2: app.LANGUAGE.ENGLISH
       }
-    }, {
-      model: app.models.Synset,
+    })
+  }).then(function(language){
+    // get translation - NOT working
+    //return app.models.Lemma.findAll({
+    //  where: {
+    //    lemma: "car"
+    //  },
+    //  include: [{
+    //    model: app.models.LemmaInfo,
+    //    where: {
+    //      LanguageId: language.id
+    //    }
+    //  }, {
+    //    model: app.models.Synset,
+    //    include: [{
+    //      model: app.models.Lemma,
+    //      include: [{
+    //        model: app.models.LemmaInfo,
+    //        where: {
+    //          LanguageId: language.id
+    //        }
+    //      }]
+    //    }]
+    //  }]
+    //})
+
+    // get definition
+    return app.models.Sense.findAll({
+      where: {
+        languageId: language.id
+      },
       include: [{
         model: app.models.Lemma,
-        include: [{
-          model: app.models.Language,
-          where: {
-            iso3166a2: app.const.LANGUAGE.POLISH
-          }
-        }]
+        where: {
+          lemma: "car"
+        }
+      }, {
+        model: app.models.Synset
       }]
-    }]
+    })
   }).then(function(data){
     return callback();
   }).catch(function(err){
@@ -80,23 +104,4 @@ module.exports = function(app, args, callback){
   //}).then(function(data){
   //  return callback();
   //})
-};
-
-var Misc = function(){
-  return {
-    mkdir: function(){
-      var dir = path.join(__dirname, "test");
-      return fs.mkdir(dir, function(err){
-        console.log(err, arguments);
-      });
-    },
-    createPath: function(){
-      var filepath = path.join(__dirname, Number(0).toString(), Number(1).toString(), Number(2).toString(), Number(3).toString());
-      console.log(filepath);
-      return filepath;
-    },
-    modelDescribe: function(model){
-      return model.describe();
-    }
-  }
 };

@@ -10,6 +10,11 @@ database:
       min: 0
       max: 20
       idle: 10000
+database_mongo:
+  uri: "mongodb://127.0.0.1:27017/learnittwicev1"
+  options:
+    user: null
+    password: null
 connection:
   server:
     domain: localhost

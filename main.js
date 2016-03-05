@@ -14,7 +14,10 @@ var App = require(path.join(__dirname, config.file.app));
 config.dir.root = __dirname;
 var app = new App(config);
 
-return Promise.resolve().then(function(){
+Promise.resolve().then(function(){
+  // tmp
+  Error.stackTraceLimit = Infinity;
+
   // initalize application
   return app.initialize();
 }).then(function(){
@@ -32,14 +35,15 @@ return Promise.resolve().then(function(){
       });
     });
   }, { concurrency: 1 });
-}).catch(function(err){
-  // error handling
-  // TODO - implement decent error handling with logging
-  console.log(err, err.stack
-    ? JSON.parse(err.stack)
-    : "");
-  return process.exit(0);
-});
+})
+//  .catch(function(err){
+//  // error handling
+//  // TODO - implement decent error handling with logging
+//  console.log(err, err.stack
+//    ? JSON.parse(err.stack)
+//    : "");
+//  return process.exit(0);
+//});
 
 
 //}), {}, function(err, app){
