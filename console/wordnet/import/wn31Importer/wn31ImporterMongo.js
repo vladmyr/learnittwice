@@ -153,7 +153,7 @@ class WordnetImporter {
 
   /**
    * Import all words from wordnet
-   * @param   {Number}  offset
+   * @param   {Number}  [offset]
    * @returns {Promise}
    */
   importAll(offset) {
@@ -226,7 +226,7 @@ module.exports = (app, args, callback) => {
   });
 
   return importer.initialize().then(() => {
-    return importer.import({ offset: 20000 });
+    return importer.importAll();
   }).then(() => {
     console.log("All tasks are done!");
     return callback();
