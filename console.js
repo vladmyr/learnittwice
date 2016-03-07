@@ -9,13 +9,16 @@ config.dir.root = __dirname;
 
 var app = new App(config);
 
-return Promise.resolve().then(function(){
+return Promise.resolve().then(() => {
   // initialize application
   return app.initialize();
-}).then(function(){
+}).then(() => {
   var args = process.argv.splice(3);
   // execute console script
   return require(path.join(__dirname , "console", process.argv[2]))(app, args, function(){
     process.exit(0);
   });
+}).catch((err) => {
+  throw err;
+  process.exit(0);
 });

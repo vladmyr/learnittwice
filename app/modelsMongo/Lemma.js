@@ -11,7 +11,10 @@ module.exports = (define, SchemaTypes) => {
       // denormalized embedded sense information
       sense: [{
         importId: Number,
-        synsetId: SchemaTypes.ObjectId,
+        synsetId: {
+          type: SchemaTypes.ObjectId,
+          ref: "synset"
+        },
         baseLemmaId: SchemaTypes.ObjectId,
         wordform: Object,
         tagCount: Number,

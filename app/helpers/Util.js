@@ -10,6 +10,7 @@ var https = require("https");
 var _ = require("underscore");
 var slug = require("slug");
 var express = require("express");
+var MongooseDeepPopulate = require("mongoose-deep-populate");
 
 /**
  * Custom utilities module
@@ -458,8 +459,13 @@ Util.model = {
  */
 Util.modelMongo = {
   define(app) {
+    let mongooseDeepPopulate = MongooseDeepPopulate(app.mongoose);
     return (modelName, schemaDescription) => {
       const schema = new app.mongoose.Schema(schemaDescription);
+
+      // register plugin
+      schema.plugin(mongooseDeepPopulate);
+
       return app.mongoose.model(modelName, schema);
     }
   }

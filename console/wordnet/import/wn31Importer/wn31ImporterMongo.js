@@ -37,7 +37,7 @@ class WordnetImporter {
     // options for importing
     self.optionsImport = {
       offset: 0,
-      limit: 100
+      limit: 1000
     }
   }
 
@@ -225,11 +225,13 @@ module.exports = (app, args, callback) => {
     console.log(`\tSuccessfully imported with assigned id: "${lemma.id}"`)
   });
 
-  return importer.initialize().then(function(){
-    return importer.importAll();
+  return importer.initialize().then(() => {
+    return importer.import({ offset: 20000 });
   }).then(() => {
     console.log("All tasks are done!");
+    return callback();
   }).catch((err) => {
     console.error(err);
+    return callback(err);
   });
 };
