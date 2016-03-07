@@ -1,11 +1,9 @@
 "use strict";
 
-var LANGUAGE = (function(){
-  return {
-    UKRAINIAN:  (function() { return "uk"; })(),
-    POLISH:     (function() { return "pl"; })(),
-    ENGLISH:    (function() { return "gb"; })()
-  }
-})();
+const LANGUAGE = {
+  ENGLISH:"en",
+  POLISH: "pl",
+  UKRAINIAN: "uk"
+};
 
 module.exports = LANGUAGE;

@@ -16,6 +16,6 @@ return Promise.resolve().then(function(){
   var args = process.argv.splice(3);
   // execute console script
   return require(path.join(__dirname , "console", process.argv[2]))(app, args, function(){
-    return null;
+    process.exit(0);
   });
 });

@@ -23,6 +23,7 @@ var Application = function(options){
     LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
     MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
     VIEW_TEMPLATE:  require(path.join(options.dir.root, options.file.const.viewTemplate)),
+    WORDFORM:       require(path.join(options.dir.root, options.file.const.wordform)),
 
     env: ENV.DEVELOPMENT,
     config: options,

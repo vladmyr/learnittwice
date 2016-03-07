@@ -2,8 +2,9 @@
 
 module.exports = (define, SchemaTypes) => {
   return define ("synset", {
+    importId: Number,
     definition: [{
-      languageId: SchemaTypes.ObjectId,
+      language: String,
       text: String,
       examples: [String],
       sourceId: SchemaTypes.ObjectId

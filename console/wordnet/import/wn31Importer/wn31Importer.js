@@ -148,7 +148,7 @@ var wn31Importer = function(app, options){
   };
 
   var Database = require(path.join(app.config.dir.root,
-    app.config.file.domain.database))
+    app.config.file.domain.database));
 
   var dbInstance = new Database(app, {
     name: options.database.name,

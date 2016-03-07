@@ -6,11 +6,13 @@ const mongoose = require("mongoose");
 
 /**
  * Mongodb database connector constructor
- * @param app
- * @param dbConfig
- * @param modelDir
- * @param refDb
- * @param refModel
+ * @param   {Applicaton}  app
+ * @param   {Object}      dbConfig
+ * @param   {String}      modelDir
+ * @param   {String}      refDb
+ * @param   {String}      refModel
+ * @returns {DatabaseMongo}
+ * @typedef {Object}  DatabaseMongo
  * @constructor
  */
 class DatabaseMongo {

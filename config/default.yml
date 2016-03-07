@@ -22,6 +22,7 @@ file:
     language: /app/domain/const/Language
     mediaType: /app/domain/const/MediaType
     viewTemplate: /app/domain/const/ViewTemplate
+    wordform: /app/domain/const/Wordform
   domain:
     database: /app/domain/Database
     databaseMongo: /app/domain/DatabaseMongo
@@ -32,7 +33,10 @@ file:
     databaseMongo: /app/init/DatabaseMongoInitializer
     service: /app/init/ServiceInitializer
     express: /app/init/ExpressInitializer
-  postQueries: /app/domain/databaseQueries/postQueries.sql
+  postQueries: /app/domain/databaseQueries/postQueries.sql,
+  db:
+    mongo:
+      populate: /app/db/mongo/populate
   log:
     db: /logs/db.log
     error: /logs/error.log
