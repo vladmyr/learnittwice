@@ -1,5 +1,10 @@
 "use strict";
 
+/**
+ * Script to initialize and seed MongoDB database
+ * @module
+ */
+
 const path = require("path");
 const Promise = require("bluebird");
 

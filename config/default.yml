@@ -14,7 +14,9 @@ dir:
   services: /app/services
   logs: /logs
   console: /console
-  databaseQueries: /databaseQueries
+  databaseQueries: /databaseQueries,
+  backup:
+    mongo: /backup/mongo
 file:
   app: /app/app
   const:
@@ -23,6 +25,9 @@ file:
     mediaType: /app/domain/const/MediaType
     viewTemplate: /app/domain/const/ViewTemplate
     wordform: /app/domain/const/Wordform
+  console:
+    common:
+      ArgumentsParser: /console/common/
   domain:
     database: /app/domain/Database
     databaseMongo: /app/domain/DatabaseMongo

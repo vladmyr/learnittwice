@@ -6,9 +6,9 @@
  * @module
  */
 
-var Promise = require("bluebird");
-var _ = require("underscore");
-var path = require("path");
+const Promise = require("bluebird");
+const _ = require("underscore");
+const path = require("path");
 
 /**
  * Wordnet importer class

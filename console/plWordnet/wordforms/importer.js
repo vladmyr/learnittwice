@@ -6,7 +6,7 @@ var path = require("path");
 
 var Importer = function(app, options) {
   options = _.extend({
-    sourceFile: path.join(__dirname, "source", "pl_PL.UTF-8_cutted.txt"),
+    sourceFile: path.join(__dirname, "source", "pl_PL.UTF-8.txt"),
     lemmasPerTransaction: 1000
   }, options);
 
