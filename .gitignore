@@ -2,5 +2,6 @@
 /.idea/
 /backup/
 /console/**/source/*.*
+/backup
 /docs
 /**/*.log

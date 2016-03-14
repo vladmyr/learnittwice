@@ -16,7 +16,8 @@ dir:
   console: /console
   databaseQueries: /databaseQueries,
   backup:
-    mongo: /backup/mongo
+    db:
+      mongo: /backup/mongo
 file:
   app: /app/app
   const:

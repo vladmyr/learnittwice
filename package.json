@@ -26,6 +26,7 @@
     "express": "^4.12.4",
     "jade": "^1.10.0",
     "js-yaml": "^3.5.3",
+    "moment": "^2.12.0",
     "mongodb": "^2.1.7",
     "mongoose": "^4.4.6",
     "mongoose-deep-populate": "^2.0.3",

@@ -12,6 +12,7 @@ database:
       idle: 10000
 database_mongo:
   uri: "mongodb://127.0.0.1:27017/learnittwicev1"
+  name: "learnittwicev1"
   options:
     user: null
     password: null
