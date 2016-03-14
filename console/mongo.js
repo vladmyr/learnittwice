@@ -19,6 +19,35 @@ class Mongo extends ArgumentsParser {
 
     self.app = app;
   }
+
+  /**
+   * Get directory path to the latest saved database dump
+   * @returns {Promise}
+   */
+  getDumpDirLatest() {
+    let backupDir = path.join(
+      this.app.config.dir.root,
+      this.app.config.dir.backup.db.mongo
+    );
+    let latestDumpDir = "";
+
+    return this.app.Util.fs.scanDir(backupDir, (filepath, basename) => {
+      if (_.isEmpty(latestDumpDir)) {
+        latestDumpDir = basename;
+      } else if (latestDumpDir < basename){
+        latestDumpDir = basename;
+      }
+    }).then(() => {
+      return latestDumpDir
+        ? path.join(backupDir, latestDumpDir)
+        : undefined
+    });
+  }
+
+  /**
+   * Get directory path to save database dump into
+   * @returns {String}
+   */
   getDumpDir() {
     return path.join(
       this.app.config.dir.root,
@@ -53,11 +82,11 @@ class Mongo extends ArgumentsParser {
         // execute child process inside a promise
         innerPromise = new Promise((fulfill, reject) => {
           mongodump.stdout.on("data", (data) => {
-            console.log(data.toString("utf8"));
+            console.log(`\t${data.toString("utf8")}`);
           });
 
           mongodump.stderr.on("data", (data) => {
-            console.log(data.toString("utf8"));
+            console.log(`\t${data.toString("utf8")}`);
           });
 
           mongodump.on("close", (code) => {
@@ -72,6 +101,42 @@ class Mongo extends ArgumentsParser {
         });
       } else if (!_.isEmpty(parsed.restore)) {
         // perform data restore
+        innerPromise = self
+          .getDumpDirLatest()
+          .then((dir) => {
+            if (_.isEmpty(dir)) {
+              // no backup exists
+              return Promise.reject(new Error("There are no backups"));
+            } else {
+              // restore database from a dump
+              let command = "mongorestore";
+              let args = ["--dir", dir, "--verbose"];
+
+              console.log(`Executing "${command} ${args.join(" ")}"...`);
+
+              let mongorestore = spawn(command, args);
+
+              return new Promise((fulfill, reject) => {
+                mongorestore.stdout.on("data", (data) => {
+                  console.log(`\t${data.toString("utf8")}`);
+                });
+
+                mongorestore.stderr.on("data", (data) => {
+                  console.log(`\t${data.toString("utf8")}`);
+                });
+
+                mongorestore.on("close", (code) => {
+                  if (!code) {
+                    console.log(`Dump was restored from the directory ${dir}`);
+                    fulfill();
+                  } else {
+                    console.log(`An error occurred inside child process "${command}". Exit code is ${code}`)
+                    reject();
+                  }
+                });
+              });
+            }
+          })
       } else {
         // no action was specified
         self.notify(Mongo.ACTION.NO_ACTION);
