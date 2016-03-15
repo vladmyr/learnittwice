@@ -63,10 +63,11 @@ Util.fs = {
   /**
    * Read file line by line
    * @param filePath
-   * @param options
+   * @param [options]
    * @param iteratee  - promise function that will be executed for each read line
    */
   readFileByLine: function(filePath, options, iteratee){
+    arguments.length == 2 && (iteratee = options);
     !iteratee && (iteratee = Promise.resolve());
 
     return new Promise(function(fulfill, reject){

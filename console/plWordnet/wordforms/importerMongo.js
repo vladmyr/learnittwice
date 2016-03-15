@@ -224,6 +224,59 @@ class ImporterMongo {
       })
     })
   }
+
+  import4(concurrency) {
+    !concurrency && (concurrency = 1);
+
+    let self = this;
+    let chunk = [];
+    let group = [];
+    let i = concurrency;
+
+    // read by line and save to database sequentially
+    return self.app.Util.fs.readFileByLine(self.options.source, (line) => {
+      let tmp = line.split(self.options.split);
+
+      // parse line data
+      //group = _.last(chunk) || [];
+
+      if (!_.has(_.last(group), "base")) {
+        // there is no base lemma yet - create one
+        group = [{
+          base: tmp[1],
+          lemma: tmp[0]
+        }];
+      } else if (_.last(group).base === tmp[1]) {
+        // base lemma is the same - populate group
+        group.push({
+          base: tmp[1],
+          lemma: tmp[0]
+        })
+      } else {
+        // base lemma is different - create new group
+        chunk.push(group);
+
+        group = [{
+          base: tmp[1],
+          lemma: tmp[0]
+        }];
+
+        --i;
+      }
+
+      if (i == 0) {
+        // chunk size is exceeded - save to database
+        return Promise
+          .all(_.map(chunk, (group) => {
+            return self.importGroup(group);
+          }))
+          .then(() => {
+            chunk = [];
+            i = concurrency;
+          });
+      }
+    });
+  }
 }
 
 ImporterMongo.ACTION = {
@@ -240,12 +293,12 @@ module.exports = (app, args, callback) => {
   });
 
   importer.addListener(ImporterMongo.ACTION.AFTER_IMPORT_ONE, (lemma, baseLemma, total) => {
-    console.log(`${(counter + 1)}) Lemma "${lemma.lemma}", id assigned is "${lemma.id}",\n\tBase lemma is "${baseLemma.lemma}", id is "${baseLemma.id}"\n\tProgress ${Math.floor(counter / total).toFixed(4)}%`);
+    console.log(`${(counter + 1)}) Lemma "${lemma.lemma}", id assigned is "${lemma.id}",\n\tBase lemma is "${baseLemma.lemma}", id is "${baseLemma.id}"`);
     counter++;
   });
 
   return importer
-    .import3(10)
+    .import4(10)
     .then(() => {
       return callback();
     })
