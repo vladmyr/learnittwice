@@ -43,8 +43,9 @@ Util.fs = {
   },
   /**
    * Read whole file
-   * @param filePath
-   * @returns {bluebird}
+   * @param {String}  filePath
+   * @param {Object}  [options]
+   * @returns {Promise}
    */
   readFile: function(filePath, options){
     options = _.extend({
@@ -53,7 +54,9 @@ Util.fs = {
 
     return new Promise(function(fulfill, reject){
       fs.readFile(filePath, options, function(err, data){
-        return err ? reject(err) : fulfill(data);
+        return err
+          ? reject(err)
+          : fulfill(data);
       });
     })
   },
@@ -99,11 +102,11 @@ Util.fs = {
         return innerPromise = innerPromise.then(function(){
           return readable.pause();
         }).then(function(){
-          return Promise.reduce(data, function(total, item){
+          return Promise.each(data, function(item){
             return typeof item !== "undefined" && item.length
               ? iteratee(item)
               : Promise.resolve();
-          }, 0)
+          })
         }).then(function(){
           return readable.resume();
         }).then(function(){

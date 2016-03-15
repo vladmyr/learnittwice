@@ -15,7 +15,9 @@ database_mongo:
   name: "learnittwicev1"
   options:
     user: null
-    password: null
+    password: null,
+    server:
+      poolSize: 100
 connection:
   server:
     domain: localhost

@@ -24,6 +24,7 @@ class ImporterMongo {
     self.app = app;
     self.options = options;
     self.listeners = {};
+    self.total = 0;
   }
 
   /**
@@ -54,10 +55,8 @@ class ImporterMongo {
    * @param   {Object}  [baseLemma]
    * @returns {Promise}
    */
-  importOne(strLemma, baseLemma) {
+  mapOne(strLemma, baseLemma) {
     let self = this;
-
-    self.notify(ImporterMongo.ACTION.BEFORE_IMPORT_ONE, [strLemma]);
 
     return self.app.modelsMongo.Lemma.findOne({
       lemma: strLemma
@@ -122,50 +121,108 @@ class ImporterMongo {
         }
       }
 
-      const tmp = lemma.toObject();
-
       // save/update lemma
-      return lemma.save();
-    }).then((lemma) => {
-      self.notify(ImporterMongo.ACTION.AFTER_IMPORT_ONE, [lemma, baseLemma ? baseLemma : lemma]);
       return lemma;
     })
   }
-  import() {
+
+  importOne(strLemma, baseLemma) {
     let self = this;
-    let baseLemma;
+    return self
+      .mapOne(strLemma, baseLemma)
+      .then((lemma) => {
+        self.notify(ImporterMongo.ACTION.BEFORE_IMPORT_ONE, [lemma]);
+        return lemma.save();
+      }).then((lemma) => {
+        self.notify(ImporterMongo.ACTION.AFTER_IMPORT_ONE, [lemma, baseLemma ? baseLemma : lemma]);
+        return lemma;
+      })
+  }
 
-    return self.app.Util.fs.readFileByLine(self.options.source, {}, (line) => {
-      let tmp = line.split(self.options.split);
+  /**
+   * Map a group of lemmas
+   * @param   {Array.<Object>}  group
+   * @returns {Promise}
+   */
+  mapGroup(group) {
+    let self = this;
+    let base = group[0].base;
 
-      // 1. get or create base lemma
-      return Promise.resolve().then(() => {
-        if (!_.isEmpty(baseLemma) && baseLemma.lemma === tmp[1]) {
-          // base lemma is still valid
-          return baseLemma;
-        } else {
-          return undefined;
-        }
-      }).then((baseLemma) => {
-        // create or update existing base lemma
-        if (_.isEmpty(baseLemma)) {
-          // base lemma does not exist - create one
-          return self.importOne(tmp[1]);
-        } else {
-          // base lemma already exists
-          return baseLemma;
-        }
-      }).then((baseLemma) => {
-        // 2. create or update lemma's form
-        if (baseLemma.lemma !== tmp[0]) {
-          // lemma form does not match base lemma's form - import it
-          return self.importOne(tmp[0], baseLemma);
-        } else {
-          // lemma form is the same as base one - skip it
-          return Promise.resolve();
-        }
-      });
+    return Promise.resolve().then(() => {
+      return self.mapOne(base);
+    }).then((baseLemma) => {
+      return Promise.props({
+        baseLemma: baseLemma,
+        lemmas: _.map(_.filter(_.pluck(group, "lemma"), (lemma) => lemma !== base), (lemma) => {
+          return self.mapOne(lemma, baseLemma);
+        })
+      })
+    }).then((props) => {
+      return [props.baseLemma].concat(props.lemmas);
     });
+  }
+
+  importGroup(group) {
+    let self = this;
+
+    // execute in parallel
+    return Promise
+      .resolve(self.mapGroup(group))
+      .then((map) => {
+        return Promise.each(map, (item) => {
+          return Promise
+            .resolve(item)
+            .then((lemma) => {
+              return lemma.save();
+            })
+            .then((lemma) => {
+              self.notify(ImporterMongo.ACTION.AFTER_IMPORT_ONE, [lemma, map[0] ? map[0] : lemma, self.total]);
+            });
+        });
+      });
+  }
+
+  /**
+   * Modified variation of import method
+   * @param {Number} concurrency
+   * @returns {Promise}
+   */
+  import3(concurrency) {
+    !concurrency && (concurrency = 2);
+
+    let self = this;
+    return self.app.Util.fs.readFile(self.options.source).then((data) => {
+      let lines = data.split("\n");
+      let groups = _.toArray(_.groupBy(_.map(lines, (line) => {
+        let tmp = line.split(self.options.split);
+        return {
+          lemma: tmp[0],
+          base: tmp[1]
+        }
+      }), "base"));
+      let chunks = [];
+
+      self.total = lines.length;
+
+      // divide into chunks
+      if (concurrency > 1) {
+        chunks = self.app.Util.arr.chunk(groups, concurrency);
+      } else {
+        chunks = groups;
+      }
+
+      return Promise.each(chunks, (chunk) => {
+        // process chunks consequently
+        if (_.isArray(chunk)) {
+          // process chunk groups in parallel
+          return Promise.all(_.map(chunk, (group) => {
+            return self.importGroup(group);
+          }));
+        } else {
+          return self.importGroup(chunk);
+        }
+      })
+    })
   }
 }
 
@@ -176,19 +233,19 @@ ImporterMongo.ACTION = {
 
 module.exports = (app, args, callback) => {
   let importer = new ImporterMongo(app, {});
-  let counter = 1;
+  let counter = 0;
 
   importer.addListener(ImporterMongo.ACTION.BEFORE_IMPORT_ONE, (lemma) => {
-    console.log(`${counter}) Importing lemma "${lemma}"`)
+    console.log(`Importing lemma "${lemma.lemma}"`);
   });
 
-  importer.addListener(ImporterMongo.ACTION.AFTER_IMPORT_ONE, (lemma, baseLemma) => {
-    console.log(`\tDone. Id assigned is "${lemma.id}",\n\tBase lemma is "${baseLemma.lemma}", id is "${baseLemma.id}"`);
+  importer.addListener(ImporterMongo.ACTION.AFTER_IMPORT_ONE, (lemma, baseLemma, total) => {
+    console.log(`${(counter + 1)}) Lemma "${lemma.lemma}", id assigned is "${lemma.id}",\n\tBase lemma is "${baseLemma.lemma}", id is "${baseLemma.id}"\n\tProgress ${Math.floor(counter / total).toFixed(4)}%`);
     counter++;
   });
 
   return importer
-    .import()
+    .import3(10)
     .then(() => {
       return callback();
     })
