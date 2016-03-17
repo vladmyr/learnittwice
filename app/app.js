@@ -20,6 +20,7 @@ var Application = function(options){
 
   // Application object construction
   self = _.extend({}, self, {
+    ENV: ENV,
     LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
     MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
     VIEW_TEMPLATE:  require(path.join(options.dir.root, options.file.const.viewTemplate)),

@@ -95,12 +95,12 @@ class ImporterMongo {
 
         if (_.isEmpty(polishInfo)) {
           // polish info does not exist - create one
-          polishInfo = {
+          lemma.info.push({
             language: self.app.LANGUAGE.POLISH,
             order: 0,
             sense: []
-          };
-          lemma.info.push(polishInfo);
+          });
+          polishInfo = _.last(lemma.info); // copy by reference
         }
 
         // create/update info's sense
@@ -162,6 +162,11 @@ class ImporterMongo {
     });
   }
 
+  /**
+   * Map and save a group of lemmas to MongoDB
+   * @param   {Array.<Object>}  group
+   * @returns {Promise}
+   */
   importGroup(group) {
     let self = this;
 
@@ -184,96 +189,60 @@ class ImporterMongo {
 
   /**
    * Modified variation of import method
-   * @param {Number} concurrency
+   * @param   {Number}  [concurrency = 1]   amount of lemma groups to process in parallel
+   * @param   {String}  [skipUntil]         lemma to skip
    * @returns {Promise}
    */
-  import3(concurrency) {
-    !concurrency && (concurrency = 2);
-
-    let self = this;
-    return self.app.Util.fs.readFile(self.options.source).then((data) => {
-      let lines = data.split("\n");
-      let groups = _.toArray(_.groupBy(_.map(lines, (line) => {
-        let tmp = line.split(self.options.split);
-        return {
-          lemma: tmp[0],
-          base: tmp[1]
-        }
-      }), "base"));
-      let chunks = [];
-
-      self.total = lines.length;
-
-      // divide into chunks
-      if (concurrency > 1) {
-        chunks = self.app.Util.arr.chunk(groups, concurrency);
-      } else {
-        chunks = groups;
-      }
-
-      return Promise.each(chunks, (chunk) => {
-        // process chunks consequently
-        if (_.isArray(chunk)) {
-          // process chunk groups in parallel
-          return Promise.all(_.map(chunk, (group) => {
-            return self.importGroup(group);
-          }));
-        } else {
-          return self.importGroup(chunk);
-        }
-      })
-    })
-  }
-
-  import4(concurrency) {
+  import4(concurrency, skipUntil) {
     !concurrency && (concurrency = 1);
 
     let self = this;
     let chunk = [];
     let group = [];
     let i = concurrency;
+    let isSkipped = !!skipUntil;
 
     // read by line and save to database sequentially
     return self.app.Util.fs.readFileByLine(self.options.source, (line) => {
       let tmp = line.split(self.options.split);
 
-      // parse line data
-      //group = _.last(chunk) || [];
-
-      if (!_.has(_.last(group), "base")) {
-        // there is no base lemma yet - create one
-        group = [{
-          base: tmp[1],
-          lemma: tmp[0]
-        }];
-      } else if (_.last(group).base === tmp[1]) {
-        // base lemma is the same - populate group
-        group.push({
-          base: tmp[1],
-          lemma: tmp[0]
-        })
+      if (isSkipped) {
+        // skip till offset
+        isSkipped = tmp[0] != skipUntil;
       } else {
-        // base lemma is different - create new group
-        chunk.push(group);
+        if (!_.has(_.last(group), "base")) {
+          // there is no base lemma yet - create one
+          group = [{
+            base: tmp[1],
+            lemma: tmp[0]
+          }];
+        } else if (_.last(group).base === tmp[1]) {
+          // base lemma is the same - populate group
+          group.push({
+            base: tmp[1],
+            lemma: tmp[0]
+          })
+        } else {
+          // base lemma is different - create new group
+          chunk.push(group);
 
-        group = [{
-          base: tmp[1],
-          lemma: tmp[0]
-        }];
+          group = [{
+            base: tmp[1],
+            lemma: tmp[0]
+          }];
 
-        --i;
-      }
+          --i;
+        }
 
-      if (i == 0) {
-        // chunk size is exceeded - save to database
-        return Promise
-          .all(_.map(chunk, (group) => {
-            return self.importGroup(group);
-          }))
-          .then(() => {
-            chunk = [];
-            i = concurrency;
-          });
+        if (i == 0) {
+          // chunk size is exceeded - save to database
+          return Promise
+            .all(_.map(chunk, group => self.importGroup(group)))
+            .then(() => {
+              chunk = [];
+              i = concurrency;
+            });
+        }
       }
     });
   }
@@ -286,19 +255,19 @@ ImporterMongo.ACTION = {
 
 module.exports = (app, args, callback) => {
   let importer = new ImporterMongo(app, {});
-  let counter = 0;
+  let counter = 1;
 
   importer.addListener(ImporterMongo.ACTION.BEFORE_IMPORT_ONE, (lemma) => {
     console.log(`Importing lemma "${lemma.lemma}"`);
   });
 
-  importer.addListener(ImporterMongo.ACTION.AFTER_IMPORT_ONE, (lemma, baseLemma, total) => {
+  importer.addListener(ImporterMongo.ACTION.AFTER_IMPORT_ONE, (lemma, baseLemma) => {
     console.log(`${(counter + 1)}) Lemma "${lemma.lemma}", id assigned is "${lemma.id}",\n\tBase lemma is "${baseLemma.lemma}", id is "${baseLemma.id}"`);
     counter++;
   });
 
   return importer
-    .import4(10)
+    .import4(100)
     .then(() => {
       return callback();
     })

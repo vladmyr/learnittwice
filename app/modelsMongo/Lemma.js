@@ -21,5 +21,9 @@ module.exports = (define, SchemaTypes) => {
         order: Number
       }]
     }]
+  }, {
+    index: {
+      lemma: 1
+    }
   })
 };

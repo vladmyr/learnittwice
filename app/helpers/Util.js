@@ -464,8 +464,23 @@ Util.model = {
 Util.modelMongo = {
   define(app) {
     let mongooseDeepPopulate = MongooseDeepPopulate(app.mongoose);
-    return (modelName, schemaDescription) => {
-      const schema = new app.mongoose.Schema(schemaDescription);
+    return (modelName, schemaDescription, options) => {
+      // options defaults
+      options = _.defaults({
+        // model secondary indexes
+        index: undefined,
+        // auto index only in development environment
+        autoIndex: app.env == app.ENV.DEVELOPMENT
+      }, options);
+
+      const schema = new app.mongoose.Schema(schemaDescription, {
+        autoIndex: options.autoIndex
+      });
+
+      // define indexes
+      if (!_.isEmpty(options.index)) {
+        schema.index(options.index);
+      }
 
       // register plugin
       schema.plugin(mongooseDeepPopulate);

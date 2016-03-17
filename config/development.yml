@@ -17,7 +17,7 @@ database_mongo:
     user: null
     password: null,
     server:
-      poolSize: 100
+      poolSize: 400
 connection:
   server:
     domain: localhost

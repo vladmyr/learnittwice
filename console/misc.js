@@ -25,18 +25,21 @@ module.exports = (app, args, callback) => {
   //  return callback(err);
   //});
 
-  // get word synonyms
+  // (+) get word synonyms and translations
   return Promise.resolve().then(() => {
     return app.modelsMongo.Lemma.findOne({
-      lemma: "car"
+      lemma: "car",
+      "info.language": app.LANGUAGE.ENGLISH
     })
   }).then((lemma) => {
     let obj = lemma.toObject();
-    let synsetIds = _.map(obj.info[0].sense, (sense) => {
-      return sense.synsetId;
-    });
+    let synsetIds = _.map(obj.info[0].sense, sense => sense.synsetId);
     return app.modelsMongo.Lemma.find({
-      
+      "info.sense.synsetId": {
+        $in: synsetIds
+      }
     });
+  }).then((synonyms) => {
+    return synonyms;
   }).nodeify(callback);
 };
