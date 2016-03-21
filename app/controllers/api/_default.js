@@ -11,10 +11,10 @@ var path = require("path");
  * @returns {Promise}
  * @module
  */
-module.exports = function(entryPoint, router, app){
+module.exports = (entryPoint, router, app) => {
   var ENV = require(path.join(app.config.dir.root, app.config.file.const.env));
 
-  return Promise.resolve().then(function() {
+  return Promise.resolve().then(() => {
 
     // place to implement routing logic, authentication, etc.
     router.use(function (req, res, next) {
@@ -35,17 +35,13 @@ module.exports = function(entryPoint, router, app){
     });
 
     return router;
-  }).then(function(router){
+  }).then((router) => {
     // load each controller
     return app.Util.express.loadAllNestedControllers(path.join(app.config.dir.root, entryPoint.dir.controller), entryPoint.file.entryController, router, app);
-  }).then(function(router){
+  }).then((router) => {
     // 404 route
-    router.use("*", function (req, res, next) {
-      res.status(404).json({
-        error: {
-          message: 'No route for ' + req.baseUrl
-        }
-      });
+    router.use("*", (req, res, next) => {
+      app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.NOT_FOUND, `No route for ${req.baseUrl}`)
     });
 
     return router;

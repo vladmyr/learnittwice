@@ -13,11 +13,25 @@ var express = require("express");
 var MongooseDeepPopulate = require("mongoose-deep-populate");
 
 /**
+ * Http status codes
+ */
+const HTTP_STATUS_CODE = {
+  OK: 200,
+  BAD_REQUEST: 400,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+  PERMISSION_DENIED: 550
+};
+
+/**
  * Custom utilities module
  * TODO - jsdoc
  * @module
  */
-var Util = {};
+const Util = {};
+
+Util.HTTP_STATUS_CODE = HTTP_STATUS_CODE;
 
 /**
  * Extends fs module
@@ -462,6 +476,11 @@ Util.model = {
  * Enhancements for Mongodb models
  */
 Util.modelMongo = {
+  /**
+   * Define mongoose model
+   * @param   {Application} app
+   * @returns {Function}
+   */
   define(app) {
     let mongooseDeepPopulate = MongooseDeepPopulate(app.mongoose);
     return (modelName, schemaDescription, options) => {
@@ -498,6 +517,16 @@ Util.modelMongo = {
 
       return app.mongoose.model(modelName, schema);
     }
+  },
+  /**
+   * Map an array of mongoose model instances into plaint Object
+   * @param   {Array.<Mongoose.Model>}  arr
+   * @returns {Array.<Object>}
+   */
+  mapToObject(arr) {
+    return _.map(arr, (item) => {
+      return item.toObject();
+    });
   }
 };
 
@@ -613,6 +642,58 @@ Util.express = {
     return _.map(hosts || [], function(item){
       return url.format(item);
     })
+  },
+
+  /**
+   * Send response
+   * @param {express.Response}  res
+   * @param {Number}            code
+   * @param {Object|String}     data
+   */
+  respond(res, code, data) {
+    // See https://google.github.io/styleguide/jsoncstyleguide.xml for details
+    let json = {};
+
+    if (code === Util.HTTP_STATUS_CODE.OK) {
+      // success
+      json = _.extend({}, json, {
+        data: data
+      })
+    } else {
+      // error
+      // map data
+      // TODO - refactor error handling implementation
+      if (typeof data.toString !== "undefined") {
+        data = data.toString();
+      }
+
+      json = _.extend({}, json, {
+        error: {
+          code: code,
+          message: data
+        }
+      })
+    }
+
+    return res.status(code).json(json);
+  }
+};
+
+/**
+ * Type casting utility module
+ */
+Util.Typecast = {
+  /**
+   * Cast argument into number type
+   * @param   {Mixed}   n
+   * @returns {Number}
+   */
+  Number(n) {
+    let cast = Number(n);
+
+    return _.isNaN(cast)
+      ? 0
+      : cast;
   }
 };
 

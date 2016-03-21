@@ -86,7 +86,7 @@ class DatabaseMongo {
         const filePath = path.join(self.modelDir, file);
         const modelContainer = require(filePath);
 
-        self.app[self.refModel][basename] = modelContainer(self.app.Util.modelMongo.define(self.app), self.app.mongoose.Schema.Types);
+        self.app[self.refModel][basename] = modelContainer(self.app.Util.modelMongo.define(self.app), self.app.mongoose.Schema.Types, self.app);
       });
     });
   }

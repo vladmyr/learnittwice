@@ -2,7 +2,7 @@
 
 const _ = require("underscore");
 
-module.exports = (define, SchemaTypes) => {
+module.exports = (define, SchemaTypes, app) => {
   return define("lemma", {
     importId: {
       type: Number,
@@ -52,18 +52,72 @@ module.exports = (define, SchemaTypes) => {
       fields: {
         "info.sense.baseLemmaId": 1
       }
+    }, {
+      "info.order": -1
     }],
     staticMethods: {
+      findAll(options) {
+        let self = this;
+
+        options = options || {};
+        options = _.extend({}, {
+          offset: app.Util.Typecast.Number(options.offset) || 0,
+          limit: app.Util.Typecast.Number(options.limit) || 20
+        });
+
+        return self
+          .find()
+          .skip(options.offset)
+          .limit(options.limit);
+      },
+      /**
+       * Find all lemmas by language
+       * @param {String}  language
+       * @param {Object}  [sort]
+       * @returns {Promise.<Query>}
+       */
+      findByLanguage(language, sort) {
+        let self = this;
+        let query = {
+          language: language
+        };
+        let projection = {
+          info: {
+            $elemMatch: {
+              language: language
+            }
+          }
+        };
+
+        return self
+          .find(query, projection)
+          .sort({ lemma: 1 })
+      },
       /**
        * Find lemma by its string
        * @param   {String} lemma
+       * @param   {String} [language]
        * @returns {Promise.<Query>}
        */
-      findByLemma(lemma) {
+      findByLemma(lemma, language) {
         let self = this;
+        let query = {
+          lemma: lemma
+        };
+        let projection = {};
+
+        if (!_.isEmpty(language)){
+          projection = {
+            info: {
+              $elemMatch: {
+                language: language
+              }
+            }
+          }
+        }
 
         return self
-          .findOne({ lemma: lemma })
+          .findOne(query, projection)
           .deepPopulate("info.sense.synsetId")
       },
       /**
