@@ -11,8 +11,8 @@ database:
       max: 20
       idle: 10000
 database_mongo:
-  uri: "mongodb://127.0.0.1:27017/learnittwicev1"
-  name: "learnittwicev1"
+  uri: "mongodb://127.0.0.1:27017/learnittwicev2"
+  name: "learnittwicev2"
   options:
     user: null
     password: null,

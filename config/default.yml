@@ -46,7 +46,9 @@ file:
   log:
     db: /logs/db.log
     error: /logs/error.log
-  util: /app/helpers/Util
+  helpers:
+    util: /app/helpers/Util
+    timer: /app/helpers/Timer
 db:
   isEnabledLogging: true,
   isEnabledConsoleLoggin: true

@@ -15,10 +15,10 @@ return Promise.resolve().then(() => {
 }).then(() => {
   var args = process.argv.splice(3);
   // execute console script
-  return require(path.join(__dirname , "console", process.argv[2]))(app, args, function(){
-    process.exit(0);
-  });
-}).catch((err) => {
-  throw err;
+  return require(path.join(__dirname, "console", process.argv[2]))(app, args, () => {});
+}).then(() => {
   process.exit(0);
+}).catch((err) => {
+  console.trace(err);
+  process.exit(1);
 });

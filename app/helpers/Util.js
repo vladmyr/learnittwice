@@ -469,6 +469,10 @@ Util.modelMongo = {
       options = _.defaults({
         // model secondary indexes
         index: undefined,
+        // model custom methods
+        staticMethods: undefined,
+        // model's instance custom methods
+        instanceMethods: undefined,
         // auto index only in development environment
         autoIndex: app.env == app.ENV.DEVELOPMENT
       }, options);
@@ -478,8 +482,15 @@ Util.modelMongo = {
       });
 
       // define indexes
-      if (!_.isEmpty(options.index)) {
-        schema.index(options.index);
+      if (_.isArray(options.index)) {
+        _.each(options.index, (index) => {
+          schema.index(index.fields, index.options);
+        });
+      }
+
+      // define model static methods
+      if (!_.isEmpty(options.staticMethods)) {
+        _.extend(schema.statics, options.staticMethods);
       }
 
       // register plugin

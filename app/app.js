@@ -13,13 +13,16 @@ var path = require("path");
  * @constructor
  */
 var Application = function(options){
-  var self = this;
-  var Util = require(path.join(options.dir.root, options.file.util));
+  let self = this;
+
+  const Util = require(path.join(options.dir.root, options.file.helpers.util));
+  const Timer = require(path.join(options.dir.root, options.file.helpers.timer));
 
   var ENV = require(path.join(options.dir.root, options.file.const.env));
 
   // Application object construction
   self = _.extend({}, self, {
+    // constants
     ENV: ENV,
     LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
     MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
@@ -29,7 +32,8 @@ var Application = function(options){
     env: ENV.DEVELOPMENT,
     config: options,
     expressApps: [],
-    Util: Util
+    Util: Util,
+    Timer: Timer.getInstance()
     // TODO - httpParser
   });
 

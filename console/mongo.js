@@ -27,7 +27,8 @@ class Mongo extends ArgumentsParser {
   getDumpDirLatest() {
     let backupDir = path.join(
       this.app.config.dir.root,
-      this.app.config.dir.backup.db.mongo
+      this.app.config.dir.backup.db.mongo,
+      this.app.config.database_mongo.name
     );
     let latestDumpDir = "";
 
@@ -52,6 +53,7 @@ class Mongo extends ArgumentsParser {
     return path.join(
       this.app.config.dir.root,
       this.app.config.dir.backup.db.mongo,
+      this.app.config.database_mongo.name,
       moment().format("YYYYMMDD_HHmmss")
     );
   }

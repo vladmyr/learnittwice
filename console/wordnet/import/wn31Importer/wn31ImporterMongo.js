@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Console script. Map information from  wordnet 3.1 database
+ * Console script. Map information from wordnet 3.1 database
  * into learnittwice mongodb database
  * @module
  */
@@ -37,7 +37,7 @@ class WordnetImporter {
     // options for importing
     self.optionsImport = {
       offset: 0,
-      limit: 1000
+      limit: 250
     }
   }
 
@@ -147,7 +147,7 @@ class WordnetImporter {
         return fn(lemma);
       });
 
-      return lemma;
+      //return lemma;
     });
   }
 
@@ -177,7 +177,7 @@ class WordnetImporter {
     }).then((options) => {
       return Promise.each(options, (item) => {
         return self.import(item);
-      }, { concurrency: 1 });
+      });
     });
   }
 
@@ -204,9 +204,13 @@ class WordnetImporter {
       })
     }).then((words) => {
       // process each word
-      return Promise.each(words || [], (word) => {
-        return self.importOne(word)
-      }, { concurrency: 1 });
+      //return Promise.each(words || [], (word) => {
+      //  return self.importOne(word)
+      //});
+
+      return Promise.all(_.map(words || [], (word) => {
+        return self.importOne(word);
+      }));
     });
   }
 }
@@ -217,12 +221,9 @@ module.exports = (app, args, callback) => {
   let counter = 1;
   let importer = new WordnetImporter(app);
 
-  importer.addListener(importer.ACTIONS.BEFORE_IMPORT_ONE, (word) => {
-    console.log(`${counter}) Processing word: "${word.lemma}"`);
-    counter++;
-  });
   importer.addListener(importer.ACTIONS.AFTER_IMPORT_ONE, (lemma) => {
-    console.log(`\tSuccessfully imported with assigned id: "${lemma.id}"`)
+    console.log(`${counter}) Lemma "${lemma.lemma}", id assigned is "${lemma.id}"`);
+    counter++;
   });
 
   return importer.initialize().then(() => {

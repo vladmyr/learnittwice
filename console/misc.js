@@ -26,20 +26,40 @@ module.exports = (app, args, callback) => {
   //});
 
   // (+) get word synonyms and translations
-  return Promise.resolve().then(() => {
-    return app.modelsMongo.Lemma.findOne({
-      lemma: "car",
-      "info.language": app.LANGUAGE.ENGLISH
+  //return Promise.resolve().then(() => {
+  //  return app.modelsMongo.Lemma.findOne({
+  //    lemma: "car",
+  //    "info.language": app.LANGUAGE.ENGLISH
+  //  })
+  //}).then((lemma) => {
+  //  let obj = lemma.toObject();
+  //  let synsetIds = _.map(obj.info[0].sense, sense => sense.synsetId);
+  //  return app.modelsMongo.Lemma.find({
+  //    "info.sense.synsetId": {
+  //      $in: synsetIds
+  //    }
+  //  });
+  //}).then((synonyms) => {
+  //  return synonyms;
+
+  return Promise
+    .resolve()
+    .then(() => {
+      app.Timer.startPoint();
+      return app.modelsMongo.Lemma.findByLemma("car")
     })
-  }).then((lemma) => {
-    let obj = lemma.toObject();
-    let synsetIds = _.map(obj.info[0].sense, sense => sense.synsetId);
-    return app.modelsMongo.Lemma.find({
-      "info.sense.synsetId": {
-        $in: synsetIds
-      }
+    .then((lemma) => {
+      app.Timer.checkpoint();
+      let obj = lemma.toObject();
+      return lemma;
+    })
+    .then(() => {
+      return app.modelsMongo.Lemma.findSynonyms("car", app.LANGUAGE.ENGLISH)
+    })
+    .then((synonyms) => {
+      app.Timer.checkpoint();
+      app.Timer.print();
+      let obj = _.map(synonyms, synonym => synonym.toObject());
+      return synonyms;
     });
-  }).then((synonyms) => {
-    return synonyms;
-  }).nodeify(callback);
 };

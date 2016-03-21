@@ -51,12 +51,14 @@ class ImporterMongo {
 
   /**
    * Import single lemma
-   * @param   {String}  strLemma
-   * @param   {Object}  [baseLemma]
+   * @param   {String}          strLemma
+   * @param   {Mongoose.model}  [baseLemma]
    * @returns {Promise}
    */
   mapOne(strLemma, baseLemma) {
     let self = this;
+
+    !_.isEmpty(baseLemma) && (baseLemma = baseLemma.toObject());
 
     return self.app.modelsMongo.Lemma.findOne({
       lemma: strLemma
@@ -121,6 +123,12 @@ class ImporterMongo {
         }
       }
 
+      const obj = lemma.toObject();
+
+      if(obj.lemma === "aara") {
+        console.log(JSON.stringify(obj));
+      }
+
       // save/update lemma
       return lemma;
     })
@@ -158,7 +166,7 @@ class ImporterMongo {
         })
       })
     }).then((props) => {
-      return [props.baseLemma].concat(props.lemmas);
+      return Promise.all([props.baseLemma].concat(props.lemmas));
     });
   }
 
@@ -246,6 +254,51 @@ class ImporterMongo {
       }
     });
   }
+
+  /**
+   * Only for test purpose. Map specific group of lemmas
+   * @param   {String}  base
+   * @returns {Promise}
+   */
+  testMapGroup(base) {
+    let self = this;
+    let chunk = [];
+    let group = [];
+
+    // read by line and save to database sequentially
+    return self.app.Util.fs.readFileByLine(self.options.source, (line) => {
+      let tmp = line.split(self.options.split);
+
+      if (tmp[1] === base) {
+        if (!_.has(_.last(group), "base")) {
+          // there is no base lemma yet - create one
+          group = [{
+            base: tmp[1],
+            lemma: tmp[0]
+          }];
+        } else if (_.last(group).base === tmp[1]) {
+          // base lemma is the same - populate group
+          group.push({
+            base: tmp[1],
+            lemma: tmp[0]
+          })
+        } else {
+          // base lemma is different - create new group
+          chunk.push(group);
+
+          group = [{
+            base: tmp[1],
+            lemma: tmp[0]
+          }];
+        }
+      }
+    }).then(() => {
+      return self.mapGroup(group)
+    }).then((map) => {
+      let obj = _.map(map, item => item.toObject());
+      return map;
+    });
+  }
 }
 
 ImporterMongo.ACTION = {
@@ -266,12 +319,6 @@ module.exports = (app, args, callback) => {
     counter++;
   });
 
-  return importer
-    .import4(100)
-    .then(() => {
-      return callback();
-    })
-    //.catch((err) => {
-    //  return callback(err);
-    //})
+  return importer.import4(1);
+  //return importer.testMapGroup("aara");
 };
