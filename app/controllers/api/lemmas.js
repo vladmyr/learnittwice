@@ -20,8 +20,6 @@ module.exports = function(router, app){
         .get("/", self.getLemmas)
         .get("/:language", self.getLemmas)
         .get("/:language/:lemma", self.getLemma)
-        // TODO - implement
-        //.get("/:language/:lemma/synonyms");
         //.get("/:language/:lemma/translate/:translate");
 
       router.param("lemma", self.paramLemma);
@@ -48,6 +46,9 @@ module.exports = function(router, app){
         .resolve()
         .then(() => {
           return app.modelsMongo.Lemma.findAll(options)
+        })
+        .then((lst) => {
+          return Promise.map(lst, (item) => item.populateSynonyms())
         })
         .then((lst) => {
           return app.Util.express.respond(

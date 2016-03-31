@@ -24,6 +24,9 @@ const HTTP_STATUS_CODE = {
   PERMISSION_DENIED: 550
 };
 
+// empty function
+const noop = () => {};
+
 /**
  * Custom utilities module
  * TODO - jsdoc
@@ -270,7 +273,7 @@ Util.fs = {
   //},
   /**
    * Create dir
-   * @param filepath
+   * @param dir
    */
   mkdir: function(dir){
     return new Promise(function(fulfill, reject){
@@ -486,6 +489,8 @@ Util.modelMongo = {
     return (modelName, schemaDescription, options) => {
       // options defaults
       options = _.defaults({
+        // virtual attributes
+        virtuals: undefined,
         // model secondary indexes
         index: undefined,
         // model custom methods
@@ -499,7 +504,13 @@ Util.modelMongo = {
       }, options);
 
       const schema = new app.mongoose.Schema(schemaDescription, {
-        autoIndex: options.autoIndex
+        autoIndex: options.autoIndex,
+        toObject: {
+          virtuals: true
+        },
+        toJSON: {
+          virtuals: true
+        }
       });
 
       // define indexes
@@ -512,6 +523,21 @@ Util.modelMongo = {
       // define model static methods
       if (!_.isEmpty(options.staticMethods)) {
         _.extend(schema.statics, options.staticMethods);
+      }
+
+      // define model instance methods
+      if (!_.isEmpty(options.instanceMethods)) {
+        _.extend(schema.methods, options.instanceMethods);
+      }
+
+      // define virtual attributes
+      if (!_.isEmpty(options.virtuals)) {
+        _.each(Object.keys(options.virtuals), (key) => {
+          let virtual = schema.virtual(key);
+
+          virtual.get(options.virtuals[key].get || noop);
+          virtual.set(options.virtuals[key].set || noop);
+        });
       }
 
       // register plugin

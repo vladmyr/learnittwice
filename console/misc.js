@@ -66,14 +66,14 @@ module.exports = (app, args, callback) => {
       return synonyms;
     })
     .then(() => {
-      return app.modelsMongo.Lemma._findSynonyms(_lemma, app.LANGUAGE.ENGLISH)
+      //return app.modelsMongo.Lemma._findSynonyms(_lemma, app.LANGUAGE.ENGLISH)
+      return _lemma.populateSynonyms();
     })
-    .then((synonyms) => {
+    .then((lemma) => {
       app.Timer.checkpoint();
       app.Timer.print();
-      //let obj = _.map(synonyms, (synonym) => {
-      //  return synonym.toObject();
-      //});
-      return synonyms;
+
+      let obj = lemma.toObject();
+      return lemma;
     })
 };

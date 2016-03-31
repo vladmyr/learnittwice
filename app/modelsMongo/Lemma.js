@@ -53,17 +53,6 @@ const Lemma = (define, SchemaTypes, app) => {
       }]
     }]
   }, {
-    deepPopulateOptions: {
-      // TODO - does not work, why?
-      //rewrite: {
-      //  "info.sense.synsetId": "info.sense.synset"
-      //},
-      //populate: {
-      //  "info.sense.synsetId": {
-      //    path: "info.sense.synset"
-      //  }
-      //}
-    },
     index: [{
       fields: {
         lemma: 1,
@@ -114,6 +103,7 @@ const Lemma = (define, SchemaTypes, app) => {
           .skip(options.offset)
           .limit(options.limit);
       },
+
       /**
        * Find all lemmas by language
        * @param {String}  language
@@ -138,6 +128,7 @@ const Lemma = (define, SchemaTypes, app) => {
           .find(query, projection)
           .sort({ lemma: 1 })
       },
+
       /**
        * Find lemma by its string
        * @param   {String} lemma
@@ -168,7 +159,7 @@ const Lemma = (define, SchemaTypes, app) => {
       },
 
       /**
-       * Get grouped by synsetId synonyms of specified lemma
+       * Populate synonyms of specified lemma
        * @param   {Lemma}   lemma       lemma that is populated with Synsets
        * @param   {String}  [language]
        * @returns {Promise.<Query>}
@@ -234,11 +225,7 @@ const Lemma = (define, SchemaTypes, app) => {
         }).then((synsets) => {
           // concat synonyms with synsets
           // get indexed by hexadecimal string representation of ObjectId
-          let indexed = _.indexBy(
-            _.map(synsets, (synset) => {
-              //synset.hexId = synset._id.valueOf();
-              return synset;
-            }), "_id");
+          let indexed = _.indexBy(synsets, "_id");
 
           // loop through each synset and concat with synonyms
           _.each(senseRefs, (sense) => {
@@ -246,11 +233,9 @@ const Lemma = (define, SchemaTypes, app) => {
             let synonyms = _.isEmpty(indexed[id])
               ? []
               : indexed[id].synonyms;
-            sense.synsetId.synonyms = synonyms;
+            sense.synsetId.set("synonyms", synonyms);
           });
 
-          // TODO - loosing synonyms
-          //let obj = lemma.toObject();
           return lemma;
         });
       },
@@ -298,7 +283,98 @@ const Lemma = (define, SchemaTypes, app) => {
       }
     },
     instanceMethods: {
+      /**
+       * Populate lemma with synonyms
+       * TODO - implement language selection
+       * @returns {Promise}
+       */
+      populateSynonyms() {
+        let self = this.constructor;
+        let lemma = this;
+        // reference to selected senses
+        let senseRefs = _.filter(
+          _.reduce(lemma.info, (result, info) => result.concat(info.sense), []),
+          (sense) => !_.isEmpty(sense.synsetId)
+        );
+        let synsetIds = _.reduce(senseRefs, (result, sense) => {
+          sense = sense.toObject();
 
+          // TODO - populate synset into different path
+          if (typeof sense.synsetId !== "undefined") {
+            if (typeof sense.synsetId._id !== "undefined") {
+              // synsetId is a populated model
+              result.push(sense.synsetId._id);
+            } else {
+              // synsetId is an ObjectId
+              result.push(sense.synsetId);
+            }
+          }
+
+          return result;
+        }, []);
+        // aggregation pipeline
+        let pipeline = [{
+          // 1. find lemmas that are in the same synset
+          $match: {
+            "info.sense.synsetId": {
+              "$in": synsetIds
+            }
+          }
+        }, {
+          // 2. project only _id, lemma, and its synsetId
+          $project: {
+            _id: 1,
+            lemma: 1,
+            "info.sense.synsetId": 1
+          }
+        }, {
+          // 3. flatten info array
+          $unwind: "$info"
+        }, {
+          // 4. flatten sense array
+          $unwind: "$info.sense"
+        }, {
+          // 5. remove redundant synsets
+          $match: {
+            "info.sense.synsetId": {
+              "$in": synsetIds
+            }
+          }
+        }, {
+          // 6. group
+          $group: {
+            _id: "$info.sense.synsetId",
+            synonyms: {
+              $push: {
+                _id: "$_id",
+                lemma: "$lemma"
+              }
+            }
+          }
+        }];
+
+        return Promise.fromCallback((callback) => {
+          // get grouped by synset id synonyms
+          return self
+            .aggregate(pipeline)
+            .exec(callback);
+        }).then((synsets) => {
+          // concat synonyms with synsets
+          // get indexed by hexadecimal string representation of ObjectId
+          let indexed = _.indexBy(synsets, "_id");
+
+          // loop through each synset and concat with synonyms
+          _.each(senseRefs, (sense) => {
+            let id = sense.synsetId._id;
+            let synonyms = _.isEmpty(indexed[id])
+              ? []
+              : indexed[id].synonyms;
+            sense.synsetId.set("synonyms", synonyms);
+          });
+
+          return lemma;
+        });
+      }
     }
   })
 };
