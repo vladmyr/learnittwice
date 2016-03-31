@@ -493,7 +493,9 @@ Util.modelMongo = {
         // model's instance custom methods
         instanceMethods: undefined,
         // auto index only in development environment
-        autoIndex: app.env == app.ENV.DEVELOPMENT
+        autoIndex: app.env == app.ENV.DEVELOPMENT,
+        // deepPopulate plugin options
+        deepPopulateOptions: undefined
       }, options);
 
       const schema = new app.mongoose.Schema(schemaDescription, {

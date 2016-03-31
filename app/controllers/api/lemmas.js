@@ -16,7 +16,7 @@ module.exports = function(router, app){
 
       router.path = "lemmas";
       router
-        // Public API
+        // Administration API
         .get("/", self.getLemmas)
         .get("/:language", self.getLemmas)
         .get("/:language/:lemma", self.getLemma)

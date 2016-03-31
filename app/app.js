@@ -1,9 +1,9 @@
 "use strict";
 
 // external dependencies
-var Promise = require("bluebird");
-var _ = require("underscore");
-var path = require("path");
+const Promise = require("bluebird");
+const _ = require("underscore");
+const path = require("path");
 
 /**
  * Server application initialization class
@@ -61,9 +61,9 @@ Application.prototype.initialize = function(){
   return Promise.resolve().then(function() {
     // initialize middleware
     return new MiddlewareInitializer(self);
-  }).then(function(){
-    // initialize database
-    return new DatabaseInitializer(self);
+  //}).then(function(){
+  //  // initialize database
+  //  return new DatabaseInitializer(self);
   }).then(function(){
     // initialize mongodb database
     return new DatabaseMongoInitializer(self);
