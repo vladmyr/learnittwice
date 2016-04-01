@@ -18,7 +18,7 @@ var Application = function(options){
   const Util = require(path.join(options.dir.root, options.file.helpers.util));
   const Timer = require(path.join(options.dir.root, options.file.helpers.timer));
 
-  var ENV = require(path.join(options.dir.root, options.file.const.env));
+  const ENV = require(path.join(options.dir.root, options.file.const.env));
 
   // Application object construction
   self = _.extend({}, self, {

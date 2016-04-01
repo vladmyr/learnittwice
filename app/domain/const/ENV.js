@@ -1,10 +1,8 @@
 "use strict";
 
-var ENV = function(){
-  return {
-    DEVELOPMENT: "dev",
-    PRODUCTION: "prod"
-  }
+const ENV = {
+  DEVELOPMENT: "dev",
+  PRODUCTION: "prod"
 };
 
 module.exports = ENV;

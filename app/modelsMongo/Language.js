@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = (define, SchemaTypes) => {
+module.exports = (define, defineSchema, SchemaTypes) => {
   return define("language", {
     // iso ISO-639
     _id: String,

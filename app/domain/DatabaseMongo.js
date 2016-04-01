@@ -71,6 +71,11 @@ class DatabaseMongo {
         self.app.mongoose = mongoose;
       }
 
+      // turn on debugging in development environment
+      if(self.app.env === self.app.ENV.DEVELOPMENT) {
+        self.app.mongoose.set("debug", true);
+      }
+
       // open connection
       self.app.mongoose.connect(self.dbConfig.database_mongo.uri, self.dbConfig.database_mongo.options);
 
@@ -86,7 +91,10 @@ class DatabaseMongo {
         const filePath = path.join(self.modelDir, file);
         const modelContainer = require(filePath);
 
-        self.app[self.refModel][basename] = modelContainer(self.app.Util.modelMongo.define(self.app), self.app.mongoose.Schema.Types, self.app);
+        self.app[self.refModel][basename] = modelContainer(
+          self.app.Util.mongoose.define(self.app),
+          self.app.Util.mongoose.defineSchema(self.app),
+          self.app.mongoose.Schema.Types, self.app);
       });
     });
   }

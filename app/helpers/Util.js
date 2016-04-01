@@ -1,16 +1,16 @@
 "use strict";
 
-var Promise = require("bluebird");
-var fs = require("fs");
-var path = require("path");
-var url = require("url");
-var stream = require("stream");
-var http = require("http");
-var https = require("https");
-var _ = require("underscore");
-var slug = require("slug");
-var express = require("express");
-var MongooseDeepPopulate = require("mongoose-deep-populate");
+const Promise = require("bluebird");
+const fs = require("fs");
+const path = require("path");
+const url = require("url");
+const stream = require("stream");
+const http = require("http");
+const https = require("https");
+const _ = require("underscore");
+const slug = require("slug");
+const express = require("express");
+const MongooseDeepPopulate = require("mongoose-deep-populate");
 
 /**
  * Http status codes
@@ -484,9 +484,10 @@ Util.modelMongo = {
    * @param   {Application} app
    * @returns {Function}
    */
-  define(app) {
-    let mongooseDeepPopulate = MongooseDeepPopulate(app.mongoose);
-    return (modelName, schemaDescription, options) => {
+  defineSchema(app) {
+    const mongooseDeepPopulate = MongooseDeepPopulate(app.mongoose);
+
+    return (schemaDescription, options) => {
       // options defaults
       options = _.defaults({
         // virtual attributes
@@ -532,7 +533,7 @@ Util.modelMongo = {
 
       // define virtual attributes
       if (!_.isEmpty(options.virtuals)) {
-        _.each(Object.keys(options.virtuals), (key) => {
+        _.each(options.virtuals, (opts, key) => {
           let virtual = schema.virtual(key);
 
           virtual.get(options.virtuals[key].get || noop);
@@ -540,8 +541,21 @@ Util.modelMongo = {
         });
       }
 
-      // register plugin
-      schema.plugin(mongooseDeepPopulate);
+      // register plugins
+      schema.plugin(mongooseDeepPopulate, options.deepPopulateOptions);
+
+      return schema;
+    }
+  },
+
+  /**
+   * Define mongoose model
+   * @param   {Application} app
+   * @returns {Function}
+   */
+  define(app) {
+    return (modelName, schemaDescription, options) => {
+      let schema = Util.mongoose.defineSchema(app)(schemaDescription, options);
 
       return app.mongoose.model(modelName, schema);
     }
@@ -557,6 +571,9 @@ Util.modelMongo = {
     });
   }
 };
+
+// alias
+Util.mongoose = Util.modelMongo;
 
 /**
  * Util functions for arrays

@@ -42,8 +42,6 @@ module.exports = (app, args, callback) => {
   //}).then((synonyms) => {
   //  return synonyms;
 
-  let _lemma;
-
   return Promise
     .resolve()
     .then(() => {
@@ -51,23 +49,14 @@ module.exports = (app, args, callback) => {
       return app.modelsMongo.Lemma.findByLemma("car")
     })
     .then((lemma) => {
-      _lemma = lemma;
       app.Timer.checkpoint();
+
       let obj = lemma.toObject();
-      return lemma;
-    })
-    .then(() => {
-      return app.modelsMongo.Lemma.findSynonyms("car", app.LANGUAGE.ENGLISH)
-    })
-    .then((synonyms) => {
-      app.Timer.checkpoint();
-      //app.Timer.print();
-      let obj = _.map(synonyms, synonym => synonym.toObject());
-      return synonyms;
-    })
-    .then(() => {
-      //return app.modelsMongo.Lemma._findSynonyms(_lemma, app.LANGUAGE.ENGLISH)
-      return _lemma.populateSynonyms();
+
+      console.log(obj.info[0].sense[0].synsetId);
+      console.log(obj.info[0].sense[0].synset);
+
+      return lemma.populateSynonyms();
     })
     .then((lemma) => {
       app.Timer.checkpoint();

@@ -2,7 +2,7 @@
 
 const _ = require("underscore");
 
-const Synset = (define, SchemaTypes) => {
+const Synset = (define, defineSchema, SchemaTypes) => {
   return define ("synset", {
     importId: Number,
     definition: [{
@@ -24,7 +24,17 @@ const Synset = (define, SchemaTypes) => {
           self.__synonyms = synonyms;
         }
       }
-    }
+    },
+    index: [{
+      fields: {
+        _id: 1,
+        "definition.language": 1
+      },
+      options: {
+        name: "definition.language",
+        unique: true
+      }
+    }]
   })
 };
 

@@ -13,14 +13,47 @@ const PROJECTION = {
 
 /**
  * Lemma mongoose model
- * @param   {Function}              define
+ * @param   {Function}              defineModel
+ * @param   {Function}              defineSchema
  * @param   {Mongoose.Schema.Types} SchemaTypes
  * @param   {Application}           app
  * @returns {Mongoose.Model}
  * @module Lemma
  */
-const Lemma = (define, SchemaTypes, app) => {
-  return define("lemma", {
+const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
+  // nested sense schema
+  const senseSchema = defineSchema({
+    importId: Number,
+    synsetId: {
+      type: SchemaTypes.ObjectId,
+      ref: "synset"
+    },
+    baseLemmaId: {
+      type: SchemaTypes.ObjectId,
+      required: true
+    },
+    wordform: Object,
+    tagCount: Number,
+    order: Number
+  }, {
+    virtuals: {
+      synset: {
+
+      }
+    }
+  });
+
+  // nested info schema
+  const infoSchema = defineSchema({
+    language: {
+      type: String,
+      required: true
+    },
+    order: Number,
+    sense: [senseSchema]  // denormalized embedded sense information
+  });
+
+  return defineModel("lemma", {
     importId: {
       type: Number,
       required: true
@@ -29,29 +62,7 @@ const Lemma = (define, SchemaTypes, app) => {
       type: String,
       required: true
     },
-    // denormalized embedded lemma information
-    info: [{
-      language: {
-        type: String,
-        required: true
-      }, // ToDo - primary key
-      order: Number,
-      // denormalized embedded sense information
-      sense: [{
-        importId: Number,
-        synsetId: {
-          type: SchemaTypes.ObjectId,
-          ref: "synset"
-        },
-        baseLemmaId: {
-          type: SchemaTypes.ObjectId,
-          required: true
-        },
-        wordform: Object,
-        tagCount: Number,
-        order: Number
-      }]
-    }]
+    info: [infoSchema]  // denormalized embedded lemma information
   }, {
     index: [{
       fields: {
@@ -70,17 +81,15 @@ const Lemma = (define, SchemaTypes, app) => {
         "info.sense.baseLemmaId": 1
       }
     }, {
-      "info.order": -1
+      fields: {
+        "info.order": -1
+      }
     }],
     staticMethods: {
       // static constants
       PROJECTION: PROJECTION,
 
-      findOneByStr() {
-
-      },
-
-      findSynonyms() {
+      findOneByStr(str) {
 
       },
 
@@ -110,7 +119,7 @@ const Lemma = (define, SchemaTypes, app) => {
        * @param {Object}  [sort]
        * @returns {Promise.<Query>}
        */
-      // findManyByLanguage
+      // findManyByLng
       findByLanguage(language, sort) {
         let self = this;
         let query = {
@@ -155,93 +164,7 @@ const Lemma = (define, SchemaTypes, app) => {
 
         return self
           .findOne(query, projection)
-          .deepPopulate("info.sense.synsetId")
-      },
-
-      /**
-       * Populate synonyms of specified lemma
-       * @param   {Lemma}   lemma       lemma that is populated with Synsets
-       * @param   {String}  [language]
-       * @returns {Promise.<Query>}
-       * @private
-       */
-      _findSynonyms(lemma, language) {
-        let self = this;
-        // reference to selected senses
-        let senseRefs = arguments.length == 2
-          // language is specified
-          ? _.find(lemma.info, (info) => info.language === language).sense
-          // language is not specified
-          : _.reduce(lemma.info, (result, info) => {
-          result.concat(info.sense);
-          return result;
-        }, []);
-        let synsetIds = _.map(senseRefs, (sense) => sense.synsetId._id);
-        let pipeline = [{
-          // 1. find lemmas that are in the same synset
-          $match: {
-            "info.sense.synsetId": {
-              "$in": synsetIds
-            }
-          }
-        }, {
-          // 2. project only _id, lemma, and its synsetId
-          $project: {
-            _id: 1,
-            lemma: 1,
-            "info.sense.synsetId": 1
-          }
-        }, {
-          // 3. flatten info array
-          $unwind: "$info"
-        }, {
-          // 4. flatten sense array
-          $unwind: "$info.sense"
-        }, {
-          // 5. remove redundant synsets
-          $match: {
-            "info.sense.synsetId": {
-              "$in": synsetIds
-            }
-          }
-        }, {
-          // 6. group
-          $group: {
-            _id: "$info.sense.synsetId",
-            synonyms: {
-              $push: {
-                _id: "$_id",
-                lemma: "$lemma"
-              }
-            }
-          }
-        }];
-
-        return Promise.fromCallback((callback) => {
-          // get grouped by synset id synonyms
-          return self
-            .aggregate(pipeline)
-            .exec(callback);
-        }).then((synsets) => {
-          // concat synonyms with synsets
-          // get indexed by hexadecimal string representation of ObjectId
-          let indexed = _.indexBy(synsets, "_id");
-
-          // loop through each synset and concat with synonyms
-          _.each(senseRefs, (sense) => {
-            let id = sense.synsetId._id.toString();
-            let synonyms = _.isEmpty(indexed[id])
-              ? []
-              : indexed[id].synonyms;
-            sense.synsetId.set("synonyms", synonyms);
-          });
-
-          return lemma;
-        });
-      },
-
-      findTranslation(lemma, from, to) {
-
+          .populate("info.sense.synsetId")
       },
 
       /**
@@ -285,10 +208,10 @@ const Lemma = (define, SchemaTypes, app) => {
     instanceMethods: {
       /**
        * Populate lemma with synonyms
-       * TODO - implement language selection
+       * @param {String|Array.<String>} [lngs]
        * @returns {Promise}
        */
-      populateSynonyms() {
+      populateSynonyms(lngs) {
         let self = this.constructor;
         let lemma = this;
         // reference to selected senses
@@ -359,6 +282,7 @@ const Lemma = (define, SchemaTypes, app) => {
             .aggregate(pipeline)
             .exec(callback);
         }).then((synsets) => {
+          let obj = lemma.toObject();
           // concat synonyms with synsets
           // get indexed by hexadecimal string representation of ObjectId
           let indexed = _.indexBy(synsets, "_id");
@@ -374,6 +298,17 @@ const Lemma = (define, SchemaTypes, app) => {
 
           return lemma;
         });
+      },
+
+      /**
+       * Populate lemma with translations
+       * @param {String|Array.<String>} [lngs]
+       */
+      populateTranslate(lngs) {
+        let lemma = this;
+        let self = lemma.constructor;
+
+
       }
     }
   })
