@@ -11,6 +11,7 @@ const _ = require("underscore");
 const slug = require("slug");
 const express = require("express");
 const MongooseDeepPopulate = require("mongoose-deep-populate");
+const MongoosePopuateExtended = require("./mongo/mongoose-populate-extended");
 
 /**
  * Http status codes
@@ -486,6 +487,7 @@ Util.modelMongo = {
    */
   defineSchema(app) {
     const mongooseDeepPopulate = MongooseDeepPopulate(app.mongoose);
+    const mongoosePopuateExtended = MongoosePopuateExtended(app.mongoose);
 
     return (schemaDescription, options) => {
       // options defaults
@@ -543,6 +545,7 @@ Util.modelMongo = {
 
       // register plugins
       schema.plugin(mongooseDeepPopulate, options.deepPopulateOptions);
+      schema.plugin(mongoosePopuateExtended);
 
       return schema;
     }

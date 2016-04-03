@@ -26,7 +26,8 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
     importId: Number,
     synsetId: {
       type: SchemaTypes.ObjectId,
-      ref: "synset"
+      ref: "synset",
+      asVirtual: "synset"
     },
     baseLemmaId: {
       type: SchemaTypes.ObjectId,
@@ -35,12 +36,6 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
     wordform: Object,
     tagCount: Number,
     order: Number
-  }, {
-    virtuals: {
-      synset: {
-
-      }
-    }
   });
 
   // nested info schema
@@ -164,6 +159,7 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
         return self
           .findOne(query, projection)
+          //.deepPopulate("info.sense.synsetId")
           .populate("info.sense.synsetId")
       },
 
