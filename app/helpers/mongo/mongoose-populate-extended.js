@@ -35,8 +35,7 @@ function isString(obj) {
 function noop () {}
 
 /**
- *
- * @constructor
+ * Plugin constructor
  */
 var PopulateExtended = function(mongoose) {
   var self = this;
@@ -63,11 +62,9 @@ PopulateExtended.patchMongooseQuery = function (mongoose) {
     var normalizedPaths = PopulateExtended.normalizePaths(populateExtended.migrations, paths);
 
     // pass population paths that require migrations
-    if (normalizedPaths.length) {
-      query._populateExtended = {
-        paths: normalizedPaths
-      };
-    }
+    query._populateExtended = {
+      paths: normalizedPaths
+    };
 
     return populate.apply(query, arguments);
   };
@@ -80,9 +77,9 @@ PopulateExtended.patchMongooseQuery = function (mongoose) {
    */
   Query.prototype.exec = function(op, cb) {
     var query = this;
-    var paths = query._populateExtended.paths;
+    var paths = (query._populateExtended || {}).paths;
 
-    if (typeof paths == "undefined") {
+    if (!paths.length) {
       return exec.call(query, op, cb);
     } else {
       var schema = query.schema;
@@ -107,7 +104,16 @@ PopulateExtended.patchMongooseQuery = function (mongoose) {
             return cb(null, docs), resolve(docs)
           }
 
-          docs = PopulateExtended.migratePopulations(docs, migrations, paths);
+          // process as an array
+          docs = isArray(docs) ? docs : [docs];
+
+          // migrate populations
+          docs.map(function (doc) {
+            return PopulateExtended.migratePopulations(doc, migrations, paths);
+          });
+
+          // restore original structure
+          (docs.length == 1) && (docs = docs[0]);
 
           return cb(null, docs), resolve(docs);
         })
@@ -129,28 +135,21 @@ PopulateExtended.patchMongooseQuery = function (mongoose) {
 };
 
 /**
- * Performs population migrations
- * @param docs
+ * Performs population migrations,
+ * Note: mutates 'doc' argument
+ * @param doc
  * @param path
  * @param virtualKey
  * @returns {Mongoose.Document}
  */
-PopulateExtended.migrateOnePopulation = function (docs, path, virtualKey) {
+PopulateExtended.migrateOnePopulation = function (doc, path, virtualKey) {
   var pathSplit = path.split(".");
   var refKey = pathSplit.slice(-1)[0];
   var refPath = pathSplit.slice(0, -1);
-  var refs = [];
-  var i = 0;
-  var l = 0;
-
-  docs = isArray(docs) ? docs : [docs];
-
-  for (l = docs.length; i < l; i++) {
-    refs = refs.concat(PopulateExtended.gatherRefs(docs[i], refPath));
-  }
+  var refs = PopulateExtended.gatherRefs(doc, refPath);
 
   // migrate population to the virtual property
-  for (i = 0, l = refs.length; i < l; i++) {
+  for (var i = 0, l = refs.length; i < l; i++) {
     if (typeof (refs[i][refKey] || {})._id != "undefined") {
       // doc is populated
       refs[i][virtualKey] = refs[i][refKey];
@@ -158,7 +157,7 @@ PopulateExtended.migrateOnePopulation = function (docs, path, virtualKey) {
     }
   }
 
-  return docs[0];
+  return doc;
 };
 
 /**
@@ -189,17 +188,15 @@ PopulateExtended.gatherRefs = function (doc, pathSplit) {
 
 /**
  *
- * @param docs
+ * @param doc
  * @param migrations
  * @param paths
  * @returns {Mongoose.Document}
  */
-PopulateExtended.migratePopulations = function (docs, migrations, paths) {
-  paths.forEach(function (path) {
-    docs = PopulateExtended.migrateOnePopulation(docs, path, migrations[path]);
+PopulateExtended.migratePopulations = function (doc, migrations, paths) {
+  return paths.map(function (path) {
+    return PopulateExtended.migrateOnePopulation(doc, path, migrations[path]);
   });
-
-  return docs;
 };
 
 /**

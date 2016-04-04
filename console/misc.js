@@ -42,27 +42,43 @@ module.exports = (app, args, callback) => {
   //}).then((synonyms) => {
   //  return synonyms;
 
+  //return Promise
+  //  .resolve()
+  //  .then(() => {
+  //    app.Timer.startPoint();
+  //    return app.modelsMongo.Lemma.findByLemma("car")
+  //  })
+  //  .then((lemma) => {
+  //    app.Timer.checkpoint();
+  //
+  //    let obj = lemma.toObject();
+  //
+  //    console.log(obj.info[0].sense[0].synsetId);
+  //    console.log(obj.info[0].sense[0].synset);
+  //
+  //    return lemma.populateSynonyms();
+  //  })
+  //  .then((lemma) => {
+  //    app.Timer.checkpoint();
+  //    app.Timer.print();
+  //
+  //    let obj = lemma.toObject();
+  //    return lemma;
+  //  })
+
   return Promise
     .resolve()
     .then(() => {
       app.Timer.startPoint();
-      return app.modelsMongo.Lemma.findByLemma("car")
+      return app.modelsMongo.Lemma.findAll({
+        limit: 1000
+      }).populate("info.sense.synsetId")
     })
-    .then((lemma) => {
-      app.Timer.checkpoint();
-
-      let obj = lemma.toObject();
-
-      console.log(obj.info[0].sense[0].synsetId);
-      console.log(obj.info[0].sense[0].synset);
-
-      return lemma.populateSynonyms();
-    })
-    .then((lemma) => {
+    .then((docs) => {
       app.Timer.checkpoint();
       app.Timer.print();
 
-      let obj = lemma.toObject();
-      return lemma;
+      //let obj = docs.toObject();
+      return docs;
     })
 };
