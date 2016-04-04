@@ -213,20 +213,13 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
         // reference to selected senses
         let senseRefs = _.filter(
           _.reduce(lemma.info, (result, info) => result.concat(info.sense), []),
-          (sense) => !_.isEmpty(sense.synsetId)
+          (sense) => !_.isEmpty(sense.synset)
         );
         let synsetIds = _.reduce(senseRefs, (result, sense) => {
           sense = sense.toObject();
 
-          // TODO - populate synset into different path
-          if (typeof sense.synsetId !== "undefined") {
-            if (typeof sense.synsetId._id !== "undefined") {
-              // synsetId is a populated model
-              result.push(sense.synsetId._id);
-            } else {
-              // synsetId is an ObjectId
-              result.push(sense.synsetId);
-            }
+          if (typeof sense.synset !== "undefined") {
+            result.push(sense.synset._id);
           }
 
           return result;
@@ -285,11 +278,11 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
           // loop through each synset and concat with synonyms
           _.each(senseRefs, (sense) => {
-            let id = sense.synsetId._id;
+            let id = sense.synset._id;
             let synonyms = _.isEmpty(indexed[id])
               ? []
               : indexed[id].synonyms;
-            sense.synsetId.set("synonyms", synonyms);
+            sense.synset.set("synonyms", synonyms);
           });
 
           return lemma;

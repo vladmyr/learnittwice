@@ -107,7 +107,6 @@ PopulateExtended.patchMongooseQuery = function (mongoose) {
             return cb(null, docs), resolve(docs)
           }
 
-          var mods = docs.modifiedPaths();
           docs = PopulateExtended.migratePopulations(docs, migrations, paths);
 
           return cb(null, docs), resolve(docs);
@@ -138,27 +137,52 @@ PopulateExtended.patchMongooseQuery = function (mongoose) {
  */
 PopulateExtended.migrateOnePopulation = function (docs, path, virtualKey) {
   var pathSplit = path.split(".");
-  var refs = PopulateExtended.gatherRefs(docs, pathSplit);
-  return docs;
+  var refKey = pathSplit.slice(-1)[0];
+  var refPath = pathSplit.slice(0, -1);
+  var refs = [];
+  var i = 0;
+  var l = 0;
+
+  docs = isArray(docs) ? docs : [docs];
+
+  for (l = docs.length; i < l; i++) {
+    refs = refs.concat(PopulateExtended.gatherRefs(docs[i], refPath));
+  }
+
+  // migrate population to the virtual property
+  for (i = 0, l = refs.length; i < l; i++) {
+    if (typeof (refs[i][refKey] || {})._id != "undefined") {
+      // doc is populated
+      refs[i][virtualKey] = refs[i][refKey];
+      refs[i][refKey] = refs[i][refKey]._id;
+    }
+  }
+
+  return docs[0];
 };
 
 /**
  * Helper function. Gather into array all the path references from document
- * @param {Mongoose.Model}  docs
+ * @param {Mongoose.Model}  doc
  * @param {Array.<String>}  pathSplit
  */
-PopulateExtended.gatherRefs = function (docs, pathSplit) {
+PopulateExtended.gatherRefs = function (doc, pathSplit) {
   var refs = [];
-  var subDoc = docs.get(pathSplit[0]);
+  var subDoc = doc[pathSplit[0]];
   var subPath = pathSplit.slice(1);
 
   if (subPath.length) {
-
-  } else {
+    if (isArray(subDoc)) {
+      subDoc.forEach(function (item) {
+        refs = refs.concat(PopulateExtended.gatherRefs(item, subPath));
+      });
+    } else {
+      refs = refs.concat(PopulateExtended.gatherRefs(subDoc, subPath));
+    }
+  } else if (subDoc) {
     // deepest nesting level
-    refs.push()
+    refs = refs.concat(isArray(subDoc) ? subDoc : [subDoc]);
   }
-  refs.concat(PopulateExtended.gatherRefs())
 
   return refs;
 };
@@ -216,7 +240,17 @@ PopulateExtended.prototype.processPaths = function (schema, parentPath) {
 
       // define virtual property if it was not done explicitly\
       if (path.length == 1 && typeof schema.virtual[virtualKey] == "undefined"){
-        schema.virtual(virtualKey);
+        var innerVirtualKey = "__" + virtualKey;
+        var virtual = schema.virtual(virtualKey);
+
+        // TODO - override get/set instead of redefining
+        virtual.get(function () {
+          return this[innerVirtualKey];
+        });
+
+        virtual.set(function (data) {
+          this[innerVirtualKey] = data;
+        });
       }
     } else if (typeof value.schema != "undefined") {
       // process nested schema
