@@ -11,6 +11,11 @@ const PROJECTION = {
   }
 };
 
+// Lemma model populations
+const POPULATION = {
+  SYNSET: "info.sense.synsetId"
+};
+
 /**
  * Lemma mongoose model
  * @param   {Function}              defineModel
@@ -83,6 +88,7 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
     staticMethods: {
       // static constants
       PROJECTION: PROJECTION,
+      POPULATION: POPULATION,
 
       findOneByStr(str) {
 
@@ -159,8 +165,7 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
         return self
           .findOne(query, projection)
-          //.deepPopulate("info.sense.synsetId")
-          .populate("info.sense.synsetId")
+          .populate(POPULATION.SYNSET)
       },
 
       /**
@@ -271,7 +276,6 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
             .aggregate(pipeline)
             .exec(callback);
         }).then((synsets) => {
-          let obj = lemma.toObject();
           // concat synonyms with synsets
           // get indexed by hexadecimal string representation of ObjectId
           let indexed = _.indexBy(synsets, "_id");
@@ -295,7 +299,7 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
        */
       populateTranslate(lngs) {
         let lemma = this;
-        let self = lemma.constructor;
+        let model = lemma.constructor;
 
 
       }

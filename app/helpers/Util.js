@@ -11,7 +11,7 @@ const _ = require("underscore");
 const slug = require("slug");
 const express = require("express");
 const MongooseDeepPopulate = require("mongoose-deep-populate");
-const MongoosePopuateExtended = require("./mongo/mongoose-populate-extended");
+const MongoosePopuateExtended = require("mongoose-populate-extended");
 
 /**
  * Http status codes

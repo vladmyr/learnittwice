@@ -62,7 +62,12 @@ module.exports = function(router, app){
       return Promise
         .resolve()
         .then(() => {
-          return app.modelsMongo.Lemma.findByLemma(req.params.lemma, req.params.language);
+          return app.modelsMongo.Lemma
+            .findByLemma(req.params.lemma, req.params.language)
+            .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
+        })
+        .then((lemma) => {
+          return lemma.populateSynonyms();
         })
         .then((lemma) => {
           return app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.OK, lemma.toObject());

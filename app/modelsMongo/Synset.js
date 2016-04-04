@@ -23,6 +23,17 @@ const Synset = (define, defineSchema, SchemaTypes) => {
           let self = this;
           self.__synonyms = synonyms;
         }
+      },
+      translation: {
+        get() {
+          let self = this;
+          _.isUndefined(self.__translation) && (self.__translation = []);
+          return self.__translation;
+        },
+        set(translation) {
+          let self = this;
+          self.__translation = translation;
+        }
       }
     },
     index: [{

@@ -78,7 +78,7 @@ module.exports = (app, args, callback) => {
       app.Timer.checkpoint();
       app.Timer.print();
 
-      //let obj = docs.toObject();
+      let obj = docs[0].toObject();
       return docs;
     })
 };
