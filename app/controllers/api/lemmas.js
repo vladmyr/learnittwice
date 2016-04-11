@@ -13,30 +13,48 @@ module.exports = function(router, app){
   app.Util.express.defineController({
     setup: function(){
       let self = this;
+      router
+      // - multiple lemmas
+        .get("/", self.getLemmas)
+        .get("/lng/:lng", self.parseQuery, self.getMany, self.respond)
+        // - single lemma
+        .get("/id/:id", self.parseQuery, self.getOneById, self.respond)
+        .get("/str/:str", self.parseQuery, self.getOneByStr, self.respond)
 
       router.path = "lemmas";
-      router
-        // Administration API
-        .get("/", self.getLemmas)
-        .get("/:language", self.getLemmas)
-        .get("/:language/:lemma", self.getLemma)
-        //.get("/:language/:lemma/translate/:translate");
+      //.get("/:id/translate/:to")
 
-      router.param("lemma", self.paramLemma);
-      router.param("language", self.paramLanguage);
-      router.param("translate", self.paramLanguage);
+      router.param("id", self.paramId);
+      router.param("str", self.paramStr);
     },
-    paramLanguage (req, res, next, lng) {
-      return _.toArray(app.LANGUAGE).indexOf(lng) !== -1
-        ? next()
-        : app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.BAD_REQUEST, "Language is not found");
+
+    paramId(req, res, next, id) {
+      if (app.mongoose.Types.ObjectId.isValid(id)) {
+        return next();
+      } else {
+        return app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.BAD_REQUEST, "Invalid parameter")
+      }
     },
-    paramLemma (req, res, next, lemma) {
-      return !_.isEmpty(lemma)
-        ? next()
-        : app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.BAD_REQUEST, "Lemma is not specified");
+
+    paramStr(req, res, next, str) {
+      if (_.isEmpty(str)) {
+        return app.Util.express.respond(req, app.Util.HTTP_STATUS_CODE.BAD_REQUEST, "String is empty")
+      } else {
+        return next();
+      }
     },
-    getLemmas(req, res, next) {
+
+    parseQuery(req, res, next) {
+      req.query = _.pick(req.query, "offset", "limit");
+      req.exec = Promise.resolve();
+      return next();
+    },
+
+    /**
+     * Get multiple lemmas
+     * TODO: find by language
+     */
+    getMany(req, res, next) {
       let options = {
         offset: req.query.offset,
         limit: req.query.limit
@@ -58,22 +76,63 @@ module.exports = function(router, app){
           )
         })
     },
-    getLemma(req, res, next) {
+
+    /**
+     * Get single lemma
+     */
+    getOneById(req, res, next) {
+      //req.exec = Promise
+      //  .resolve(req.exec)
+      //  .then(() => {
+      //    return app.modelsMongo.Lemma
+      //      .findOneById(req.params.lemma, req.params.language)
+      //      .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
+      //  })
+      //  .then((lemma) => {
+      //    return lemma.populateSynonyms();
+      //  });
+
+      return next();
+    },
+
+    getOneByStr(req, res, next) {
       return Promise
         .resolve()
         .then(() => {
           return app.modelsMongo.Lemma
-            .findByLemma(req.params.lemma, req.params.language)
+            .findOneByStr(req.params.lemma, req.params.language)
             .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
         })
         .then((lemma) => {
           return lemma.populateSynonyms();
         })
-        .then((lemma) => {
-          return app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.OK, lemma.toObject());
+    },
+
+    /**
+     * Send response message
+     */
+    respond(req, res, next) {
+      return Promise
+        .resolve(req.exec)
+        .then((data) => {
+          if (_.isArray(data)) {
+            return app.Util.mongoose.mapToObject(data)
+          } else {
+            return data.toObject();
+          }
+        })
+        .then((data) => {
+          return app.Util.express.respond(
+            res,
+            app.Util.HTTP_STATUS_CODE.OK,
+            data);
         })
         .catch((err) => {
-          return app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, err);
+          return app.Util.express.respond(
+            res,
+            app.Util.HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+            err
+          )
         })
     }
   })

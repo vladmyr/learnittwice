@@ -30,7 +30,7 @@
     "mongodb": "^2.1.7",
     "mongoose": "^4.4.6",
     "mongoose-deep-populate": "^2.0.3",
-    "mongoose-populate-extended": "0.0.3",
+    "mongoose-populate-extended": "0.0.4",
     "mysql": "^2.8.0",
     "sequelize": "^3.1.1",
     "serve-favicon": "^2.2.1",

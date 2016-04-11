@@ -90,10 +90,6 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
       PROJECTION: PROJECTION,
       POPULATION: POPULATION,
 
-      findOneByStr(str) {
-
-      },
-
       /**
        * Find all lemma documents
        * @param options
@@ -117,11 +113,9 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
       /**
        * Find all lemmas by language
        * @param {String}  language
-       * @param {Object}  [sort]
        * @returns {Promise.<Query>}
        */
-      // findManyByLng
-      findByLanguage(language, sort) {
+      findManyByLanguage(language) {
         let self = this;
         let query = {
           language: language
@@ -136,7 +130,6 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
         return self
           .find(query, projection)
-          .sort({ lemma: 1 })
       },
 
       /**
@@ -145,8 +138,7 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
        * @param   {String} [language]
        * @returns {Promise.<Query>}
        */
-      // findOneByLemma
-      findByLemma(lemma, language) {
+      findOneByStr(lemma, language) {
         let self = this;
         let query = {
           lemma: lemma
@@ -165,45 +157,6 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
         return self
           .findOne(query, projection)
-          .populate(POPULATION.SYNSET)
-      },
-
-      /**
-       * Find lemma synonyms by its string and language
-       * @param   {String} lemma
-       * @param   {String} language
-       * @returns {Promise.<Query>}
-       */
-      // findSynonymsByStr
-      findSynonyms(lemma, language) {
-        let self = this;
-
-        return self
-          // find lemma that matches string and language
-          .findOne({
-            lemma: lemma
-          }, {
-            info: {
-              $elemMatch: {
-                language: language
-              }
-            }
-          })
-          .then((instance) => {
-            // find synonyms by an array of synsets' ids
-            let synsetIds = _.map(instance.info[0].sense, sense => sense.synsetId);
-            let query = {
-              _id: {
-                $ne: instance._id
-              },
-              "info.language": language,
-              "info.sense.synsetId": {
-                $in: synsetIds
-              }
-            };
-
-            return self.find(query);
-          })
       }
     },
     instanceMethods: {
