@@ -5,6 +5,7 @@ const Express = require('./modules/Express');
 const Fs = require('./modules/Fs');
 const Mongoose = require('./modules/Mongoose');
 const Net = require('./modules/Net');
+const Sequelize = require('./modules/Sequelize');
 const String = require('./modules/String');
 const Typecast = require('./modules/Typecast');
 
@@ -15,6 +16,7 @@ Util.Express = Express;
 Util.Fs = Fs;
 Util.Mongoose = Mongoose;
 Util.Net = Net;
+Util.Sequelize = Sequelize;
 Util.String = String;
 Util.Typecast = Typecast;
 

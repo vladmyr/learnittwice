@@ -87,13 +87,13 @@ class DatabaseMongo {
       self.app[self.refDb].once("open", fulfill);
     }).then(() => {
       // initialize mongoose models
-      return self.app.Util.fs.scanDir(self.modelDir, (file, basename) => {
+      return self.app.Util.Fs.scanDir(self.modelDir, (file, basename) => {
         const filePath = path.join(self.modelDir, file);
         const modelContainer = require(filePath);
 
         self.app[self.refModel][basename] = modelContainer(
-          self.app.Util.mongoose.define(self.app),
-          self.app.Util.mongoose.defineSchema(self.app),
+          self.app.Util.Mongoose.define(self.app),
+          self.app.Util.Mongoose.defineSchema(self.app),
           self.app.mongoose.Schema.Types, self.app);
       });
     });

@@ -1,9 +1,24 @@
-"use strict";
+'use strict';
 
 // external dependencies
-const Promise = require("bluebird");
-const _ = require("underscore");
-const path = require("path");
+const Promise = require('bluebird');
+const _ = require('underscore');
+const path = require('path');
+
+// custom dependencies
+const LANGUAGE = alias.require('@file.const.language');
+const MEDIA_TYPE = alias.require('@file.const.mediaType');
+const VIEW_TEMPLATE = alias.require('@file.const.mediaType');
+const WORDFORM = alias.require('@file.const.wordform');
+const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
+
+const Util = alias.require('@file.helpers.util');
+const Timer = alias.require('@file.helpers.timer');
+const ENV = alias.require('@file.const.env');
+
+const MiddlewareInitializer = alias.require('@file.init.middleware');
+const DatabaseMongoInitializer = alias.require('@file.init.databaseMongo');
+const ExpressInitializer = alias.require('@file.init.express');
 
 /**
  * Server application initialization class
@@ -12,70 +27,50 @@ const path = require("path");
  * @typedef     {Object}  Application
  * @constructor
  */
-var Application = function(options){
-  let self = this;
+class Application {
+  constructor (config) {
+    let self = this;
 
-  const Util = require(path.join(options.dir.root, options.file.helpers.util));
-  const Util2 = require(path.join(options.dir.root, options.file.helpers.util, 'index.js'));
-  const Timer = require(path.join(options.dir.root, options.file.helpers.timer));
+    self.ENV = ENV;
+    self.LANGUAGE = LANGUAGE;
+    self.MEDIA_TYPE = MEDIA_TYPE;
+    self.VIEW_TEMPLATE = VIEW_TEMPLATE;
+    self.WORDFORM = WORDFORM;
+    self.HTTP_STATUS_CODE = HTTP_STATUS_CODE;
 
-  const ENV = require(path.join(options.dir.root, options.file.const.env));
+    self.env = ENV.DEVELOPMENT;
+    self.config = config;
+    self.expressApps = [];
+    self.Util = Util;
+    self.Timer = Timer.getInstance();
 
-  // Application object construction
-  self = _.extend({}, self, {
-    // constants
-    ENV: ENV,
-    LANGUAGE:         require(path.join(options.dir.root, options.file.const.language)),
-    MEDIA_TYPE:       require(path.join(options.dir.root, options.file.const.mediaType)),
-    VIEW_TEMPLATE:    require(path.join(options.dir.root, options.file.const.viewTemplate)),
-    WORDFORM:         require(path.join(options.dir.root, options.file.const.wordform)),
-    HTTP_STATUS_CODE: require(path.join(options.dir.root, options.file.const.httpStatusCode)),
+    // object construction for each express entryPoint
+    _.each(self.config.entryPoints, function(entryPoint){
+      self[entryPoint.alias] = {};
+    });
+  }
 
-    env: ENV.DEVELOPMENT,
-    config: options,
-    expressApps: [],
-    Util: Util,
-    Util2: Util2,
-    Timer: Timer.getInstance()
-    // TODO - httpParser
-  });
+  /**
+   * Initialize application instance
+   * @memberOf Application
+   * @return {Promise}
+   */
+  initialize () {
+    let self = this;
 
-  // object construction for each express entryPoint
-  _.each(self.config.entryPoints, function(entryPoint){
-    self[entryPoint.alias] = {};
-  });
-
-  return self;
-};
-
-/**
- * Initialize application instance
- * @memberOf Application
- * @return {Promise}
- */
-Application.prototype.initialize = function(){
-  var self = this;
-
-  var MiddlewareInitializer = require(path.join(self.config.dir.root, self.config.file.init.middleware));
-  var DatabaseInitializer = require(path.join(self.config.dir.root, self.config.file.init.database));
-  var DatabaseMongoInitializer = require(path.join(self.config.dir.root, self.config.file.init.databaseMongo));
-  var ExpressInitializer = require(path.join(self.config.dir.root, self.config.file.init.express));
-
-  return Promise.resolve().then(function() {
-    // initialize middleware
-    return new MiddlewareInitializer(self);
-  //}).then(function(){
-  //  // initialize database
-  //  return new DatabaseInitializer(self);
-  }).then(function(){
-    // initialize mongodb database
-    return new DatabaseMongoInitializer(self);
-  }).then(function(){
-    // initialize express
-    return new ExpressInitializer(self);
-  }).then(function(){
-    return self;
-  });
-};
+    return Promise.resolve().then(() => {
+      // initialize middleware
+      return new MiddlewareInitializer(self);
+    }).then(() => {
+      // initialize mongodb database
+      return new DatabaseMongoInitializer(self);
+    }).then(() => {
+      // initialize express
+      return new ExpressInitializer(self);
+    }).then(() => {
+      return self;
+    });
+  }
+}
 
 module.exports = Application;

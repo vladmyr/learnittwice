@@ -1,7 +1,7 @@
 'use strict'
 
 const expect = require('chai').expect;
-const Array = require('../../../../unitTest.js').Util2.Array;
+const Array = require('../../../../unitTest.js').Util.Array;
 
 describe('Array', () => {
   describe('#chuck', () => {

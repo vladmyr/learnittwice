@@ -24,7 +24,7 @@ var ServiceInitializer = function(app, callback){
     app[entryPoint.alias].services = {};
 
     // for each file in service directory
-    return app.Util.fs.scanDir(dir, {}, function(file, basename){
+    return app.Util.Fs.scanDir(dir, {}, function(file, basename){
       app[entryPoint.alias].services[basename] = require(path.join(dir, file))(self.app);
     });
   }, { concurrency: 1 }).nodeify(callback);

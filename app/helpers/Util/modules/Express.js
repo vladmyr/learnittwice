@@ -7,6 +7,7 @@ const express = require('express');
 const url = require('url');
 
 const Fs = require('./Fs');
+const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
 
 class Express {
   /**
@@ -109,7 +110,7 @@ class Express {
     // See https://google.github.io/styleguide/jsoncstyleguide.xml for details
     let json = {};
 
-    if (code === app.HTTP_STATUS_CODE.OK) {
+    if (code === HTTP_STATUS_CODE.OK) {
       // success
       json = _.extend({}, json, {
         data: data

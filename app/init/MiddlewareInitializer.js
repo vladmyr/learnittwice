@@ -16,7 +16,7 @@ var MiddlewareInitializer = function(app, callback){
   self.app = app;
   self.app.middleware = {};
 
-  return self.app.Util.fs.scanDir(middlewaresDir, function(file, basename){
+  return self.app.Util.Fs.scanDir(middlewaresDir, function(file, basename){
     return self.app.middleware[basename] = require(path.join(middlewaresDir, basename));
   }).nodeify(callback);
 };

@@ -3,59 +3,59 @@ environments:
   - staging
   - production
 dir:
-  app: /app
-  controllers: /app/controllers
-  domain: /app/domain
-  helpers: /app/helpers
-  init: /app/init
-  middlewares: /app/middlewares
-  models: /app/models
-  modelsMongo: /app/modelsMongo
-  services: /app/services
-  logs: /logs
-  console: /console
-  databaseQueries: /databaseQueries,
+  app: app
+  controllers: app/controllers
+  domain: app/domain
+  const: app/domain/const
+  helpers: app/helpers
+  init: app/init
+  middlewares: app/middlewares
+  models: app/models
+  modelsMongo: app/modelsMongo
+  logs: logs
+  console: console
+  databaseQueries: databaseQueries,
   backup:
     db:
-      mongo: /backup/mongo
+      mongo: backup/mongo
   entryPoint:
     api:
-      controller: /app/controllers/api
+      controller: app/controllers/api
 file:
-  app: /app/app
+  app: app/app
   const:
-    env: /app/domain/const/Env
-    language: /app/domain/const/Language
-    mediaType: /app/domain/const/MediaType
-    viewTemplate: /app/domain/const/ViewTemplate
-    wordform: /app/domain/const/Wordform
-    httpStatusCode: /app/domain/const/HttpStatusCode
+    env: app/domain/const/Env
+    language: app/domain/const/Language
+    mediaType: app/domain/const/MediaType
+    viewTemplate: app/domain/const/ViewTemplate
+    wordform: app/domain/const/Wordform
+    httpStatusCode: app/domain/const/HttpStatusCode
   console:
     common:
-      ArgumentsParser: /console/common/
+      ArgumentsParser: console/common/
   domain:
-    database: /app/domain/Database
-    databaseMongo: /app/domain/DatabaseMongo
-    expressApp: /app/domain/ExpressApp
+    database: app/domain/Database
+    databaseMongo: app/domain/DatabaseMongo
+    expressApp: app/domain/ExpressApp
   init:
-    middleware: /app/init/MiddlewareInitializer
-    database: /app/init/DatabaseInitializer
-    databaseMongo: /app/init/DatabaseMongoInitializer
-    service: /app/init/ServiceInitializer
-    express: /app/init/ExpressInitializer
-  postQueries: /app/domain/databaseQueries/postQueries.sql,
+    middleware: app/init/MiddlewareInitializer
+    database: app/init/DatabaseInitializer
+    databaseMongo: app/init/DatabaseMongoInitializer
+    service: app/init/ServiceInitializer
+    express: app/init/ExpressInitializer
+  postQueries: app/domain/databaseQueries/postQueries.sql,
   db:
     mongo:
-      populate: /app/db/mongo/populate
+      populate: app/db/mongo/populate
   log:
-    db: /logs/db.log
-    error: /logs/error.log
+    db: logs/db.log
+    error: logs/error.log
   helpers:
-    util: /app/helpers/Util
-    timer: /app/helpers/Timer
+    util: app/helpers/Util/index
+    timer: app/helpers/Timer
   entryPoint:
     api:
-      entryController: /app/controllers/api/_default
+      entryController: app/controllers/api/_default
 db:
   isEnabledLogging: true,
   isEnabledConsoleLoggin: true

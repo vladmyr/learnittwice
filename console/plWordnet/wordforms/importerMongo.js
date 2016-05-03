@@ -211,7 +211,7 @@ class ImporterMongo {
     let isSkipped = !!skipUntil;
 
     // read by line and save to database sequentially
-    return self.app.Util.fs.readFileByLine(self.options.source, (line) => {
+    return self.app.Util.Fs.readFileByLine(self.options.source, (line) => {
       let tmp = line.split(self.options.split);
 
       if (isSkipped) {
@@ -266,7 +266,7 @@ class ImporterMongo {
     let group = [];
 
     // read by line and save to database sequentially
-    return self.app.Util.fs.readFileByLine(self.options.source, (line) => {
+    return self.app.Util.Fs.readFileByLine(self.options.source, (line) => {
       let tmp = line.split(self.options.split);
 
       if (tmp[1] === base) {

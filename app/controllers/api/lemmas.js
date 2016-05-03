@@ -10,7 +10,7 @@ const _ = require("underscore");
  * @module
  */
 module.exports = function(router, app){
-  app.Util.express.defineController({
+  app.Util.Express.defineController({
     setup: function(){
       let self = this;
 
@@ -33,13 +33,13 @@ module.exports = function(router, app){
       if (app.mongoose.Types.ObjectId.isValid(id)) {
         return next();
       } else {
-        return app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.BAD_REQUEST, "Invalid parameter")
+        return app.Util.Express.respond(res, app.HTTP_STATUS_CODE.BAD_REQUEST, "Invalid parameter")
       }
     },
 
     paramStr(req, res, next, str) {
       if (_.isEmpty(str)) {
-        return app.Util.express.respond(req, app.Util.HTTP_STATUS_CODE.BAD_REQUEST, "String is empty")
+        return app.Util.Express.respond(req, app.HTTP_STATUS_CODE.BAD_REQUEST, "String is empty")
       } else {
         return next();
       }
@@ -70,10 +70,10 @@ module.exports = function(router, app){
           return Promise.map(lst, (item) => item.populateSynonyms())
         })
         .then((lst) => {
-          return app.Util.express.respond(
+          return app.Util.Express.respond(
             res,
-            app.Util.HTTP_STATUS_CODE.OK,
-            app.Util.modelMongo.mapToObject(lst)
+            app.HTTP_STATUS_CODE.OK,
+            app.Util.Mongoose.mapToObject(lst)
           )
         })
     },
@@ -115,21 +115,21 @@ module.exports = function(router, app){
         .resolve(req.exec)
         .then((data) => {
           if (_.isArray(data)) {
-            return app.Util.mongoose.mapToObject(data)
+            return app.Util.Mongoose.mapToObject(data)
           } else {
             return data.toObject();
           }
         })
         .then((data) => {
-          return app.Util.express.respond(
+          return app.Util.Express.respond(
             res,
-            app.Util.HTTP_STATUS_CODE.OK,
+            app.HTTP_STATUS_CODE.OK,
             data);
         })
         .catch((err) => {
-          return app.Util.express.respond(
+          return app.Util.Express.respond(
             res,
-            app.Util.HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+            app.HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
             err
           )
         })

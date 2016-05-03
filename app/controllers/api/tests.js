@@ -7,7 +7,7 @@
  * @module
  */
 module.exports = function(router, app){
-  app.Util.express.defineController({
+  app.Util.Express.defineController({
     setup: function(){
       router.path = "tests";
       router

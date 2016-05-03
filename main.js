@@ -1,18 +1,49 @@
-"use strict";
+'use strict';
 
-var _ = require("underscore");
-var config = require("config");
-var http = require("http");
-var Promise = require("bluebird");
-var path = require("path");
-var App = require(path.join(__dirname, config.file.app));
+const _ = require('underscore');
+const config = require('config');
+const http = require('http');
+const Promise = require('bluebird');
+const path = require('path');
+const Alias = require('require-alias');
+
+
+
+/**
+ * Generates paths' aliases
+ * @param   {Object}  configPaths paths to process
+ * @param   {String}  [keyPrefix]
+ * @returns {Object}
+ */
+const generateRequireAliases = (configPaths, keyPrefix) => {
+  keyPrefix = keyPrefix || '';
+
+  return _.reduce(configPaths, (stack, configPath, key) => {
+    if (typeof configPath == 'object') {
+      _.extend(stack, generateRequireAliases(configPath, `${keyPrefix}${key}.`));
+    } else if (typeof configPath == 'string') {
+      stack[`@${keyPrefix}${key}`] = configPath;
+    }
+
+    return stack;
+  }, {});
+};
+
+config.dir.root = __dirname;
+
+/** make require aliases accessible globally */
+global.alias = new Alias({
+  aliases: generateRequireAliases({ dir: config.dir, file: config.file })
+});
+
+
 
 /**
  * Main initialization
- * TODO - finish refactoring
  */
-config.dir.root = __dirname;
-var app = new App(config);
+const App = alias.require('@file.app');
+
+let app = new App(config);
 
 return Promise.resolve().then(function(){
   // initialize application
@@ -22,11 +53,11 @@ return Promise.resolve().then(function(){
   return Promise.each(app.expressApps, function(expressApp) {
     return new Promise(function (fulfill, reject) {
       // TODO - implement https protocol for different environments
-      return http.createServer(expressApp).listen(expressApp.get("port"), function (err) {
+      return http.createServer(expressApp).listen(expressApp.get('port'), function (err) {
         if (err) {
           return reject(err);
         } else {
-          console.log("Listening '" + expressApp.get("alias") + "' on port", expressApp.get("port"));
+          console.log('Listening "' + expressApp.get('alias') + '" on port', expressApp.get('port'));
           return fulfill();
         }
       });
@@ -38,29 +69,6 @@ return Promise.resolve().then(function(){
 //  // TODO - implement decent error handling with logging
 //  console.log(err, err.stack
 //    ? JSON.parse(err.stack)
-//    : "");
+//    : '');
 //  return process.exit(0);
-//});
-
-
-//}), {}, function(err, app){
-//  if(err){
-//    console.error(err, querystring.unescape(err.stack));
-//    return process.exit(0);
-//  }else{
-//    // process each entry point
-//    return Promise.each((app.expressApps || []), function(total, expressApp){
-//      //run api
-//      return new Promise(function(fulfill, reject){
-//        return http.createServer(expressApp).listen(expressApp.get("port"), function(err){
-//          if(err){
-//            return reject(err);
-//          }else{
-//            console.log("Listening '" + expressApp.get("alias") + "' on port", expressApp.get("port"));
-//            return fulfill();
-//          }
-//        });
-//      });
-//    }, { concurrency: 1 });
-//  }
 //});

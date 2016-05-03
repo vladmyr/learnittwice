@@ -100,8 +100,8 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
         options = options || {};
         options = _.extend({}, {
-          offset: app.Util.Typecast.Number(options.offset) || 0,
-          limit: app.Util.Typecast.Number(options.limit) || 20
+          offset: app.Util.Typecast.number(options.offset) || 0,
+          limit: app.Util.Typecast.number(options.limit) || 20
         });
 
         return self

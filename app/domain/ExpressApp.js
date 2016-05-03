@@ -23,12 +23,12 @@ var ExpressApp = function(entryPoint, app, options){
 
   expressApp.set("port", entryPoint.port);
   expressApp.set("alias", entryPoint.alias || "");
-  expressApp.set("allowedHosts", app.Util.express.mapAllowedHosts(entryPoint.allowedHosts));
+  expressApp.set("allowedHosts", app.Util.Express.mapAllowedHosts(entryPoint.allowedHosts));
 
   expressApp.use(bodyParser.json());
   expressApp.use(bodyParser.urlencoded({ extended: true }));
 
-  return self.app.Util.express.loadControllerHierarchy(entryPoint, express.Router(), self.app).then(function(router){
+  return self.app.Util.Express.loadControllerHierarchy(entryPoint, express.Router(), self.app).then(function(router){
     // load all controllers routes into express app
     expressApp.use(entryPoint.routeRoot, router);
     return expressApp;

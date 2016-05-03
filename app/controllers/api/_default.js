@@ -37,11 +37,11 @@ module.exports = (entryPoint, router, app) => {
     return router;
   }).then((router) => {
     // load each controller
-    return app.Util.express.loadAllNestedControllers(path.join(app.config.dir.root, entryPoint.dir.controller), entryPoint.file.entryController, router, app);
+    return app.Util.Express.loadAllNestedControllers(path.join(app.config.dir.root, entryPoint.dir.controller), entryPoint.file.entryController, router, app);
   }).then((router) => {
     // 404 route
     router.use("*", (req, res, next) => {
-      app.Util.express.respond(res, app.Util.HTTP_STATUS_CODE.NOT_FOUND, `No route for ${req.baseUrl}`)
+      app.Util.Express.respond(res, app.HTTP_STATUS_CODE.NOT_FOUND, `No route for ${req.baseUrl}`)
     });
 
     return router;

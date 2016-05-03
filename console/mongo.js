@@ -32,7 +32,7 @@ class Mongo extends ArgumentsParser {
     );
     let latestDumpDir = "";
 
-    return this.app.Util.fs.scanDir(backupDir, (filepath, basename) => {
+    return this.app.Util.Fs.scanDir(backupDir, (filepath, basename) => {
       if (_.isEmpty(latestDumpDir)) {
         latestDumpDir = basename;
       } else if (latestDumpDir < basename){

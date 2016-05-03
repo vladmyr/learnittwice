@@ -175,7 +175,7 @@ Database.prototype.initialize = function(){
       //})
     );
 
-    self.app.Util.fs.scanDir(self.modelDir, {}, function(file){
+    self.app.Util.Fs.scanDir(self.modelDir, {}, function(file){
       var filePath = path.join(self.modelDir, file);
       var container = require(filePath);
       var model;
@@ -244,7 +244,7 @@ Database.prototype.executeRawQueriesFromFile = function(filePath, replacements, 
   var self = this;
 
   //ToDo: remove comments from queries
-  return self.app.Util.fs.readFile(filePath, options).then(function(data){
+  return self.app.Util.Fs.readFile(filePath, options).then(function(data){
     return data.split(/;\s/).map(function(i){
       return i.trim();
     }).filter(function(i){

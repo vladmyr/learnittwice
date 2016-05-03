@@ -17,7 +17,7 @@ class FrequencyImporterMongo {
   import() {
     let self = this;
 
-    return self.app.Util.fs.readFileByLine(self.options.source, (line) => {
+    return self.app.Util.Fs.readFileByLine(self.options.source, (line) => {
 
     });
   }

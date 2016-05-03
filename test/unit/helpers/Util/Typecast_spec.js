@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const Typecast = require('../../../../unitTest.js').Util2.Typecast;
+const Typecast = require('../../../../unitTest.js').Util.Typecast;
 
 describe('Typecast', () => {
   describe('#number', () => {

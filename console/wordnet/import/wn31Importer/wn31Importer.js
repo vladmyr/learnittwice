@@ -139,10 +139,10 @@ var wn31Importer = function(app, options){
           });
         }, 0);
       }).then(function(){
-        return app.Util.db.commit(t);
+        return app.Util.Sequelize.commit(t);
       }).catch(function(err){
         console.log(err, (err.stack || ""));
-        return app.Util.db.rollback(t)
+        return app.Util.Sequelize.rollback(t)
       })
     });
   };
