@@ -14,6 +14,10 @@ class Array {
   static chunk(arr, chunkSize) {
     let chunks = [];
 
+    if (chunkSize < 1) {
+      chunkSize = arr.length;
+    }
+
     for(let chunkIndex = 0, totalChunks = Math.ceil(arr.length / chunkSize); chunkIndex < totalChunks; chunkIndex++){
       chunks.push(arr.slice(chunkIndex * chunkSize, chunkIndex * chunkSize + chunkSize));
     }

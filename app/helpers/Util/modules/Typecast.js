@@ -8,11 +8,12 @@ const _ = require('underscore');
  */
 class Typecast {
   /**
-   * Cast argument into number type
+   * Safely cast argument into number type.
+   * Note: if NaN, return 0
    * @param   {Mixed}   n
    * @returns {Number}
    */
-  static Number(n) {
+  static number(n) {
     let cast = Number(n);
 
     return _.isNaN(cast)

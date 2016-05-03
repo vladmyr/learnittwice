@@ -35,6 +35,7 @@ var Application = function(options){
     config: options,
     expressApps: [],
     Util: Util,
+    Util2: Util2,
     Timer: Timer.getInstance()
     // TODO - httpParser
   });

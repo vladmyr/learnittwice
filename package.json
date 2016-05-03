@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "jsdoc": "node_modules/.bin/jsdoc --configure ./config/jsdoc/jsdoc.json --verbose",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "jsdoc": "./node_modules/.bin/jsdoc --configure ./config/jsdoc/jsdoc.json --verbose",
+    "test": "./node_modules/.bin/mocha --require ./unitTest.js --recursive --harmony --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -42,7 +42,9 @@
     "xml2js": "^0.4.12"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "jsdoc": "^3.4.0",
-    "minami": "^1.1.1"
+    "minami": "^1.1.1",
+    "mocha": "^2.4.5"
   }
 }
