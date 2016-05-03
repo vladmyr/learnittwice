@@ -18,6 +18,9 @@ dir:
   backup:
     db:
       mongo: /backup/mongo
+  entryPoint:
+    api:
+      controller: /app/controllers/api
 file:
   app: /app/app
   const:
@@ -26,6 +29,7 @@ file:
     mediaType: /app/domain/const/MediaType
     viewTemplate: /app/domain/const/ViewTemplate
     wordform: /app/domain/const/Wordform
+    httpStatusCode: /app/domain/const/HttpStatusCode
   console:
     common:
       ArgumentsParser: /console/common/
@@ -49,14 +53,19 @@ file:
   helpers:
     util: /app/helpers/Util
     timer: /app/helpers/Timer
+  entryPoint:
+    api:
+      entryController: /app/controllers/api/_default
 db:
   isEnabledLogging: true,
   isEnabledConsoleLoggin: true
 entryPoints:
   api:
     routeRoot: /
+    # deprecated, in use
     dir:
       controller: /app/controllers/api
+    # deperecated, in use
     file:
       entryController: /app/controllers/api/_default
     alias: api

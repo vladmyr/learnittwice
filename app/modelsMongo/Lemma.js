@@ -157,6 +157,21 @@ const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
 
         return self
           .findOne(query, projection)
+      },
+
+      /**
+       * Find one lemma by its id
+       * @param   {ObjectId|String}  id
+       * @returns {Promise.<Query>}
+       */
+      findOneById(id) {
+        let self = this;
+        let query = {
+          _id: id
+        };
+
+        return self
+          .findOne(query)
       }
     },
     instanceMethods: {

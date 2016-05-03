@@ -13,9 +13,10 @@ module.exports = function(router, app){
   app.Util.express.defineController({
     setup: function(){
       let self = this;
+
       router
       // - multiple lemmas
-        .get("/", self.getLemmas)
+        .get("/", self.getMany)
         .get("/lng/:lng", self.parseQuery, self.getMany, self.respond)
         // - single lemma
         .get("/id/:id", self.parseQuery, self.getOneById, self.respond)
@@ -81,18 +82,16 @@ module.exports = function(router, app){
      * Get single lemma
      */
     getOneById(req, res, next) {
-      //req.exec = Promise
-      //  .resolve(req.exec)
-      //  .then(() => {
-      //    return app.modelsMongo.Lemma
-      //      .findOneById(req.params.lemma, req.params.language)
-      //      .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
-      //  })
-      //  .then((lemma) => {
-      //    return lemma.populateSynonyms();
-      //  });
-
-      return next();
+      req.exec = Promise
+        .resolve(req.exec)
+        .then(() => {
+          return app.modelsMongo.Lemma
+            .findOneById(req.params.lemma, req.params.language)
+            .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
+        })
+        .then((lemma) => {
+          return lemma.populateSynonyms();
+        });
     },
 
     getOneByStr(req, res, next) {

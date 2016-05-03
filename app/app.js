@@ -16,6 +16,7 @@ var Application = function(options){
   let self = this;
 
   const Util = require(path.join(options.dir.root, options.file.helpers.util));
+  const Util2 = require(path.join(options.dir.root, options.file.helpers.util, 'index.js'));
   const Timer = require(path.join(options.dir.root, options.file.helpers.timer));
 
   const ENV = require(path.join(options.dir.root, options.file.const.env));
@@ -24,10 +25,11 @@ var Application = function(options){
   self = _.extend({}, self, {
     // constants
     ENV: ENV,
-    LANGUAGE:       require(path.join(options.dir.root, options.file.const.language)),
-    MEDIA_TYPE:     require(path.join(options.dir.root, options.file.const.mediaType)),
-    VIEW_TEMPLATE:  require(path.join(options.dir.root, options.file.const.viewTemplate)),
-    WORDFORM:       require(path.join(options.dir.root, options.file.const.wordform)),
+    LANGUAGE:         require(path.join(options.dir.root, options.file.const.language)),
+    MEDIA_TYPE:       require(path.join(options.dir.root, options.file.const.mediaType)),
+    VIEW_TEMPLATE:    require(path.join(options.dir.root, options.file.const.viewTemplate)),
+    WORDFORM:         require(path.join(options.dir.root, options.file.const.wordform)),
+    HTTP_STATUS_CODE: require(path.join(options.dir.root, options.file.const.httpStatusCode)),
 
     env: ENV.DEVELOPMENT,
     config: options,
