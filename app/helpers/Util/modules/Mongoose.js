@@ -97,11 +97,13 @@ class Mongoose {
   }
 
   /**
-   * Map an array of mongoose model instances into plaint Object
-   * @param   {Array.<Mongoose.Model>}  arr
+   * Map single or an array of mongoose model instances into plaint Object
+   * @param   {Mongoose.Model|Array.<Mongoose.Model>}  arr
    * @returns {Array.<Object>}
    */
   static mapToObject(arr) {
+    arr = _.isArray(arr) ? arr : [arr];
+
     return _.map(arr, (item) => {
       return item.toObject();
     });

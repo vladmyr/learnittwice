@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
 const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
 
-const Promise = require("bluebird");
-const _ = require("underscore");
+const Promise = require('bluebird');
+const _ = require('underscore');
 
 const Util = alias.require('@file.helpers.util');
 
@@ -19,39 +19,36 @@ module.exports = function(router, app){
       let self = this;
 
       router
-      // - multiple lemmas
-        .get("/", self.getMany)
-        .get("/lng/:lng", self.parseQuery, self.getMany, self.respond)
-        // - single lemma
-        .get("/id/:id", self.parseQuery, self.getOneById, self.respond)
-        .get("/str/:str", self.parseQuery, self.getOneByStr, self.respond);
+        .get('/', self.getMany, self.respond)
+        //.get('/lng/:lng', self.parseQuery, self.getMany, self.respond)
+        //.get('/str/:str', self.parseQuery, self.getOneByStr, self.respond)
+        .get('/:id', self.parseQuery, self.getOneById, self.respond);
 
-      router.path = "lemmas";
-      //.get("/:id/translate/:to")
+      router.path = 'lemmas';
+      //.get('/:id/translate/:to')
 
-      router.param("id", self.paramId);
-      router.param("str", self.paramStr);
+      router.param('id', self.paramId);
+      router.param('str', self.paramStr);
     },
 
     paramId(req, res, next, id) {
       if (app.mongoose.Types.ObjectId.isValid(id)) {
         return next();
       } else {
-        return Util.Express.respond(res, HTTP_STATUS_CODE.BAD_REQUEST, "Invalid parameter")
+        return Util.Express.respond(res, HTTP_STATUS_CODE.BAD_REQUEST, 'Invalid parameter')
       }
     },
 
     paramStr(req, res, next, str) {
       if (_.isEmpty(str)) {
-        return Util.Express.respond(req, HTTP_STATUS_CODE.BAD_REQUEST, "String is empty")
+        return Util.Express.respond(req, HTTP_STATUS_CODE.BAD_REQUEST, 'String is empty')
       } else {
         return next();
       }
     },
 
     parseQuery(req, res, next) {
-      req.query = _.pick(req.query, "offset", "limit");
-      req.exec = Promise.resolve();
+      req.query = _.pick(req.query, 'offset', 'limit');
       return next();
     },
 
@@ -65,7 +62,7 @@ module.exports = function(router, app){
         limit: req.query.limit
       };
 
-      return Promise
+      Promise
         .resolve()
         .then(() => {
           return app.modelsMongo.Lemma.findAll(options)
@@ -74,11 +71,12 @@ module.exports = function(router, app){
           return Promise.map(lst, (item) => item.populateSynonyms())
         })
         .then((lst) => {
-          return Util.Express.respond(
-            res,
-            HTTP_STATUS_CODE.OK,
-            Util.Mongoose.mapToObject(lst)
-          )
+          req.setResponseBody(Util.Mongoose.mapToObject(lst));
+          return next();
+        })
+        .catch((e) => {
+          req.setResponseError(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, e);
+          return next();
         })
     },
 
@@ -86,16 +84,24 @@ module.exports = function(router, app){
      * Get single lemma
      */
     getOneById(req, res, next) {
-      req.exec = Promise
-        .resolve(req.exec)
+      return Promise
+        .resolve()
         .then(() => {
           return app.modelsMongo.Lemma
-            .findOneById(req.params.lemma, req.params.language)
+            .findOneById(req.params.id)
             .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
         })
         .then((lemma) => {
           return lemma.populateSynonyms();
-        });
+        })
+        .then((lemma) => {
+          req.setResponseBody(Util.Mongoose.mapToObject(lemma));
+          return next();
+        })
+        .catch((e) => {
+          req.setResponseError(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, e);
+          return next();
+        })
     },
 
     getOneByStr(req, res, next) {
@@ -117,29 +123,23 @@ module.exports = function(router, app){
     /**
      * Send response message
      */
-    respond(req, res, next) {
-      return Promise
-        .resolve(req.exec)
-        .then((data) => {
-          if (_.isArray(data)) {
-            return Util.Mongoose.mapToObject(data)
-          } else {
-            return data.toObject();
-          }
-        })
-        .then((data) => {
-          return Util.Express.respond(
-            res,
-            app.HTTP_STATUS_CODE.OK,
-            data);
-        })
-        .catch((err) => {
-          return app.Util.Express.respond(
-            res,
-            HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
-            err
-          )
-        })
+    respond(req, res) {
+      if (req.hasResponseError()) {
+        let responseError = req.getResponseError();
+
+        return Util.Express.respond(
+          res,
+          responseError.code || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          responseError.message
+        )
+      } else {
+        let responseBody = req.getResponseBody();
+
+        return Util.Express.respond(
+          res,
+          app.HTTP_STATUS_CODE.OK,
+          responseBody);
+      }
     }
   })
 };
