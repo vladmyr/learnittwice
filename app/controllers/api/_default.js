@@ -1,7 +1,11 @@
-"use strict";
+'use strict';
 
-var Promise = require("bluebird");
-var path = require("path");
+const ENV = alias.require('@file.const.env');
+
+const Promise = require('bluebird');
+const path = require('path');
+
+const Util = alias.require('@file.helpers.util');
 
 /**
  * Root of controller hierarchy for API route controllers
@@ -12,12 +16,11 @@ var path = require("path");
  * @module
  */
 module.exports = (entryPoint, router, app) => {
-  var ENV = require(path.join(app.config.dir.root, app.config.file.const.env));
-
   return Promise.resolve().then(() => {
-
     // place to implement routing logic, authentication, etc.
     router.use(function (req, res, next) {
+      Util.Express.extendRequest(req);
+
       // cross origin requests
       if (app.env === ENV.DEVELOPMENT) {
         // development environment
@@ -25,7 +28,7 @@ module.exports = (entryPoint, router, app) => {
         return next();
       } else {
         // non-development environment
-        if (app.middleware.CrossDomain.isOriginAllowed(entryPoint.get("allowedHosts"), req.headers.origin)) {
+        if (app.middleware.CrossDomain.isOriginAllowed(entryPoint.get('allowedHosts'), req.headers.origin)) {
           app.middleware.CrossDomain.setResponseHeaders(req, res);
           return next();
         } else {
@@ -40,7 +43,7 @@ module.exports = (entryPoint, router, app) => {
     return app.Util.Express.loadAllNestedControllers(path.join(app.config.dir.root, entryPoint.dir.controller), entryPoint.file.entryController, router, app);
   }).then((router) => {
     // 404 route
-    router.use("*", (req, res, next) => {
+    router.use('*', (req, res, next) => {
       app.Util.Express.respond(res, app.HTTP_STATUS_CODE.NOT_FOUND, `No route for ${req.baseUrl}`)
     });
 

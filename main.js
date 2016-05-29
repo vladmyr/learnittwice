@@ -9,14 +9,14 @@ const path = require('path');
 const global = require('./global');
 
 /**
- * Main initialization
+ * Server main initialization
  */
-const App = alias.require('@file.app');
+let app;
 
-let app = new App(config);
+return global(config).then(() => {
+  const App = alias.require('@file.app');
+  app = new App(config);
 
-return Promise.resolve().then(function(){
-  // initialize application
   return app.initialize();
 }).then(function(){
   // setup web servers for each entry point
@@ -33,12 +33,11 @@ return Promise.resolve().then(function(){
       });
     });
   }, { concurrency: 1 });
-})
-//  .catch(function(err){
-//  // error handling
-//  // TODO - implement decent error handling with logging
-//  console.log(err, err.stack
-//    ? JSON.parse(err.stack)
-//    : '');
-//  return process.exit(0);
-//});
+}).catch(function(err){
+  // error handling
+  // TODO - implement decent error handling with logging
+  console.log(err, err.stack
+    ? JSON.parse(err.stack)
+    : '');
+  return process.exit(0);
+});

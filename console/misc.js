@@ -5,6 +5,8 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
 
+const ResponsePromise = alias.require('@file.helpers.responsePromise');
+
 /**
  * Used just for testing different stuff
  * @param app
@@ -66,19 +68,31 @@ module.exports = (app, args, callback) => {
   //    return lemma;
   //  })
 
-  return Promise
-    .resolve()
-    .then(() => {
-      app.Timer.startPoint();
-      return app.modelsMongo.Lemma.findAll({
-        limit: 1000
-      }).populate("info.sense.synsetId")
-    })
-    .then((docs) => {
-      app.Timer.checkpoint();
-      app.Timer.print();
+  //return Promise
+  //  .resolve()
+  //  .then(() => {
+  //    app.Timer.startPoint();
+  //    return app.modelsMongo.Lemma.findAll({
+  //      limit: 1000
+  //    }).populate("info.sense.synsetId")
+  //  })
+  //  .then((docs) => {
+  //    app.Timer.checkpoint();
+  //    app.Timer.print();
+  //
+  //    let obj = docs[0].toObject();
+  //    return docs;
+  //  })
 
-      let obj = docs[0].toObject();
-      return docs;
-    })
+  let responsePromise = ResponsePromise();
+
+  responsePromise.resolve().then(() => {
+    return true;
+  }).then((v) => {
+    return false;
+  }).then((v) => {
+    return true;
+  }).then((v) => {
+    throw new Error(false);
+  });
 };

@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Before main global dependencies initialization module
+ */
+
 const _ = require('underscore');
 const config = require('config');
 const Alias = require('require-alias');
@@ -24,6 +28,11 @@ const generateRequireAliases = (configPaths, keyPrefix) => {
   }, {});
 };
 
+/**
+ * Global dependencies initialization
+ * @param   {Object}  confg
+ * @returns {Promise}
+ */
 module.exports = (confg) => {
   return Promise.resolve().then(() => {
     config.dir.root = __dirname;

@@ -1,5 +1,8 @@
 'use strict';
 
+const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
+
+const config = require('config');
 const _ = require('underscore');
 const Promise = require('bluebird');
 const path = require('path');
@@ -7,7 +10,7 @@ const express = require('express');
 const url = require('url');
 
 const Fs = require('./Fs');
-const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
+const extendRequest = require('./Express.extendRequest');
 
 class Express {
   /**
@@ -131,5 +134,7 @@ class Express {
     return res.status(code).json(json);
   }
 }
+
+Express.extendRequest = extendRequest;
 
 module.exports = Express;

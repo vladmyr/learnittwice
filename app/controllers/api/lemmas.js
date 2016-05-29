@@ -1,7 +1,11 @@
 "use strict";
 
+const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
+
 const Promise = require("bluebird");
 const _ = require("underscore");
+
+const Util = alias.require('@file.helpers.util');
 
 /**
  * Lemmas controller
@@ -10,7 +14,7 @@ const _ = require("underscore");
  * @module
  */
 module.exports = function(router, app){
-  app.Util.Express.defineController({
+  Util.Express.defineController({
     setup: function(){
       let self = this;
 
@@ -20,7 +24,7 @@ module.exports = function(router, app){
         .get("/lng/:lng", self.parseQuery, self.getMany, self.respond)
         // - single lemma
         .get("/id/:id", self.parseQuery, self.getOneById, self.respond)
-        .get("/str/:str", self.parseQuery, self.getOneByStr, self.respond)
+        .get("/str/:str", self.parseQuery, self.getOneByStr, self.respond);
 
       router.path = "lemmas";
       //.get("/:id/translate/:to")
@@ -33,13 +37,13 @@ module.exports = function(router, app){
       if (app.mongoose.Types.ObjectId.isValid(id)) {
         return next();
       } else {
-        return app.Util.Express.respond(res, app.HTTP_STATUS_CODE.BAD_REQUEST, "Invalid parameter")
+        return Util.Express.respond(res, HTTP_STATUS_CODE.BAD_REQUEST, "Invalid parameter")
       }
     },
 
     paramStr(req, res, next, str) {
       if (_.isEmpty(str)) {
-        return app.Util.Express.respond(req, app.HTTP_STATUS_CODE.BAD_REQUEST, "String is empty")
+        return Util.Express.respond(req, HTTP_STATUS_CODE.BAD_REQUEST, "String is empty")
       } else {
         return next();
       }
@@ -70,10 +74,10 @@ module.exports = function(router, app){
           return Promise.map(lst, (item) => item.populateSynonyms())
         })
         .then((lst) => {
-          return app.Util.Express.respond(
+          return Util.Express.respond(
             res,
-            app.HTTP_STATUS_CODE.OK,
-            app.Util.Mongoose.mapToObject(lst)
+            HTTP_STATUS_CODE.OK,
+            Util.Mongoose.mapToObject(lst)
           )
         })
     },
@@ -105,6 +109,9 @@ module.exports = function(router, app){
         .then((lemma) => {
           return lemma.populateSynonyms();
         })
+        .then((populated) => {
+
+        })
     },
 
     /**
@@ -115,13 +122,13 @@ module.exports = function(router, app){
         .resolve(req.exec)
         .then((data) => {
           if (_.isArray(data)) {
-            return app.Util.Mongoose.mapToObject(data)
+            return Util.Mongoose.mapToObject(data)
           } else {
             return data.toObject();
           }
         })
         .then((data) => {
-          return app.Util.Express.respond(
+          return Util.Express.respond(
             res,
             app.HTTP_STATUS_CODE.OK,
             data);
@@ -129,7 +136,7 @@ module.exports = function(router, app){
         .catch((err) => {
           return app.Util.Express.respond(
             res,
-            app.HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+            HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
             err
           )
         })

@@ -3,15 +3,17 @@
 var Promise = require("bluebird");
 var path = require("path");
 var config = require("config");
-var App = require(path.join(__dirname, config.file.app));
 
-config.dir.root = __dirname;
+const global = require('./global');
 
-var app = new App(config);
+/**
+ * Console main initialization
+ */
+let app;
 
-return Promise.resolve().then(() => {
-  // initialize application
-  return app.initialize();
+return global(config).then(() => {
+  const App = alias.require('@file.app');
+  app = new App(config);
 }).then(() => {
   var args = process.argv.splice(3);
   // execute console script

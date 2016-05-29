@@ -1,3 +1,4 @@
+namespace: learnittwice
 environments:
   - development
   - staging
@@ -53,6 +54,8 @@ file:
   helpers:
     util: app/helpers/Util/index
     timer: app/helpers/Timer
+    responsePromise: app/helpers/ResponsePromise
+    requestWrapper: app/helpers/RequestWrapper
   entryPoint:
     api:
       entryController: app/controllers/api/_default
