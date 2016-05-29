@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-const path = require("path");
-const Promise = require("bluebird");
-const mongoose = require("mongoose");
+const path = require('path');
+const Promise = require('bluebird');
+const mongoose = require('mongoose');
 
 /**
  * Mongodb database connector constructor
@@ -28,10 +28,10 @@ class DatabaseMongo {
       : self.modelDir = path.join(self.app.config.dir.root, self.app.config.dir.models);
     self.refDb = refDb
       ? refDb
-      : "db";
+      : 'db';
     self.refModel = refModel
       ? refModel
-      : "models";
+      : 'models';
     self.isInitialized = false;
     self.logger = null;
     self.loggerTransports = [];
@@ -58,22 +58,22 @@ class DatabaseMongo {
     return new Promise((fulfill, reject) => {
       // connect to mongodb database
       // check whether database reference is occupied
-      if(typeof self.app[self.refDb] !== "undefined"){
-        return reject(new Error("Database initialisation with refDb = '" + self.refDb + "' is already reserved"));
+      if(typeof self.app[self.refDb] !== 'undefined'){
+        return reject(new Error('Database initialisation with refDb = "' + self.refDb + '" is already reserved'));
       }
 
       // check whether database models' reference is occupied
-      if(typeof self.app[self.refModel] !== "undefined"){
-        return reject(new Error("Database initialisation with refModel = '" + self.refModel + "' is already reserved"));
+      if(typeof self.app[self.refModel] !== 'undefined'){
+        return reject(new Error('Database initialisation with refModel = "' + self.refModel + '" is already reserved'));
       }
 
-      if(typeof self.app.mongoose === "undefined"){
+      if(typeof self.app.mongoose === 'undefined'){
         self.app.mongoose = mongoose;
       }
 
       // turn on debugging in development environment
       if(self.app.env === self.app.ENV.DEVELOPMENT) {
-        self.app.mongoose.set("debug", true);
+        self.app.mongoose.set('debug', true);
       }
 
       // open connection
@@ -83,11 +83,15 @@ class DatabaseMongo {
       // set connection reference
       self.app[self.refDb] = self.app.mongoose.connection;
 
-      self.app[self.refDb].on("error", reject);
-      self.app[self.refDb].once("open", fulfill);
+      self.app[self.refDb].on('error', reject);
+      self.app[self.refDb].once('open', fulfill);
     }).then(() => {
+      let scanDirOptions = {
+        excludes: [path.basename(self.app.config.dir.modelsMongoNested)]
+      };
+
       // initialize mongoose models
-      return self.app.Util.Fs.scanDir(self.modelDir, (file, basename) => {
+      return self.app.Util.Fs.scanDir(self.modelDir, scanDirOptions, (file, basename) => {
         const filePath = path.join(self.modelDir, file);
         const modelContainer = require(filePath);
 

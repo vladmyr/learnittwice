@@ -13,9 +13,10 @@ dir:
   middlewares: app/middlewares
   models: app/models
   modelsMongo: app/modelsMongo
+  modelsMongoNested: app/modelsMongo/nestedSchemas
   logs: logs
   console: console
-  databaseQueries: databaseQueries,
+  databaseQueries: databaseQueries
   backup:
     db:
       mongo: backup/mongo
@@ -31,6 +32,7 @@ file:
     viewTemplate: app/domain/const/ViewTemplate
     wordform: app/domain/const/Wordform
     httpStatusCode: app/domain/const/HttpStatusCode
+    studyItemComponentType: app/domain/const/StudyItemComponentType
   console:
     common:
       ArgumentsParser: console/common/
@@ -44,6 +46,11 @@ file:
     databaseMongo: app/init/DatabaseMongoInitializer
     service: app/init/ServiceInitializer
     express: app/init/ExpressInitializer
+  modelsMongo:
+    nestedSchemas:
+      infoSchema: app/modelsMongo/nestedSchemas/InfoSchema
+      senseSchema: app/modelsMongo/nestedSchemas/SenseSchema
+      studyItemComponentSchema: app/modelsMongo/nestedSchemas/StudyItemComponentSchema
   postQueries: app/domain/databaseQueries/postQueries.sql,
   db:
     mongo:

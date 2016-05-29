@@ -26,32 +26,7 @@ const POPULATION = {
  * @module Lemma
  */
 const Lemma = (defineModel, defineSchema, SchemaTypes, app) => {
-  // nested sense schema
-  const senseSchema = defineSchema({
-    importId: Number,
-    synsetId: {
-      type: SchemaTypes.ObjectId,
-      ref: "synset",
-      asVirtual: "synset"
-    },
-    baseLemmaId: {
-      type: SchemaTypes.ObjectId,
-      required: true
-    },
-    wordform: Object,
-    tagCount: Number,
-    order: Number
-  });
-
-  // nested info schema
-  const infoSchema = defineSchema({
-    language: {
-      type: String,
-      required: true
-    },
-    order: Number,
-    sense: [senseSchema]  // denormalized embedded sense information
-  });
+  const infoSchema = alias.require('@file.modelsMongo.nestedSchemas.infoSchema')(defineSchema, SchemaTypes);
 
   return defineModel("lemma", {
     importId: {

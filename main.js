@@ -33,11 +33,12 @@ return global(config).then(() => {
       });
     });
   }, { concurrency: 1 });
-}).catch(function(err){
-  // error handling
-  // TODO - implement decent error handling with logging
-  console.log(err, err.stack
-    ? JSON.parse(err.stack)
-    : '');
-  return process.exit(0);
-});
+})
+//  .catch(function(err){
+//  // error handling
+//  // TODO - implement decent error handling with logging
+//  console.log(err, err.stack
+//    ? JSON.parse(err.stack)
+//    : '');
+//  return process.exit(0);
+//});
