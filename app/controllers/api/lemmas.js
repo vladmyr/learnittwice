@@ -19,10 +19,10 @@ module.exports = function(router, app){
       let self = this;
 
       router
-        .get('/', self.getMany, self.respond)
+        .get('/', self.getMany, Util.Express.respondHandler)
         //.get('/lng/:lng', self.parseQuery, self.getMany, self.respond)
         //.get('/str/:str', self.parseQuery, self.getOneByStr, self.respond)
-        .get('/:id', self.parseQuery, self.getOneById, self.respond);
+        .get('/:id', self.parseQuery, self.getOneById, Util.Express.respondHandler);
 
       router.path = 'lemmas';
       //.get('/:id/translate/:to')
@@ -118,28 +118,6 @@ module.exports = function(router, app){
         .then((populated) => {
 
         })
-    },
-
-    /**
-     * Send response message
-     */
-    respond(req, res) {
-      if (req.hasResponseError()) {
-        let responseError = req.getResponseError();
-
-        return Util.Express.respond(
-          res,
-          responseError.code || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
-          responseError.message
-        )
-      } else {
-        let responseBody = req.getResponseBody();
-
-        return Util.Express.respond(
-          res,
-          app.HTTP_STATUS_CODE.OK,
-          responseBody);
-      }
     }
   })
 };

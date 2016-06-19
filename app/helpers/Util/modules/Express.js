@@ -103,6 +103,25 @@ class Express {
     })
   }
 
+  static respondHandler (req, res) {
+    if (req.hasResponseError()) {
+      let responseError = req.getResponseError();
+
+      return Express.respond(
+        res,
+        responseError.code || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+        responseError.message
+      )
+    } else {
+      let responseBody = req.getResponseBody();
+
+      return Express.respond(
+        res,
+        HTTP_STATUS_CODE.OK,
+        responseBody);
+    }
+  }
+
   /**
    * Send response
    * @param {express.Response}  res

@@ -49,6 +49,7 @@ file:
   modelsMongo:
     nestedSchemas:
       infoSchema: app/modelsMongo/nestedSchemas/InfoSchema
+      inboxStudyItemSchema: app/modelsMongo/nestedSchemas/inboxStudyItemSchema
       senseSchema: app/modelsMongo/nestedSchemas/SenseSchema
       studyItemComponentSchema: app/modelsMongo/nestedSchemas/StudyItemComponentSchema
       studyItemSchema: app/modelsMongo/nestedSchemas/StudyItemSchema
