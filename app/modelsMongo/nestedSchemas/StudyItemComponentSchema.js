@@ -2,7 +2,7 @@
 
 const COMPONENT_TYPE = alias.require('@file.const.studyItemComponentType');
 
-const _ = require('userscore');
+const _ = require('underscore');
 
 module.exports = (defineSchema, SchemaTypes) => {
   const studyItemComponentSchema = defineSchema({

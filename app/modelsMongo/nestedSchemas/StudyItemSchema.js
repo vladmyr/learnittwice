@@ -11,10 +11,7 @@ module.exports = (defineSchema, SchemaTypes) => {
       type: studyItemComponentSchema,
       required: true
     },
-    wrongAnswers: [{
-      type: studyItemComponentSchema,
-      required: true
-    }],
+    wrongAnswers: [studyItemComponentSchema],
     audio: [studyItemComponentSchema],
     images: [studyItemComponentSchema]
   });

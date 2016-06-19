@@ -51,6 +51,8 @@ file:
       infoSchema: app/modelsMongo/nestedSchemas/InfoSchema
       senseSchema: app/modelsMongo/nestedSchemas/SenseSchema
       studyItemComponentSchema: app/modelsMongo/nestedSchemas/StudyItemComponentSchema
+      studyItemSchema: app/modelsMongo/nestedSchemas/StudyItemSchema
+      lessonSchema: app/modelsMongo/nestedSchemas/LessonSchema
   postQueries: app/domain/databaseQueries/postQueries.sql,
   db:
     mongo:
