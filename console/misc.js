@@ -4,8 +4,46 @@ const Promise = require("bluebird");
 const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
+const SchemaTypes = require('mongoose').Schema.Types;
 
-const ResponsePromise = alias.require('@file.helpers.responsePromise');
+
+class Parent {
+
+  constructor() {
+    this[Parent.SCHEMA_DESCRIPTOR] = {};
+
+    this._id = SchemaTypes.ObjectId;
+    this.parentAttribute = String;
+    this.parentAttribute2 = Number;
+  }
+
+  createMongooseSchema() {
+    if (!this.constructor[Parent.SCHEMA_DESCRIPTOR]) {
+      const props = Object.getOwnPropertyNames(this);
+      const attrs = props.filter((prop) => {
+        return [Parent.SCHEMA_DESCRIPTOR].indexOf(prop) == -1
+      });
+
+      this.constructor[Parent.SCHEMA_DESCRIPTOR] = _.pick(this, attrs);
+    }
+
+    return;
+  }
+}
+
+Parent.SCHEMA_DESCRIPTOR = 'schemaDescriptor';
+
+class Child extends Parent {
+  constructor(){
+    super();
+
+    this.childAttribute = Object;
+    this.childAttribute2 = Boolean;
+
+    this.createMongooseSchema();
+  }
+}
+
 
 /**
  * Used just for testing different stuff
@@ -15,6 +53,10 @@ const ResponsePromise = alias.require('@file.helpers.responsePromise');
  * @returns {*}
  */
 module.exports = (app, args, callback) => {
+  let child = new Child();
+
+  return Promise.resolve();
+
   // (+) get word definition
   //return Promise.resolve().then(() => {
   //  return app.modelsMongo.Lemma.findOne({
@@ -84,15 +126,15 @@ module.exports = (app, args, callback) => {
   //    return docs;
   //  })
 
-  let responsePromise = ResponsePromise();
-
-  responsePromise.resolve().then(() => {
-    return true;
-  }).then((v) => {
-    return false;
-  }).then((v) => {
-    return true;
-  }).then((v) => {
-    throw new Error(false);
-  });
+  //let responsePromise = ResponsePromise();
+  //
+  //responsePromise.resolve().then(() => {
+  //  return true;
+  //}).then((v) => {
+  //  return false;
+  //}).then((v) => {
+  //  return true;
+  //}).then((v) => {
+  //  throw new Error(false);
+  //});
 };

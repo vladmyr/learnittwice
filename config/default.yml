@@ -4,16 +4,20 @@ environments:
   - staging
   - production
 dir:
+  # deprecated
+  _models: app/_models
   app: app
   controllers: app/controllers
   domain: app/domain
+  entities: app/domain/entities
   const: app/domain/const
   helpers: app/helpers
   init: app/init
   middlewares: app/middlewares
-  models: app/models
   modelsMongo: app/modelsMongo
   modelsMongoNested: app/modelsMongo/nestedSchemas
+  models: app/models
+  services: app/services
   logs: logs
   console: console
   databaseQueries: databaseQueries
@@ -37,19 +41,28 @@ file:
     common:
       ArgumentsParser: console/common/
   domain:
+    entities:
+      baseEntity: app/domain/entities/_BaseEntity
+      language: app/domain/entities/Language
     database: app/domain/Database
     databaseMongo: app/domain/DatabaseMongo
     expressApp: app/domain/ExpressApp
+  services:
+    models:
+      inboxStudyService: app/services/models/InboxStudyService
   init:
     middleware: app/init/MiddlewareInitializer
     database: app/init/DatabaseInitializer
     databaseMongo: app/init/DatabaseMongoInitializer
     service: app/init/ServiceInitializer
     express: app/init/ExpressInitializer
+  schemas:
+  models:
   modelsMongo:
     nestedSchemas:
       infoSchema: app/modelsMongo/nestedSchemas/InfoSchema
       inboxStudyItemSchema: app/modelsMongo/nestedSchemas/inboxStudyItemSchema
+      inboxStudyCategorySchema: app/modelsMongo/nestedSchemas/inboxStudyCategorySchema
       senseSchema: app/modelsMongo/nestedSchemas/SenseSchema
       studyItemComponentSchema: app/modelsMongo/nestedSchemas/StudyItemComponentSchema
       studyItemSchema: app/modelsMongo/nestedSchemas/StudyItemSchema

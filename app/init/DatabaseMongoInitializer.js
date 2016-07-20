@@ -13,7 +13,7 @@ class DatabaseMongoInitializer {
   constructor(app) {
     const DatabaseMongo = require(path.join(app.config.dir.root, app.config.file.domain.databaseMongo));
     const databaseMongo = new DatabaseMongo(app, app.config,
-      path.join(app.config.dir.root, app.config.dir.modelsMongo),
+      path.join(app.config.dir.root, app.config.dir.models),
       "dbMongo",
       "modelsMongo");
 

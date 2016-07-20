@@ -1,6 +1,7 @@
 'use strict';
 
 const ENV = alias.require('@file.const.env');
+const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
 
 const Promise = require('bluebird');
 const path = require('path');
@@ -32,7 +33,7 @@ module.exports = (entryPoint, router, app) => {
           app.middleware.CrossDomain.setResponseHeaders(req, res);
           return next();
         } else {
-          return res.status(403).send();
+          return res.status(HTTP_STATUS_CODE.FORBIDDEN).send();
         }
       }
     });

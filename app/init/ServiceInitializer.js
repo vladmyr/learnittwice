@@ -1,33 +1,26 @@
-"use strict";
+'use strict';
 
 // external dependencies
-var Promise = require("bluebird");
-var _ = require("underscore");
-var path = require("path");
+const Promise = require('bluebird');
+const _ = require('underscore');
+const path = require('path');
+
+const Util = alias.require('@file.helpers.util');
 
 /**
  * Service initialization class
  * @param {Application} app
- * @param {Function}    [callback]
  * @constructor
  */
-var ServiceInitializer = function(app, callback){
-  var self = this;
+class ServiceInitializer {
+  constructor(app) {
+    let dir = path.join(app.config.dir.root, app.config.dir.services);
 
-  self.app = app;
-
-  return Promise.each([app.config.entryPoints.api], function(entryPoint){
-    // services directory
-    var dir = path.join(app.config.dir.root, app.config.dir.services, entryPoint.alias);
-
-    // application object construction for services
-    app[entryPoint.alias].services = {};
-
-    // for each file in service directory
-    return app.Util.Fs.scanDir(dir, {}, function(file, basename){
-      app[entryPoint.alias].services[basename] = require(path.join(dir, file))(self.app);
-    });
-  }, { concurrency: 1 }).nodeify(callback);
-};
+    return Util.Fs.scanDir(dir, (file, basename) => {
+      let container = require(path.join(dir, file));
+      app.services[basename] = new container(app);
+    })
+  }
+}
 
 module.exports = ServiceInitializer;

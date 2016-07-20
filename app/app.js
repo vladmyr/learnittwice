@@ -19,6 +19,7 @@ const ENV = alias.require('@file.const.env');
 const MiddlewareInitializer = alias.require('@file.init.middleware');
 const DatabaseMongoInitializer = alias.require('@file.init.databaseMongo');
 const ExpressInitializer = alias.require('@file.init.express');
+const ServiceInitializer = alias.require('@file.init.service');
 
 /**
  * Server application initialization class
@@ -43,6 +44,7 @@ class Application {
     self.expressApps = [];
     self.Util = Util;
     self.Timer = Timer.getInstance();
+    self.services = {};
 
     // object construction for each express entryPoint
     _.each(self.config.entryPoints, function(entryPoint){
@@ -59,6 +61,8 @@ class Application {
     let self = this;
 
     return Promise.resolve().then(() => {
+      return new ServiceInitializer(self);
+    }).then(() => {
       // initialize middleware
       return new MiddlewareInitializer(self);
     }).then(() => {
