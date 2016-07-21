@@ -15,7 +15,7 @@ class InboxStudyCategoriesService {
     return Promise
       .resolve()
       .then(() => {
-        return self.app.modelsMongo.InboxStudy.create(data)
+        return self.app.models.InboxStudy.create(data)
       })
   }
 }

@@ -1,7 +1,10 @@
-"use strict";
+'use strict';
 
-const Promise = require("bluebird");
-const path = require("path");
+const Promise = require('bluebird');
+const path = require('path');
+
+const DB_REF = 'dbMongo';
+const MODELS_REF = 'models';
 
 /**
  * Main mongodb database initialization
@@ -13,21 +16,11 @@ class DatabaseMongoInitializer {
   constructor(app) {
     const DatabaseMongo = require(path.join(app.config.dir.root, app.config.file.domain.databaseMongo));
     const databaseMongo = new DatabaseMongo(app, app.config,
-      path.join(app.config.dir.root, app.config.dir.models),
-      "dbMongo",
-      "modelsMongo");
+      path.join(app.config.dir.root, app.config.dir.modelsMongo),
+      DB_REF,
+      MODELS_REF);
 
     return databaseMongo.initialize();
-
-    //return databaseMongo.initialize().then((data) => {
-    //  const lemma = new app.modelsMongo.Lemma({
-    //    lemma: "car"
-    //  });
-    //
-    //  lemma.save();
-    //
-    //  return data
-    //});
   }
 }
 

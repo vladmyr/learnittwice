@@ -59,7 +59,7 @@ module.exports = (app, args, callback) => {
 
   // (+) get word definition
   //return Promise.resolve().then(() => {
-  //  return app.modelsMongo.Lemma.findOne({
+  //  return app.models.Lemma.findOne({
   //    lemma: "car"
   //  }).deepPopulate("info.sense.synsetId")
   //}).then((lemma) => {
@@ -71,14 +71,14 @@ module.exports = (app, args, callback) => {
 
   // (+) get word synonyms and translations
   //return Promise.resolve().then(() => {
-  //  return app.modelsMongo.Lemma.findOne({
+  //  return app.models.Lemma.findOne({
   //    lemma: "car",
   //    "info.language": app.LANGUAGE.ENGLISH
   //  })
   //}).then((lemma) => {
   //  let obj = lemma.toObject();
   //  let synsetIds = _.map(obj.info[0].sense, sense => sense.synsetId);
-  //  return app.modelsMongo.Lemma.find({
+  //  return app.models.Lemma.find({
   //    "info.sense.synsetId": {
   //      $in: synsetIds
   //    }
@@ -90,7 +90,7 @@ module.exports = (app, args, callback) => {
   //  .resolve()
   //  .then(() => {
   //    app.Timer.startPoint();
-  //    return app.modelsMongo.Lemma.findByLemma("car")
+  //    return app.models.Lemma.findByLemma("car")
   //  })
   //  .then((lemma) => {
   //    app.Timer.checkpoint();
@@ -114,7 +114,7 @@ module.exports = (app, args, callback) => {
   //  .resolve()
   //  .then(() => {
   //    app.Timer.startPoint();
-  //    return app.modelsMongo.Lemma.findAll({
+  //    return app.models.Lemma.findAll({
   //      limit: 1000
   //    }).populate("info.sense.synsetId")
   //  })

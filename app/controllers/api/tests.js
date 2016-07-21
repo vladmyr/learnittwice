@@ -1,5 +1,8 @@
 "use strict";
 
+const Promise = require('bluebird');
+const Util = alias.require('@file.helpers.util');
+
 /**
  * Tests controller
  * @param   {express.Router}  router
@@ -14,8 +17,10 @@ module.exports = function(router, app){
         .get("/", this.getJSON)
     },
     getJSON: function(req, res, next){
-      return res.json({
-        key: "value"
+      return Promise.resolve().then(() => {
+        return app.models.Language.find();
+      }).then((find) => {
+        return res.json(Util.Mongoose.mapToObject(find));
       });
     }
   })

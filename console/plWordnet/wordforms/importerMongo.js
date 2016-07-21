@@ -60,7 +60,7 @@ class ImporterMongo {
 
     !_.isEmpty(baseLemma) && (baseLemma = baseLemma.toObject());
 
-    return self.app.modelsMongo.Lemma.findOne({
+    return self.app.models.Lemma.findOne({
       lemma: strLemma
     }).then((lemma) => {
       if (_.isEmpty(lemma)) {
@@ -70,7 +70,7 @@ class ImporterMongo {
           ? baseLemma._id
           : _id;
 
-        lemma = new self.app.modelsMongo.Lemma({
+        lemma = new self.app.models.Lemma({
           _id: _id,
           importId: -1,
           lemma: strLemma,

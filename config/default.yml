@@ -16,7 +16,6 @@ dir:
   middlewares: app/middlewares
   modelsMongo: app/modelsMongo
   modelsMongoNested: app/modelsMongo/nestedSchemas
-  models: app/models
   services: app/services
   logs: logs
   console: console

@@ -65,7 +65,7 @@ module.exports = function(router, app){
       Promise
         .resolve()
         .then(() => {
-          return app.modelsMongo.Lemma.findAll(options)
+          return app.models.Lemma.findAll(options)
         })
         .then((lst) => {
           return Promise.map(lst, (item) => item.populateSynonyms())
@@ -87,9 +87,9 @@ module.exports = function(router, app){
       return Promise
         .resolve()
         .then(() => {
-          return app.modelsMongo.Lemma
+          return app.models.Lemma
             .findOneById(req.params.id)
-            .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
+            .populate(app.models.Lemma.POPULATION.SYNSET)
         })
         .then((lemma) => {
           return lemma.populateSynonyms();
@@ -108,9 +108,9 @@ module.exports = function(router, app){
       return Promise
         .resolve()
         .then(() => {
-          return app.modelsMongo.Lemma
+          return app.models.Lemma
             .findOneByStr(req.params.lemma, req.params.language)
-            .populate(app.modelsMongo.Lemma.POPULATION.SYNSET)
+            .populate(app.models.Lemma.POPULATION.SYNSET)
         })
         .then((lemma) => {
           return lemma.populateSynonyms();

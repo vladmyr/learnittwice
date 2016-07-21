@@ -115,12 +115,12 @@ class WordnetImporter {
       };
 
       // find or create synset
-      return self.app.modelsMongo.Synset.findOne({
+      return self.app.models.Synset.findOne({
         importId: sense.synsetid
       }).then((synset) => {
         if (_.isEmpty(synset)) {
           // synset does not exist - create one
-          synset = new self.app.modelsMongo.Synset({
+          synset = new self.app.models.Synset({
             _id: new self.app.mongoose.Types.ObjectId(),
             importId: sense.synsetid,
             definition: [{
@@ -139,7 +139,7 @@ class WordnetImporter {
         lemmaMap.info[0].sense.push(senseMap);
       });
     }, { concurrency: 1 }).then(() => {
-      let lemma = new self.app.modelsMongo.Lemma(lemmaMap);
+      let lemma = new self.app.models.Lemma(lemmaMap);
       return lemma.save();
     }).then((lemma) => {
       // notify subscribers on AFTER_IMPORT_ONE action
