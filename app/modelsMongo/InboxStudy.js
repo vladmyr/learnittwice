@@ -7,10 +7,21 @@ const InboxStudy = (defineModel, defineSchema, SchemaTypes, app) => {
       type: String,
       required: true
     },
-    slug: {
-      type: String
-    },
+    //slug: {
+    //  type: String,
+    //  required: true,
+    //  unique: true
+    //},
     items: [inboxStudyItemSchema]
+  }, {
+    //index: [{
+    //  fields: {
+    //    slug: 1
+    //  },
+    //  options: {
+    //    unique: true
+    //  }
+    //}]
   });
 };
 

@@ -4,6 +4,7 @@ const config = require('config');
 const _ = require('underscore');
 
 const ATTR = {
+  RESPONSE_CODE: 'responseCode',
   RESPONSE_BODY: 'responseBody',
   RESPONSE_ERROR: 'responseError'
 };
@@ -27,6 +28,19 @@ let getAttr = (req) => {
 
     return req[config.namespace][key];
   };
+};
+
+let setResponseCode = (req) => {
+  return (code) => {
+    req.setAttr(ATTR.RESPONSE_CODE, code);
+    return;
+  }
+};
+
+let getResponseCode = (req) => {
+  return () => {
+    return req.getAttr(ATTR.RESPONSE_CODE);
+  }
 };
 
 let setResponseBody = (req) => {
@@ -78,9 +92,15 @@ let extendRequest = (req) => {
   req.getAttr = getAttr(req);
   req.setAttr = setAttr(req);
 
+  // status code
+  req.setResponseCode = setResponseCode(req);
+  req.getResponseCode = getResponseCode(req);
+
+  // response body
   req.setResponseBody = setResponseBody(req);
   req.getResponseBody = getResponseBody(req);
 
+  // response error
   req.setResponseError = setResponseError(req);
   req.getResponseError = getResponseError(req);
 

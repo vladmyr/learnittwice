@@ -48,15 +48,15 @@ file:
     expressApp: app/domain/ExpressApp
   services:
     models:
-      inboxStudyService: app/services/models/InboxStudyService
+      inboxStudyService: app/services/InboxStudyService
+      inboxStudyItemService: app/services/InboxStudyItemService
+      lemmaService: app/services/LemmaServices
   init:
     middleware: app/init/MiddlewareInitializer
     database: app/init/DatabaseInitializer
     databaseMongo: app/init/DatabaseMongoInitializer
     service: app/init/ServiceInitializer
     express: app/init/ExpressInitializer
-  schemas:
-  models:
   modelsMongo:
     nestedSchemas:
       infoSchema: app/modelsMongo/nestedSchemas/InfoSchema

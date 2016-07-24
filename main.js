@@ -32,7 +32,7 @@ return global(config).then(() => {
         }
       });
     });
-  }, { concurrency: 1 });
+  });
 })
 //  .catch(function(err){
 //  // error handling

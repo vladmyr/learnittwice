@@ -7,6 +7,8 @@ const MongoosePopulateExtended = require("mongoose-populate-extended");
 // empty function
 const noop = () => {};
 
+const TO_JSON_OMIT = ['_id', '__v'];
+
 /**
  * Enhancements for Mongodb models
  * @model
@@ -98,14 +100,30 @@ class Mongoose {
 
   /**
    * Map single or an array of mongoose model instances into plaint Object
-   * @param   {Mongoose.Model|Array.<Mongoose.Model>}  arr
-   * @returns {Array.<Object>}
+   * @param   {Mongoose.Model|Array<Mongoose.Model>}  arr
+   * @returns {Array<Object>}
    */
   static mapToObject(arr) {
     arr = _.isArray(arr) ? arr : [arr];
 
     return _.map(arr, (item) => {
       return item.toObject();
+    });
+  }
+  static toObject(arr) {
+    return this.mapToObject(arr);
+  }
+
+  /**
+   * Map single or an array of mongoose model instances into JSON
+   * @param   {Mongoose.Model|Array<Mongoose.Model> arr
+   * @returns {Array<Object>}
+   */
+  static toJSON(arr) {
+    arr = _.isArray(arr) ? arr : [arr];
+
+    return _.map(arr, (item) => {
+      return _.omit(item.toJSON(), TO_JSON_OMIT);
     });
   }
 }

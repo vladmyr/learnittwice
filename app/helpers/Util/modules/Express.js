@@ -105,19 +105,26 @@ class Express {
 
   static respondHandler (req, res) {
     if (req.hasResponseError()) {
-      let responseError = req.getResponseError();
+      const responseError = req.getResponseError();
+      const responseCode = req.getResponseCode()
+        || responseError.code
+        || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR;
 
       return Express.respond(
         res,
-        responseError.code || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+        false,
+        responseCode,
         responseError.message
       )
     } else {
-      let responseBody = req.getResponseBody();
+      const responseCode = req.getResponseCode()
+        || HTTP_STATUS_CODE.OK;
+      const responseBody = req.getResponseBody();
 
       return Express.respond(
         res,
-        HTTP_STATUS_CODE.OK,
+        true,
+        responseCode,
         responseBody);
     }
   }
@@ -125,20 +132,21 @@ class Express {
   /**
    * Send response
    * @param {express.Response}  res
+   * @param {Boolean}           isSuccess
    * @param {Number}            code
    * @param {Object|String}     data
    */
-  static respond(res, code, data) {
+  static respond(res, isSuccess, code, data) {
     // See https://google.github.io/styleguide/jsoncstyleguide.xml for details
     let json = {};
 
-    if (code === HTTP_STATUS_CODE.OK) {
+    if (isSuccess) {
       // success
       json = _.extend({}, json, {
         data: data
       })
     } else {
-      if (typeof data.toString !== "undefined") {
+      if (data && typeof data.toString !== "undefined") {
         data = data.toString();
       }
 
@@ -150,7 +158,14 @@ class Express {
       })
     }
 
-    return res.status(code).json(json);
+    if (data) {
+      // send with body
+      return res.status(code).json(json);
+    } else {
+      // send without body
+      return res.status(code).send();
+    }
+
   }
 }
 
