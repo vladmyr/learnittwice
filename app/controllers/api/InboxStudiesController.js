@@ -17,24 +17,71 @@ module.exports = (router, app) => {
         .get('/', self.getMany, Util.Express.respondHandler)
         .get('/:id', self.getOne, Util.Express.respondHandler)
         .delete('/', self.deleteOne, Util.Express.respondHandler)
-        .post('/', self.post, Util.Express.respondHandler)
+        .put('/', self.createOne, Util.Express.respondHandler)
+        .post('/', self.updateOne, Util.Express.respondHandler)
     },
 
-    getMany(req, res, next){
-
+    paramId(req, res, next, id) {
+      if (app.mongoose.Types.ObjectId.isValid(id)) {
+        return next();
+      } else {
+        req.setResponseCode(HTTP_STATUS_CODE.BAD_REQUEST);
+        req.setResponseBody(new Error('Id is no valid'));
+        return next();
+      }
     },
 
-    getOne(req, res, next){
+    getMany(req, res, next) {
+      const { offset, limit } = req.body;
 
+      return Promise.resolve().then(() => {
+        return app.services.InboxStudyService.listCollections(offset, limit);
+      }).then((lstCollections) => {
+        req.setResponseBody(Util.Mongoose.toJSON(lstCollections));
+        return next()
+      }).catch((err) => {
+        req.setResponseError(err);
+        return next()
+      })
     },
 
-    post(req, res, next){
+    getOne(req, res, next) {
+      const { id } = req.params;
+
+      return Promise.resolve().then(() => {
+        return app.services.InboxStudyService.findCollection(id)
+      }).then((collection) => {
+        req.setResponseBody(Util.Mongoose.toJSON(collection));
+        return next();
+      }).catch((err) => {
+        req.setResponseError(err);
+        return next();
+      })
+    },
+
+    createOne(req, res, next) {
       const data = _.pick(req.body, 'name');
 
       return Promise.resolve().then(() => {
         return app.services.InboxStudyService.createCollection(data);
       }).then((collection) => {
         req.setResponseCode(HTTP_STATUS_CODE.CREATED);
+        req.setResponseBody(Util.Mongoose.toJSON(collection));
+        return next();
+      }).catch((err) => {
+        req.setResponseError(err);
+        return next();
+      })
+    },
+
+    updateOne(req, res, next) {
+      const id = req.body.id;
+      const data = _.pick(req.body, 'name');
+
+      return Promise.resolve().then(() => {
+        return app.services.InboxStudyService.updateCollection(id, data)
+      }).then((collection) => {
+        req.setResponseCode(HTTP_STATUS_CODE.OK);
         req.setResponseBody(Util.Mongoose.toJSON(collection));
         return next();
       }).catch((err) => {

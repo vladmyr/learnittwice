@@ -90,7 +90,7 @@ class Mongoose {
    * @param   {Application} app
    * @returns {Function}
    */
-  static define (app) {
+  static define(app) {
     return (modelName, schemaDescription, options) => {
       let schema = Mongoose.defineSchema(app)(schemaDescription, options);
 

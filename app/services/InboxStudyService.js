@@ -1,45 +1,57 @@
 'use strict';
 
-const _ = require('underscore');
-const Promise = require('bluebird');
-
 class InboxStudyService {
   constructor(app) {
     this.app = app;
   }
 
   /**
-   * Perform create operation on InboxStudy collection
-   * @param   {Object|Models.InboxStudy} data
-   * @returns {Promise.<T>}
+   * List collection stored in InboxStudy collection
+   * @param   {Number}  offset
+   * @param   {Number}  limit
+   * @returns {Query}
    */
-  createCollection(data) {
-    let self = this;
-
-    return Promise
-      .resolve()
-      .then(() => {
-        return self.app.models.InboxStudy.create(data);
-      })
+  listCollections(offset = 0, limit = 20) {
+    return this.app.models.InboxStudy.find().skip(offset).limit(limit);
   }
 
   /**
-   * Perform delete operation on InboxStudy collection
-   * @param   {String|Mongoose.Types.ObjectId} id
-   * @returns {Promise.<T>}
+   * Find single collection by id in InboxStudy collection
+   * @param   {Mongoose.Types.ObjectId} id
+   * @returns {Query}
+   */
+  findCollection(id) {
+    return this.app.models.InboxStudy.findById(id);
+  }
+
+  /**
+   * Perform create operation on InboxStudy collection
+   * @param   {Object|Models.InboxStudy} data
+   * @returns {Query}
+   */
+  createCollection(data) {
+    return this.app.models.InboxStudy.create(data);
+  }
+
+  /**
+   * Perform update operation on existing instance of InboxStudy collection
+   * @param   {Mongoose.Types.ObjectId} id
+   * @param   {Object}                  data
+   * @returns {Query}
+   */
+  updateCollection(id, data) {
+    return this.app.models.InboxStudy.findOneAndUpdate({
+      _id: id
+    }, data)
+  }
+
+  /**
+   * Perform delete operation on existing instance of InboxStudy collection
+   * @param   {Mongoose.Types.ObjectId} id
+   * @returns {Query}
    */
   deleteCollection(id) {
-    let self = this;
-
-    if (!self.app.mongoose.Types.ObjectId.isValid(id)) {
-      id = new self.app.mongoose.Types.ObjectId(id);
-    }
-
-    return Promise
-      .resolve()
-      .then(() => {
-        return self.app.models.InboxStudy.remove({ _id: id });
-      })
+    return this.app.models.InboxStudy.findByIdAndRemove(id);
   }
 }
 
