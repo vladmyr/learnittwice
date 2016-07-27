@@ -36,6 +36,7 @@ file:
     wordform: app/domain/const/Wordform
     httpStatusCode: app/domain/const/HttpStatusCode
     studyItemComponentType: app/domain/const/StudyItemComponentType
+    studyItemQuestionType: app/domain/const/StudyItemQuestionType
   console:
     common:
       ArgumentsParser: console/common/

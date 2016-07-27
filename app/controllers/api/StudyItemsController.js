@@ -25,7 +25,12 @@ module.exports = (router, app) => {
     },
 
     createOne(req, res, next) {
-      return next();
+      let self = this;
+
+      // TODO: continue from here...
+      return Promise.resolve().then(() => {
+        return next()
+      })
     },
 
     updateOne(req, res, next) {

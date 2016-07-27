@@ -7,8 +7,14 @@ class StudyItemService {
     this.app = app;
   }
 
-  insertOne(studyInboxId, data) {
-    return;
+  create(studyInboxId, data) {
+    return Promise.resolve().then(() => {
+      return this.app.models.StudyInbox.findOneAndUpdate({
+        _id: studyInboxId
+      }, {
+        $push: data
+      })
+    })
   }
 }
 
