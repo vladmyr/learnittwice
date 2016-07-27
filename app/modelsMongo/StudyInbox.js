@@ -1,8 +1,8 @@
 'use strict';
 
-const InboxStudy = (defineModel, defineSchema, SchemaTypes, app) => {
-  const inboxStudyItemSchema = alias.require('@file.modelsMongo.nestedSchemas.inboxStudyItemSchema')(defineSchema, SchemaTypes);
-  return defineModel('inboxStudy', {
+const StudyInbox = (defineModel, defineSchema, SchemaTypes, app) => {
+  const studyItemSchema = alias.require('@file.modelsMongo.nestedSchemas.studyItemSchema')(defineSchema, SchemaTypes);
+  return defineModel('studyInbox', {
     name: {
       type: String,
       required: true
@@ -12,7 +12,7 @@ const InboxStudy = (defineModel, defineSchema, SchemaTypes, app) => {
     //  required: true,
     //  unique: true
     //},
-    items: [inboxStudyItemSchema]
+    items: [studyItemSchema]
   }, {
     //index: [{
     //  fields: {
@@ -25,4 +25,4 @@ const InboxStudy = (defineModel, defineSchema, SchemaTypes, app) => {
   });
 };
 
-module.exports = InboxStudy;
+module.exports = StudyInbox;

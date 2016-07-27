@@ -48,7 +48,7 @@ file:
     expressApp: app/domain/ExpressApp
   services:
     models:
-      inboxStudyService: app/services/InboxStudyService
+      studyInboxService: app/services/InboxStudyService
       inboxStudyItemService: app/services/InboxStudyItemService
       lemmaService: app/services/LemmaServices
   init:

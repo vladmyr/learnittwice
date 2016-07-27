@@ -2,14 +2,14 @@
 
 const Promise = require('bluebird');
 
-class InboxStudyItemService {
+class StudyItemService {
   constructor(app) {
     this.app = app;
   }
 
-  insertOne(categoryId, data) {
+  insertOne(studyInboxId, data) {
     return;
   }
 }
 
-module.exports = InboxStudyItemService;
+module.exports = StudyItemService;

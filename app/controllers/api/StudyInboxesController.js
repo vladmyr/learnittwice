@@ -12,7 +12,7 @@ module.exports = (router, app) => {
     setup() {
       let self = this;
 
-      router.path = 'inbox_studies';
+      router.path = 'study_inboxes';
       router
         .get('/', self.getMany, Util.Express.respondHandler)
         .get('/:id', self.getOne, Util.Express.respondHandler)
@@ -35,7 +35,7 @@ module.exports = (router, app) => {
       const { offset, limit } = req.body;
 
       return Promise.resolve().then(() => {
-        return app.services.InboxStudyService.listCollections(offset, limit);
+        return app.services.StudyInboxService.listCollections(offset, limit);
       }).then((lstCollections) => {
         req.setResponseBody(Util.Mongoose.toJSON(lstCollections));
         return next()
@@ -49,7 +49,7 @@ module.exports = (router, app) => {
       const { id } = req.params;
 
       return Promise.resolve().then(() => {
-        return app.services.InboxStudyService.findCollection(id)
+        return app.services.StudyInboxService.findCollection(id)
       }).then((collection) => {
         req.setResponseBody(Util.Mongoose.toJSON(collection));
         return next();
@@ -63,7 +63,7 @@ module.exports = (router, app) => {
       const data = _.pick(req.body, 'name');
 
       return Promise.resolve().then(() => {
-        return app.services.InboxStudyService.createCollection(data);
+        return app.services.StudyInboxService.createCollection(data);
       }).then((collection) => {
         req.setResponseCode(HTTP_STATUS_CODE.CREATED);
         req.setResponseBody(Util.Mongoose.toJSON(collection));
@@ -79,7 +79,7 @@ module.exports = (router, app) => {
       const data = _.pick(req.body, 'name');
 
       return Promise.resolve().then(() => {
-        return app.services.InboxStudyService.updateCollection(id, data)
+        return app.services.StudyInboxService.updateCollection(id, data)
       }).then((collection) => {
         req.setResponseCode(HTTP_STATUS_CODE.OK);
         req.setResponseBody(Util.Mongoose.toJSON(collection));
@@ -94,7 +94,7 @@ module.exports = (router, app) => {
       const data = _.pick(req.body, 'id');
 
       return Promise.resolve().then(() => {
-        return app.services.InboxStudyService.deleteCollection(data.id);
+        return app.services.StudyInboxService.deleteCollection(data.id);
       }).then(() => {
         return next();
       }).catch((err) => {
