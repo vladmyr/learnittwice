@@ -14,21 +14,18 @@ const StudyInbox = (defineModel, defineSchema, SchemaTypes, app) => {
     //},
     items: [studyItemSchema]
   }, {
-    index: [
-      //{
-      //  fields: {
-      //    slug: 1
-      //  },
-      //  options: {
-      //    unique: true
-      //  }
-      //},
-      {
-        fields: {
-          'items.id': 1
-        }
+    index: [{
+      fields: {
+        'items.slug': 1
+      },
+      options: {
+        unique: true
       }
-    ]
+    }, {
+      fields: {
+        'items.id': 1
+      }
+    }]
   });
 };
 

@@ -66,7 +66,7 @@ module.exports = function(router, app){
           return next();
         })
         .catch((e) => {
-          req.setResponseError(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, e);
+          req.setResponseError(e);
           return next();
         })
     },
@@ -88,7 +88,7 @@ module.exports = function(router, app){
           return next();
         })
         .catch((e) => {
-          req.setResponseError(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, e);
+          req.setResponseError(e);
           return next();
         })
     }

@@ -25,11 +25,18 @@ module.exports = (router, app) => {
     },
 
     createOne(req, res, next) {
-      let self = this;
+      const studyInboxId = req.body.studyInboxId;
+      const data = _.pick(req.body, 'slug', 'questionType');
 
-      // TODO: continue from here...
       return Promise.resolve().then(() => {
-        return next()
+        return app.services.StudyItemService.create(studyInboxId, data);
+      }).then((instance) => {
+        req.setResponseCode(HTTP_STATUS_CODE.CREATED);
+        req.setResponseBody(Util.Mongoose.toJSON(instance));
+        return next();
+      }).catch((e) => {
+        req.setResponseError(e);
+        return next();
       })
     },
 
