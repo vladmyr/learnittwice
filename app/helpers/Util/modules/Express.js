@@ -110,22 +110,13 @@ class Express {
         || responseError.code
         || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR;
 
-      return Express.respond(
-        res,
-        false,
-        responseCode,
-        responseError.message
-      )
+      return Express.respond(res, false, responseCode, responseError.message);
     } else {
       const responseCode = req.getResponseCode()
         || HTTP_STATUS_CODE.OK;
       const responseBody = req.getResponseBody();
 
-      return Express.respond(
-        res,
-        true,
-        responseCode,
-        responseBody);
+      return Express.respond(res, true, responseCode, responseBody);
     }
   }
 
