@@ -45,7 +45,7 @@ module.exports = (entryPoint, router, app) => {
   }).then((router) => {
     // 404 route
     router.use('*', (req, res, next) => {
-      app.Util.Express.respond(res, app.HTTP_STATUS_CODE.NOT_FOUND, `No route for ${req.baseUrl}`)
+      Util.Express.respond(res, false, HTTP_STATUS_CODE.NOT_FOUND, `No route for ${req.baseUrl}`)
     });
 
     return router;
