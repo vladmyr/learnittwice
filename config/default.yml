@@ -44,6 +44,8 @@ file:
     entities:
       baseEntity: app/domain/entities/_BaseEntity
       language: app/domain/entities/Language
+    errors:
+      responseError: app/domain/errors/ResponseError
     database: app/domain/Database
     databaseMongo: app/domain/DatabaseMongo
     expressApp: app/domain/ExpressApp

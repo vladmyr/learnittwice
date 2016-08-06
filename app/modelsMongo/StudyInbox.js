@@ -16,14 +16,8 @@ const StudyInbox = (defineModel, defineSchema, SchemaTypes, app) => {
   }, {
     index: [{
       fields: {
+        '_id': 1,
         'items.slug': 1
-      },
-      options: {
-        unique: true
-      }
-    }, {
-      fields: {
-        'items.id': 1
       }
     }]
   });
