@@ -9,12 +9,15 @@ const Util = alias.require('@file.helpers.util');
 const ResponseError = alias.require('@file.domain.errors.responseError');
 
 module.exports = (router, app) => {
+  const StudyItemService = app.services.StudyItemService;
+
   Util.Express.defineController({
     setup() {
       let self = this;
 
       router.path = 'study_items';
       router
+        .get('/', self.getMany, Util.Express.respondHandler)
         .get('/:id', self.getOne, Util.Express.respondHandler)
         .put('/', self.createOne, Util.Express.respondHandler)
         .post('/', self.updateOne, Util.Express.respondHandler)
@@ -24,16 +27,40 @@ module.exports = (router, app) => {
     },
 
     paramId(req, res, next, id) {
-      if(app.mongoose.Types.OjbectId.isValid(id)) {
-        return next();
-      } else {
-        req.setResponseError(new ResponseError(HTTP_STATUS_CODE.BAD_REQUEST), 'id is not valid');
-        return next();
+      // FIXME: immediately send error response and skip further request execution
+      if(!app.mongoose.Types.ObjectId.isValid(id)) {
+        req.setResponseError(new ResponseError(HTTP_STATUS_CODE.BAD_REQUEST, 'id is not valid'));
       }
+
+      return next();
+    },
+
+    getMany(req, res, next) {
+      return Promise.resolve().then(() => {
+        return StudyItemService.list()
+      }).then((instances) => {
+        req.setResponseCode(HTTP_STATUS_CODE.OK);
+        req.setResponseBody(Util.Mongoose.toJSON(instances));
+        return next();
+      }).catch((e) => {
+        req.setResponseError(e);
+        return next();
+      })
     },
 
     getOne(req, res, next) {
-      return next();
+      const id = req.params.id;
+
+      return Promise.resolve().then(() => {
+        return StudyItemService.find(id)
+      }).then((instance) => {
+        req.setResponseCode(HTTP_STATUS_CODE.OK);
+        req.setResponseBody(Util.Mongoose.toJSON(instance));
+        return next();
+      }).catch((e) => {
+        req.setResponseError(e);
+        return next();
+      })
     },
 
     createOne(req, res, next) {
@@ -41,7 +68,7 @@ module.exports = (router, app) => {
       const data = _.pick(req.body, 'slug', 'questionType');
 
       return Promise.resolve().then(() => {
-        return app.services.StudyItemService.create(studyInboxId, data);
+        return StudyItemService.create(studyInboxId, data);
       }).then((instance) => {
         req.setResponseCode(HTTP_STATUS_CODE.CREATED);
         req.setResponseBody(Util.Mongoose.toJSON(instance));
@@ -58,7 +85,7 @@ module.exports = (router, app) => {
       const data = _.pick(req.body, 'slug', 'questionType', 'question', 'answer');
 
       return Promise.resolve().then(() => {
-        return app.services.StudyItemService.update(id, data);
+        return StudyItemService.update(id, data);
       }).then((instance) => {
         req.setResponseCode(HTTP_STATUS_CODE.OK);
         req.setResponseBody(Util.Mongoose.toJSON(instance));
@@ -73,9 +100,9 @@ module.exports = (router, app) => {
       const id = req.body.id;
 
       return Promise.resolve().then(() => {
-        return app.services.StudyItemService.delete(id);
+        return StudyItemService.delete(id);
       }).then(() => {
-        req.setResponseCode(HTTP_STATUS_CODE.OK);
+        req.setResponseCode(HTTP_STATUS_CODE.NO_CONTENT);
         return next();
       }).catch((e) => {
         req.setResponseError(e);

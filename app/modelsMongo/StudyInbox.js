@@ -7,17 +7,18 @@ const StudyInbox = (defineModel, defineSchema, SchemaTypes, app) => {
       type: String,
       required: true
     },
-    //slug: {
-    //  type: String,
-    //  required: true,
-    //  unique: true
-    //},
     items: [studyItemSchema]
   }, {
     index: [{
       fields: {
-        '_id': 1,
         'items.slug': 1
+      }
+    }, {
+      fields: {
+        'items.id': 1
+      },
+      options: {
+        unique: true
       }
     }]
   });

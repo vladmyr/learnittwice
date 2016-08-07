@@ -25,8 +25,8 @@ class Typecast {
   /**
    * Cast string representation of ObjectId into ObjectId instance
    * Note: throws and error if id is not valid ObjectId
-   * @param     {String}    id
-   * @returns   {ObjectId}
+   * @param     {String|Mongoose.Types.ObjectId}    id
+   * @returns   {Mongoose.Types.ObjectId}
    */
   static objectId(id) {
     const ObjectId = mongoose.Types.ObjectId;

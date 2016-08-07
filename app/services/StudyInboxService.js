@@ -12,7 +12,10 @@ class StudyInboxService {
    * @returns {Query}
    */
   listCollections(offset = 0, limit = 20) {
-    return this.app.models.StudyInbox.find().skip(offset).limit(limit);
+    return this.app.models.StudyInbox
+      .find({}, { items: 0 })
+      .skip(offset)
+      .limit(limit);
   }
 
   /**

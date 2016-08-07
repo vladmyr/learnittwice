@@ -4,6 +4,7 @@ const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
 
 const _ = require('underscore');
 const Promise = require('bluebird');
+
 const ResponseError = alias.require('@file.domain.errors.responseError');
 const Util = alias.require('@file.helpers.util');
 
@@ -12,6 +13,68 @@ class StudyItemService {
     this.app = app;
   }
 
+  /**
+   * List StudyItem instances
+   * @param   {String|Mongoose.Types.ObjectId}  [studyInboxId]
+   * @param   {Number}                          [offset]
+   * @param   {Number}                          [limit]
+   * @returns {Promise.<T>}
+   */
+  list(studyInboxId, offset = 0, limit = 20) {
+    let matchCriteria = {};
+    let pipeline;
+
+    if (studyInboxId) {
+      matchCriteria = {
+        _id: studyInboxId
+      }
+    }
+
+    pipeline = [{
+      $match: matchCriteria
+    }, {
+      $unwind: '$items'
+    }];
+
+    return Promise.fromCallback((callback) => {
+      return this.app.models.StudyInbox
+        .aggregate(pipeline)
+        .exec(callback);
+    }).then((instances) => {
+      return _.map(instances, (instance) => instance.items);
+    })
+  }
+
+  /**
+   * Find single StudyItem by its id
+   * @param   {String|Mongoose.Types.ObjectId} id
+   * @returns {Promise.<T>}
+   */
+  find(id) {
+    return this.app.models.StudyInbox.findOne({
+      items: {
+        $elemMatch: {
+          _id: id
+        }
+      }
+    }, {
+      _id: 0,
+      'items.$': 1
+    }).then((instances) => {
+      if (!instances || instances.items.length != 1) {
+        return Promise.reject(new ResponseError(HTTP_STATUS_CODE.NOT_FOUND, 'document is not found'));
+      }
+
+      return instances.items[0];
+    })
+  }
+
+  /**
+   * Create StudyItem record for particular StudyInbox
+   * @param   {String|Mongoose.Types.ObjectId}  studyInboxId
+   * @param   {Object}                          data
+   * @returns {Promise.<T>}
+   */
   create(studyInboxId, data) {
     return Promise.resolve().then(() => {
       return this.app.models.StudyInbox.findOne({
@@ -41,6 +104,12 @@ class StudyItemService {
     })
   }
 
+  /**
+   * Perform update operation on existing StudyItem document
+   * @param   {String|Mongoose.Types.ObjectId}  id
+   * @param   {Object}                          data
+   * @returns {Promise.<T>}
+   */
   update(id, data) {
     id = Util.Typecast.objectId(id);
 
@@ -114,6 +183,11 @@ class StudyItemService {
     });
   }
 
+  /**
+   * Perform delete operation on existing instance of StudyItem document
+   * @param   {String|Mongoose.Types.ObjectId}  id
+   * @returns {Promise.<T>}
+   */
   delete(id) {
     return Promise.resolve().then(() => {
       return this.app.models.StudyInbox.findOneAndUpdate({

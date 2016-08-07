@@ -5,8 +5,7 @@ module.exports = (defineSchema, SchemaTypes) => {
   const studyItem = defineSchema({
     slug: {
       type: String,
-      required: true,
-      unique: true
+      required: true
     },
     questionType: {
       type: String,

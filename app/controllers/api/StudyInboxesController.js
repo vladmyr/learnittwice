@@ -16,6 +16,7 @@ module.exports = (router, app) => {
       router
         .get('/', self.getMany, Util.Express.respondHandler)
         .get('/:id', self.getOne, Util.Express.respondHandler)
+        .get('/:id/items', self.getStudyItems, Util.Express.respondHandler)
         .delete('/', self.deleteOne, Util.Express.respondHandler)
         .put('/', self.createOne, Util.Express.respondHandler)
         .post('/', self.updateOne, Util.Express.respondHandler)
@@ -57,6 +58,10 @@ module.exports = (router, app) => {
         req.setResponseError(e);
         return next();
       })
+    },
+
+    getStudyItems(req, res, next) {
+      return next()
     },
 
     createOne(req, res, next) {

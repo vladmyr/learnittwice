@@ -53,7 +53,7 @@ class Mongoose {
       // define indexes
       if (_.isArray(options.index)) {
         _.each(options.index, (index) => {
-          schema.index(index.fields, index.options);
+          schema.index(index.fields, index.options || {});
         });
       }
 
@@ -116,14 +116,17 @@ class Mongoose {
 
   /**
    * Map single or an array of mongoose model instances into JSON
-   * @param   {Mongoose.Model|Array<Mongoose.Model> arr
+   * @param   {Mongoose.Model|Array<Mongoose.Model>} arr
    * @returns {Array<Object>}
    */
   static toJSON(arr) {
     arr = _.isArray(arr) ? arr : [arr];
 
     return _.map(arr, (item) => {
-      return _.omit(item.toJSON(), TO_JSON_OMIT);
+      return _.omit(item.toJSON
+        ? item.toJSON()
+        : item,
+      TO_JSON_OMIT);
     });
   }
 }
