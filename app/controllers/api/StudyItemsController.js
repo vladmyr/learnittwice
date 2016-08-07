@@ -75,7 +75,8 @@ module.exports = (router, app) => {
       return Promise.resolve().then(() => {
         return app.services.StudyItemService.delete(id);
       }).then(() => {
-
+        req.setResponseCode(HTTP_STATUS_CODE.OK);
+        return next();
       }).catch((e) => {
         req.setResponseError(e);
         return next();

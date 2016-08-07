@@ -113,6 +113,20 @@ class StudyItemService {
       return instance.items[0];
     });
   }
+
+  delete(id) {
+    return Promise.resolve().then(() => {
+      return this.app.models.StudyInbox.findOneAndUpdate({
+        'items._id': id
+      }, {
+        $pull: {
+          items: {
+            _id: id
+          }
+        }
+      })
+    })
+  }
 }
 
 module.exports = StudyItemService;
