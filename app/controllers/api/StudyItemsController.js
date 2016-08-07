@@ -48,7 +48,7 @@ module.exports = (router, app) => {
         return next();
       }).catch((e) => {
         if (e instanceof ResponseError) {
-          req.setResponseError(e.code, e.message)
+          req.setResponseError(e.httpCode, e.message)
         } else if (e instanceof Error) {
           req.setResponseError(e.message);
         }
@@ -70,7 +70,7 @@ module.exports = (router, app) => {
         return next();
       }).catch((e) => {
         if (e instanceof ResponseError) {
-          req.setResponseError(e.code, e.message)
+          req.setResponseError(e.httpCode, e.message)
         } else if (e instanceof Error) {
           req.setResponseError(e.message);
         }

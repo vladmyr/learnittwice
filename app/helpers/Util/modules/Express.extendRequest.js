@@ -57,19 +57,19 @@ let getResponseBody = (req) => {
 };
 
 let setResponseError = (req) => {
-  return (code, error) => {
+  return (httpCode, error) => {
     let message = error;
 
-    if (typeof code == 'string') {
-      message = code;
-      code = null;
-    } else if (typeof code.message == 'string') {
-      message = code.message;
-      code = null;
+    if (typeof httpCode == 'string') {
+      message = httpCode;
+      httpCode = null;
+    } else if (typeof httpCode.message == 'string') {
+      message = httpCode.message;
+      httpCode = null;
     }
 
     return req.setAttr(ATTR.RESPONSE_ERROR, {
-      code: code,
+      httpCode: httpCode,
       message: message
     });
   }

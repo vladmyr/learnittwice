@@ -107,7 +107,7 @@ class Express {
     if (req.hasResponseError()) {
       const responseError = req.getResponseError();
       const responseCode = req.getResponseCode()
-        || responseError.code
+        || responseError.httpCode
         || HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR;
 
       return Express.respond(res, false, responseCode, responseError.message);
@@ -124,10 +124,10 @@ class Express {
    * Send response
    * @param {express.Response}  res
    * @param {Boolean}           isSuccess
-   * @param {Number}            code
+   * @param {Number}            httpCode
    * @param {Object|String}     data
    */
-  static respond(res, isSuccess, code, data) {
+  static respond(res, isSuccess, httpCode, data) {
     // See https://google.github.io/styleguide/jsoncstyleguide.xml for details
     let json = {};
 
@@ -143,7 +143,7 @@ class Express {
 
       json = _.extend({}, json, {
         error: {
-          code: code,
+          code: httpCode,
           message: data
         }
       })
@@ -151,10 +151,10 @@ class Express {
 
     if (data) {
       // send with body
-      return res.status(code).json(json);
+      return res.status(httpCode).json(json);
     } else {
       // send without body
-      return res.status(code).send();
+      return res.status(httpCode).send();
     }
 
   }
