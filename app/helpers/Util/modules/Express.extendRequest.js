@@ -1,7 +1,11 @@
 'use strict';
 
+const HTTP_STATUS_CODE = alias.require('@file.const.httpStatusCode');
+
 const config = require('config');
 const _ = require('underscore');
+
+const ResponseError = alias.require('@file.domain.errors.responseError');
 
 const ATTR = {
   RESPONSE_CODE: 'responseCode',
@@ -57,15 +61,17 @@ let getResponseBody = (req) => {
 };
 
 let setResponseError = (req) => {
-  return (httpCode, error) => {
-    let message = error;
+  return (error) => {
+    let httpCode = HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR;
+    let message;
 
-    if (typeof httpCode == 'string') {
-      message = httpCode;
-      httpCode = null;
-    } else if (typeof httpCode.message == 'string') {
-      message = httpCode.message;
-      httpCode = null;
+    if (error instanceof ResponseError) {
+      httpCode = error.httpCode;
+      message = error.message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error == 'string') {
+      message = error;
     }
 
     return req.setAttr(ATTR.RESPONSE_ERROR, {

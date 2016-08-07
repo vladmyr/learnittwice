@@ -47,12 +47,7 @@ module.exports = (router, app) => {
         req.setResponseBody(Util.Mongoose.toJSON(instance));
         return next();
       }).catch((e) => {
-        if (e instanceof ResponseError) {
-          req.setResponseError(e.httpCode, e.message)
-        } else if (e instanceof Error) {
-          req.setResponseError(e.message);
-        }
-
+        req.setResponseError(e);
         return next();
       })
     },
@@ -69,18 +64,22 @@ module.exports = (router, app) => {
         req.setResponseBody(Util.Mongoose.toJSON(instance));
         return next();
       }).catch((e) => {
-        if (e instanceof ResponseError) {
-          req.setResponseError(e.httpCode, e.message)
-        } else if (e instanceof Error) {
-          req.setResponseError(e.message);
-        }
-
+        req.setResponseError(e);
         return next();
       })
     },
 
     deleteOne(req, res, next) {
-      return next();
+      const id = req.body.id;
+
+      return Promise.resolve().then(() => {
+        return app.services.StudyItemService.delete(id);
+      }).then(() => {
+
+      }).catch((e) => {
+        req.setResponseError(e);
+        return next();
+      })
     }
   })
 };

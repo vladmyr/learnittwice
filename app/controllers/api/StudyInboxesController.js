@@ -39,8 +39,8 @@ module.exports = (router, app) => {
       }).then((lstCollections) => {
         req.setResponseBody(Util.Mongoose.toJSON(lstCollections));
         return next()
-      }).catch((err) => {
-        req.setResponseError(err);
+      }).catch((e) => {
+        req.setResponseError(e);
         return next()
       })
     },
@@ -53,8 +53,8 @@ module.exports = (router, app) => {
       }).then((collection) => {
         req.setResponseBody(Util.Mongoose.toJSON(collection));
         return next();
-      }).catch((err) => {
-        req.setResponseError(err);
+      }).catch((e) => {
+        req.setResponseError(e);
         return next();
       })
     },
@@ -68,8 +68,8 @@ module.exports = (router, app) => {
         req.setResponseCode(HTTP_STATUS_CODE.CREATED);
         req.setResponseBody(Util.Mongoose.toJSON(collection));
         return next();
-      }).catch((err) => {
-        req.setResponseError(err);
+      }).catch((e) => {
+        req.setResponseError(e);
         return next();
       })
     },
@@ -84,8 +84,8 @@ module.exports = (router, app) => {
         req.setResponseCode(HTTP_STATUS_CODE.OK);
         req.setResponseBody(Util.Mongoose.toJSON(collection));
         return next();
-      }).catch((err) => {
-        req.setResponseError(err);
+      }).catch((e) => {
+        req.setResponseError(e);
         return next();
       })
     },
@@ -97,8 +97,8 @@ module.exports = (router, app) => {
         return app.services.StudyInboxService.deleteCollection(data.id);
       }).then(() => {
         return next();
-      }).catch((err) => {
-        req.setResponseError(err);
+      }).catch((e) => {
+        req.setResponseError(e);
         return next();
       })
     }
