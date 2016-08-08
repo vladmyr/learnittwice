@@ -25,6 +25,7 @@ class StudyItemService {
     let pipeline;
 
     if (studyInboxId) {
+      studyInboxId = Util.Typecast.ObjectId(studyInboxId);
       matchCriteria = {
         _id: studyInboxId
       }
@@ -114,7 +115,7 @@ class StudyItemService {
    * @returns {Promise.<T>}
    */
   update(id, data) {
-    id = Util.Typecast.objectId(id);
+    id = Util.Typecast.ObjectId(id);
 
     let orCriteria = [{
       'items._id': id

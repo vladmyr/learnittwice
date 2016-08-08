@@ -28,7 +28,7 @@ class Typecast {
    * @param     {String|Mongoose.Types.ObjectId}    id
    * @returns   {Mongoose.Types.ObjectId}
    */
-  static objectId(id) {
+  static ObjectId(id) {
     const ObjectId = mongoose.Types.ObjectId;
 
     if (id instanceof ObjectId) {

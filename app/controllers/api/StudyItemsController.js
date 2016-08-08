@@ -27,7 +27,7 @@ module.exports = (router, app) => {
     },
 
     paramId(req, res, next, id) {
-      // FIXME: immediately send error response and skip further request execution
+      // FIXME: immediately send error response and skip further computations
       if(!app.mongoose.Types.ObjectId.isValid(id)) {
         req.setResponseError(new ResponseError(HTTP_STATUS_CODE.BAD_REQUEST, 'id is not valid'));
       }
