@@ -41,7 +41,10 @@ class StudyItemService {
         .aggregate(pipeline)
         .exec(callback);
     }).then((instances) => {
-      return _.map(instances, (instance) => instance.items);
+      return _.map(instances, (instance) => {
+        instance.items.id = instance.items._id.toString();
+        return instance.items
+      });
     })
   }
 
