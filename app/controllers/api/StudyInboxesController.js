@@ -21,11 +21,13 @@ module.exports = (router, app) => {
         .get('/:id', self.getOne, Util.Express.respondHandler)
         .get('/:id/items', self.getStudyItems, Util.Express.respondHandler)
 
-        .delete('/', self.deleteOne, Util.Express.respondHandler)
+        .delete('/:id', self.deleteOne, Util.Express.respondHandler)
 
         .put('/', self.createOne, Util.Express.respondHandler)
 
-        .post('/', self.updateOne, Util.Express.respondHandler)
+        .post('/:id', self.updateOne, Util.Express.respondHandler)
+
+      router.param('id', self.paramId)
     },
 
     paramId(req, res, next, id) {
@@ -98,7 +100,7 @@ module.exports = (router, app) => {
     },
 
     updateOne(req, res, next) {
-      const id = req.body.id;
+      const id = req.params.id;
       const data = _.pick(req.body, 'name');
 
       return Promise.resolve().then(() => {
@@ -114,10 +116,10 @@ module.exports = (router, app) => {
     },
 
     deleteOne(req, res, next) {
-      const data = _.pick(req.body, 'id');
+      const id = req.params.id;
 
       return Promise.resolve().then(() => {
-        return StudyInboxService.deleteCollection(data.id);
+        return StudyInboxService.deleteCollection(id);
       }).then(() => {
         return next();
       }).catch((e) => {

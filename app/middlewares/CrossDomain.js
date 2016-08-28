@@ -10,9 +10,9 @@ var CrossDomain = (function(){
    */
   var setResponseHeaders = function(req, res){
     res.header("Access-Control-Allow-Origin", req.headers.origin);
-    req.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date");
     //res.header("Access-Control-Allow-Credentials", true);
-    //req.header("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date");
   };
 
   /**
