@@ -121,6 +121,7 @@ module.exports = (router, app) => {
       return Promise.resolve().then(() => {
         return StudyInboxService.deleteCollection(id);
       }).then(() => {
+        req.setResponseCode(HTTP_STATUS_CODE.NO_CONTENT);
         return next();
       }).catch((e) => {
         req.setResponseError(e);
