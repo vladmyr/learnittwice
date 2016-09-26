@@ -46,6 +46,7 @@ class Mongoose {
           virtuals: true
         },
         toJSON: {
+          // FIXME: find a way to omit only 'id' & '__v'
           virtuals: true
         }
       });

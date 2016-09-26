@@ -35,6 +35,10 @@ class StudyItemService {
       $match: matchCriteria
     }, {
       $unwind: '$items'
+    }, {
+      $skip: offset
+    }, {
+      $limit: limit
     }];
 
     return Promise.fromCallback((callback) => {

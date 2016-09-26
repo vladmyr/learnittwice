@@ -1,5 +1,8 @@
 'use strict';
 
+const QUESTION_TYPE = alias.require('@file.const.studyItemQuestionType');
+const _ = require('underscore');
+
 module.exports = (defineSchema, SchemaTypes) => {
   const studyItemComponentSchema = alias.require('@file.modelsMongo.nestedSchemas.studyItemComponentSchema')(defineSchema, SchemaTypes);
   const studyItem = defineSchema({
@@ -9,7 +12,8 @@ module.exports = (defineSchema, SchemaTypes) => {
     },
     questionType: {
       type: String,
-      required: true
+      required: true,
+      enum: _.values(QUESTION_TYPE)
     },
     question: {
       type: studyItemComponentSchema,

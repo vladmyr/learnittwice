@@ -8,52 +8,75 @@ class StudyInboxService {
   }
 
   /**
-   * List collection stored in StudyInbox collection
-   * @param   {Number}  offset
-   * @param   {Number}  limit
+   * Find collections stored in StudyInbox collection
+   * that match specified criteria
+   * @param   {Object}  [criteria={}]
+   * @param   {Number}  [offset=0]
+   * @param   {Number}  [limit=20]
+   * @param   {Number}  [itemsOffset=0]
+   * @param   {Number}  [itemsLimit=20]
    * @returns {Query}
+   * @private
    */
-  listCollections(offset = 0, limit = 20) {
-    return Promise.resolve().then(() => {
-      return Promise.props({
-        studyInbox: this.app.models.StudyInbox
-          .find({}, { items: 0 })
-          .skip(offset)
-          .limit(limit),
-        items: this.app.models.StudyInbox
-          .aggregate([
-            // 1. offset
-            { $skip: offset },
-            // 2. limit
-            { $limit: limit },
-            // 3. project only length of items array
-            { $project: {
-                _id: 0,
-                length: {
-                  $size: '$items'
-                }
-              }
+  _findCollections(
+    criteria = {},
+    offset = 0,
+    limit = 20,
+    itemsOffset = 0,
+    itemsLimit = 20
+  ) {
+    return Promise.props({
+      studyInboxes: this.app.models.StudyInbox
+        .find(criteria, {
+          name: 1,
+          items: {
+            $slice: [itemsOffset, itemsLimit]
+          },
+          'items._id': 1,
+          'items.slug': 1
+        })
+        .skip(offset)
+        .limit(limit),
+      itemsLengths: this.app.models.StudyInbox
+        .aggregate([{
+          $project: {
+            length: {
+              $size: '$items'
             }
-          ])
-      });
+          }
+        }])
     }).then((props) => {
-      props.studyInbox = props.studyInbox || [];
-      props.itemsLength = props.itemsLength || [];
+      props.studyInboxes = props.studyInboxes || [];
+      props.itemsLengths = props.itemsLengths || [];
 
-      return props.studyInbox.map((studyInbox, index) => {
-        studyInbox.itemsLength = props.items[index].length;
+      return props.studyInboxes.map((studyInbox, index) => {
+        studyInbox.itemsLength = props.itemsLengths[index].length;
         return studyInbox;
       })
     })
   }
 
   /**
-   * Find single collection by id in StudyInbox collection
-   * @param   {Mongoose.Types.ObjectId} id
+   * List collection stored in StudyInbox collection
+   * @param   {Number}  offset
+   * @param   {Number}  limit
+   * @param   {Number}  itemsOffset
+   * @param   {Number}  itemsLimit
    * @returns {Query}
    */
-  findCollection(id) {
-    return this.app.models.StudyInbox.findById(id);
+  listCollections(offset = 0, limit = 20, itemsOffset = 0, itemsLimit = 20) {
+    return this._findCollections({}, offset, limit, itemsOffset, itemsLimit);
+  }
+
+  /**
+   * Find single collection by id in StudyInbox collection
+   * @param   {Mongoose.Types.ObjectId} id
+   * @param   {Number}                  itemsOffset
+   * @param   {Number}                  itemsLimit
+   * @returns {Query}
+   */
+  findCollection(id, itemsOffset = 0, itemsLimit = 20) {
+    return this._findCollections({ _id: id }, 0, 1, itemsOffset, itemsLimit);
   }
 
   /**
