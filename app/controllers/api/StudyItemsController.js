@@ -20,8 +20,8 @@ module.exports = (router, app) => {
         .get('/', self.getMany, Util.Express.respondHandler)
         .get('/:id', self.getOne, Util.Express.respondHandler)
         .put('/', self.createOne, Util.Express.respondHandler)
-        .post('/', self.updateOne, Util.Express.respondHandler)
-        .delete('/', self.deleteOne, Util.Express.respondHandler);
+        .post('/:id', self.updateOne, Util.Express.respondHandler)
+        .delete('/:id', self.deleteOne, Util.Express.respondHandler);
 
       router.param('id', self.paramId);
     },
