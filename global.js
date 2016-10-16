@@ -5,7 +5,7 @@
  */
 
 const _ = require('underscore');
-const config = require('config');
+const Promise = require('bluebird');
 const Alias = require('require-alias');
 
 /**
@@ -30,10 +30,10 @@ const generateRequireAliases = (configPaths, keyPrefix) => {
 
 /**
  * Global dependencies initialization
- * @param   {Object}  confg
+ * @param   {Object}  config
  * @returns {Promise}
  */
-module.exports = (confg) => {
+module.exports = (config) => {
   return Promise.resolve().then(() => {
     config.dir.root = __dirname;
 
